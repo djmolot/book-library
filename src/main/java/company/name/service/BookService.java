@@ -1,10 +1,13 @@
 package company.name.service;
 
 import company.name.models.Book;
+import company.name.models.dto.BookRequestDto;
+import company.name.models.dto.BookResponseDto;
+
 import java.util.List;
 
 public interface BookService {
-    void createNewBook(String name, String author);
+    void createNewBook(BookRequestDto requestDto);
 
-    List<Book> getAll();
+    List<BookResponseDto> getAll();
 }

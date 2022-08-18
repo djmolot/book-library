@@ -5,7 +5,7 @@ import company.name.models.Book;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BookDaoImpl implements BookDao {
+public class BookDaoStorageImpl implements BookDao {
     @Override
     public void add(Book book) {
         int size = Storage.books.size();
