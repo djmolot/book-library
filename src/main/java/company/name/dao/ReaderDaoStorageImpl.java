@@ -5,30 +5,30 @@ import company.name.models.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReaderDaoImpl implements ReaderDao {
+public class ReaderDaoStorageImpl implements ReaderDao {
     @Override
     public void add(Reader reader) {
-        int size = Storage.readers.size();
+        int size = Storage.getReaders().size();
         reader.setId(size + 1L);
-        Storage.readers.add(reader);
+        Storage.getReaders().add(reader);
     }
 
     @Override
     public Reader get(Long id) {
-        return Storage.readers.stream().
+        return Storage.getReaders().stream().
                 filter(reader -> reader.getId().equals(id)).
                 findFirst().get();
     }
 
     @Override
     public List<Reader> getAll() {
-        return new ArrayList<>(Storage.readers);
+        return new ArrayList<>(Storage.getReaders());
     }
 
     @Override
     public void update(Reader reader) {
         Reader readerFromDB = get(reader.getId());
-        Storage.readers.remove(readerFromDB);
+        Storage.getReaders().remove(readerFromDB);
         add(reader);
     }
 }

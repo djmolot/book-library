@@ -8,27 +8,27 @@ import java.util.List;
 public class BookDaoStorageImpl implements BookDao {
     @Override
     public void add(Book book) {
-        int size = Storage.books.size();
+        int size = Storage.getBooks().size();
         book.setId(size + 1L);
-        Storage.books.add(book);
+        Storage.getBooks().add(book);
     }
 
     @Override
     public Book get(Long id) {
-        return Storage.books.stream().
+        return Storage.getBooks().stream().
                 filter(book -> book.getId().equals(id)).
                 findFirst().get();
     }
 
     @Override
     public List<Book> getAll() {
-        return new ArrayList<>(Storage.books);
+        return new ArrayList<>(Storage.getBooks());
     }
 
     @Override
     public void update(Book book) {
         Book bookFromDB = get(book.getId());
-        Storage.books.remove(bookFromDB);
+        Storage.getBooks().remove(bookFromDB);
         add(book);
     }
 }
