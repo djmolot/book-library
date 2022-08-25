@@ -13,13 +13,32 @@ import company.name.service.ReaderServiceImpl;
 import java.util.Scanner;
 
 public class Main {
-    private static final String LINE_DELIMITER =
-            "-----------------------------------------------------------------------------";
+    private static final BookDao bookDao = new BookDaoStorageImpl();
+    private static final BookService bookService = new BookServiceImpl(bookDao);
+    private static final ReaderDao readerDao = new ReaderDaoStorageImpl();
+    private static final ReaderService readerService = new ReaderServiceImpl(readerDao);
 
     public static void main(String[] args) {
-        BookDao bookDao = new BookDaoStorageImpl();
-        BookService bookService = new BookServiceImpl(bookDao);
 
+        prepareLibraryData();
+
+        Scanner scanner = new Scanner(System.in);
+        while(true) {
+            printLibraryMenu();
+            String command = scanner.nextLine();
+            if(command.equals("1")) {
+                bookService.getAll().forEach(System.out::println);
+            } else if(command.equals("2")) {
+                readerService.getAll().forEach(System.out::println);
+            } else if(command.toUpperCase().equals("EXIT")) {
+                System.exit(0);
+            } else {
+                System.out.println("Unknown command. Please try again.");
+            }
+        }
+    }
+
+    private static void prepareLibraryData() {
         Book book1 = new Book();
         book1.setAuthor("Herbert Schildt");
         book1.setName("Java. The Complete Reference. Twelfth Edition");
@@ -35,9 +54,6 @@ public class Main {
         book3.setName("Data Structures And Algorithms Made Easy In JAVA");
         bookService.createNewBook(book3);
 
-        ReaderDao readerDao = new ReaderDaoStorageImpl();
-        ReaderService readerService = new ReaderServiceImpl(readerDao);
-
         Reader reader1 = new Reader();
         reader1.setName("Zhirayr Hovik");
         readerService.createNewReader(reader1);
@@ -49,6 +65,11 @@ public class Main {
         Reader reader3 = new Reader();
         reader3.setName("Ruben Nazaret");
         readerService.createNewReader(reader3);
+    }
+
+    public static void printLibraryMenu() {
+        String lineDelimiter =
+                "-----------------------------------------------------------------------------";
 
         var greetingMessage = """
         WELCOME TO THE LIBRARY!
@@ -58,26 +79,8 @@ public class Main {
         TYPE “EXIT” TO STOP THE PROGRAM AND EXIT!
         """;
 
-        Scanner scanner = new Scanner(System.in);
-        while(true) {
-            System.out.println(LINE_DELIMITER);
-            System.out.print(greetingMessage);
-            System.out.println(LINE_DELIMITER);
-
-            String command = scanner.nextLine();
-            if(command.equals("1")) {
-                bookService.getAll().stream()
-                        .map(book -> book.getId() + ". " + book.getAuthor() + ". \"" + book.getName() + ".\"")
-                        .forEach(System.out::println);
-            } else if(command.equals("2")) {
-                readerService.getAll().stream()
-                        .map(reader -> reader.getId() + ". " + reader.getName())
-                        .forEach(System.out::println);
-            } else if(command.toUpperCase().equals("EXIT")) {
-                System.exit(0);
-            } else {
-                System.out.println("Unknown command. Please try again.");
-            }
-        }
+        System.out.println(lineDelimiter);
+        System.out.print(greetingMessage);
+        System.out.println(lineDelimiter);
     }
 }
