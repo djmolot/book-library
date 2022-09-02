@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookDaoStorageImpl implements BookDao {
+
     @Override
     public void add(Book book) {
         int size = Storage.getBooks().size();
@@ -25,10 +26,4 @@ public class BookDaoStorageImpl implements BookDao {
         return new ArrayList<>(Storage.getBooks());
     }
 
-    @Override
-    public void update(Book book) {
-        Book bookFromDB = get(book.getId());
-        Storage.getBooks().remove(bookFromDB);
-        add(book);
-    }
 }

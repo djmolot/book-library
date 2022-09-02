@@ -1,6 +1,8 @@
 package company.name.dao;
 
 import company.name.models.Book;
+import company.name.models.Reader;
+
 import java.util.List;
 
 public interface BookDao {
@@ -9,6 +11,4 @@ public interface BookDao {
     Book get(Long id);
 
     List<Book> getAll();
-
-    void update(Book book);
 }

@@ -6,6 +6,8 @@ import java.util.List;
 public interface ReaderService {
     void createNewReader(Reader reader);
 
+    Reader get(Long id);
+
     List<Reader> getAll();
 
 }

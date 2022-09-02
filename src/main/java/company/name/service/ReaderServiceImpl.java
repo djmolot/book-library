@@ -1,6 +1,7 @@
 package company.name.service;
 
 import company.name.dao.ReaderDao;
+import company.name.db.Storage;
 import company.name.models.Reader;
 import java.util.List;
 
@@ -14,6 +15,12 @@ public class ReaderServiceImpl implements ReaderService {
     @Override
     public void createNewReader(Reader reader) {
         readerDao.add(reader);
+        Storage.getReaders_Books().put(reader.getId(), reader.getBorowedBooks());
+    }
+
+    @Override
+    public Reader get(Long id) {
+        return readerDao.get(id);
     }
 
     @Override
