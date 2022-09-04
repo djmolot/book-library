@@ -11,6 +11,8 @@ public class ReaderDaoStorageImpl implements ReaderDao {
         int size = Storage.getReaders().size();
         reader.setId(size + 1L);
         Storage.getReaders().add(reader);
+        Storage.getReaders_Books().put(reader.getId(), new ArrayList<>());
+
     }
 
     @Override

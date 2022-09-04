@@ -1,17 +1,8 @@
 package company.name.models;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Reader {
     private Long id;
     private String name;
-    //@OneToMany
-    private final List<Long> borowedBooks;
-
-    public Reader() {
-        this.borowedBooks = new ArrayList<>();
-    }
 
     public Long getId() {
         return id;
@@ -27,10 +18,6 @@ public class Reader {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<Long> getBorowedBooks() {
-        return borowedBooks;
     }
 
     @Override

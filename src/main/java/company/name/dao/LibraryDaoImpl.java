@@ -25,7 +25,6 @@ public class LibraryDaoImpl implements LibraryDao {
     public void returnBookFromReader(Reader reader, Book book) {
         List<Long> readerBooks = Storage.getReaders_Books().get(reader.getId());
         readerBooks.remove(book.getId());
-        readerDao.get(reader.getId()).getBorowedBooks().remove(book.getId());
     }
 
     @Override

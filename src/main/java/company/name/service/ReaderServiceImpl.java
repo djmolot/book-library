@@ -15,7 +15,6 @@ public class ReaderServiceImpl implements ReaderService {
     @Override
     public void createNewReader(Reader reader) {
         readerDao.add(reader);
-        Storage.getReaders_Books().put(reader.getId(), reader.getBorowedBooks());
     }
 
     @Override
