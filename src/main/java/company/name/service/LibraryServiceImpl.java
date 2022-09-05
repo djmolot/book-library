@@ -1,15 +1,22 @@
 package company.name.service;
 
+import company.name.dao.BookDao;
 import company.name.dao.LibraryDao;
+import company.name.dao.ReaderDao;
 import company.name.models.Book;
 import company.name.models.Reader;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LibraryServiceImpl implements LibraryService {
-    private LibraryDao libraryDao;
+    private final LibraryDao libraryDao;
+    private final BookDao bookDao;
+    private final ReaderDao readerDao;
 
-    public LibraryServiceImpl(LibraryDao libraryDao) {
+    public LibraryServiceImpl(LibraryDao libraryDao, BookDao bookDao, ReaderDao readerDao) {
         this.libraryDao = libraryDao;
+        this.bookDao = bookDao;
+        this.readerDao = readerDao;
     }
 
     @Override
@@ -24,11 +31,13 @@ public class LibraryServiceImpl implements LibraryService {
 
     @Override
     public Reader getCurrentReaderOfBook(Book book) {
-        return libraryDao.getCurrentReaderOfBook(book);
+        return readerDao.getCurrentReaderOfBook(book);
     }
 
     @Override
     public List<Book> getAllBooksByReader(Reader reader) {
-        return libraryDao.getAllBooksByReader(reader);
+        return readerDao.getBorrowedBooksIds(reader).stream()
+                .map(id -> bookDao.get(id))
+                .collect(Collectors.toList());
     }
 }

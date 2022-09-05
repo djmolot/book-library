@@ -1,6 +1,7 @@
 package company.name.dao;
 
 import company.name.db.Storage;
+import company.name.models.Book;
 import company.name.models.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,5 +33,20 @@ public class ReaderDaoStorageImpl implements ReaderDao {
         Reader readerFromDB = get(reader.getId());
         Storage.getReaders().remove(readerFromDB);
         add(reader);
+    }
+
+    @Override
+    public List<Long> getBorrowedBooksIds(Reader reader) {
+        return Storage.getReaders_Books().get(reader.getId());
+    }
+
+    @Override
+    public Reader getCurrentReaderOfBook(Book book) {
+        Long readerId = Storage.getReaders_Books().entrySet().stream()
+                .filter(e -> e.getValue().contains(book.getId()))
+                .findFirst()
+                .get()
+                .getKey();
+        return get(readerId);
     }
 }

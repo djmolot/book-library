@@ -21,10 +21,11 @@ public class Main {
     private static final BookService bookService = new BookServiceImpl(bookDao);
     private static final ReaderDao readerDao = new ReaderDaoStorageImpl();
     private static final ReaderService readerService = new ReaderServiceImpl(readerDao);
-    private static final LibraryDao libraryDao = new LibraryDaoImpl(bookDao, readerDao);
-    private static final LibraryService libraryService = new LibraryServiceImpl(libraryDao);
+    private static final LibraryDao libraryDao = new LibraryDaoImpl();
+    private static final LibraryService libraryService = new LibraryServiceImpl(libraryDao, bookDao, readerDao);
     private static final Scanner scanner = new Scanner(System.in);
 
+    @SuppressWarnings("InfiniteLoopStatement")
     public static void main(String[] args) {
 
         prepareLibraryData();
