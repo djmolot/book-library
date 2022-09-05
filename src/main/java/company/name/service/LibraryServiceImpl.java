@@ -1,23 +1,20 @@
 package company.name.service;
 
 import company.name.dao.BookDao;
+import company.name.dao.BookDaoStorageImpl;
 import company.name.dao.LibraryDao;
+import company.name.dao.LibraryDaoImpl;
 import company.name.dao.ReaderDao;
+import company.name.dao.ReaderDaoStorageImpl;
 import company.name.models.Book;
 import company.name.models.Reader;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class LibraryServiceImpl implements LibraryService {
-    private final LibraryDao libraryDao;
-    private final BookDao bookDao;
-    private final ReaderDao readerDao;
-
-    public LibraryServiceImpl(LibraryDao libraryDao, BookDao bookDao, ReaderDao readerDao) {
-        this.libraryDao = libraryDao;
-        this.bookDao = bookDao;
-        this.readerDao = readerDao;
-    }
+    private final LibraryDao libraryDao = new LibraryDaoImpl();
+    private final BookDao bookDao = new BookDaoStorageImpl();
+    private final ReaderDao readerDao = new ReaderDaoStorageImpl();
 
     @Override
     public void borrowBookForReader(Reader reader, Book book) {
@@ -40,4 +37,93 @@ public class LibraryServiceImpl implements LibraryService {
                 .map(id -> bookDao.get(id))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void doMenu1Handler() {
+        bookDao.getAll().forEach(System.out::println);
+    }
+
+    @Override
+    public void doMenu2Handler() {
+        readerDao.getAll().forEach(System.out::println);
+    }
+
+    @Override
+    public void doMenu3Handler(String readerName) {
+        Reader reader = new Reader();
+        reader.setName(readerName);
+        readerDao.add(reader);
+    }
+
+    @Override
+    public void doMenu4Handler(String bookInput) {
+        String[] splittedInput = bookInput.split("/");
+        Book book = new Book();
+        book.setName(splittedInput[0]);
+        book.setAuthor(splittedInput[1]);
+        bookDao.add(book);
+    }
+
+    @Override
+    public void doMenu5Handler(String input) {
+        String[] splittedInput = input.split("/");
+        Long bookId = Long.parseLong(splittedInput[0]);
+        Long readerId = Long.parseLong(splittedInput[1]);
+        Book book = bookDao.get(bookId);
+        Reader reader = readerDao.get(readerId);
+        borrowBookForReader(reader, book);
+    }
+
+    @Override
+    public void doMenu6Handler(String input) {
+        Long bookId = Long.parseLong(input);
+        Reader reader = getCurrentReaderOfBook(bookDao.get(bookId));
+        Book book = bookDao.get(bookId);
+        returnBookFromReader(reader, book);
+    }
+
+    @Override
+    public void doMenu7Handler(String input) {
+        Long readerId = Long.parseLong(input);
+        getAllBooksByReader(readerDao.get(readerId))
+                .forEach(System.out::println);
+    }
+
+    @Override
+    public void doMenu8Handler(String input) {
+        Long bookId = Long.parseLong(input);
+        Reader reader = getCurrentReaderOfBook(bookDao.get(bookId));
+        System.out.println(reader);
+    }
+
+    @Override
+    public void prepareLibraryData() {
+        Book book1 = new Book();
+        book1.setAuthor("Herbert Schildt");
+        book1.setName("Java. The Complete Reference. Twelfth Edition");
+        bookDao.add(book1);
+
+        Book book2 = new Book();
+        book2.setAuthor("Walter Savitch");
+        book2.setName("Java. An Introduction to Problem Solving & Programming");
+        bookDao.add(book2);
+
+        Book book3 = new Book();
+        book3.setAuthor("Narasimha Karumanchi");
+        book3.setName("Data Structures And Algorithms Made Easy In JAVA");
+        bookDao.add(book3);
+
+        Reader reader1 = new Reader();
+        reader1.setName("Zhirayr Hovik");
+        readerDao.add(reader1);
+
+        Reader reader2 = new Reader();
+        reader2.setName("Voski Daniel");
+        readerDao.add(reader2);
+
+        Reader reader3 = new Reader();
+        reader3.setName("Ruben Nazaret");
+        readerDao.add(reader3);
+    }
+
 }
