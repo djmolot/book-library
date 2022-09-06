@@ -9,12 +9,15 @@ import company.name.dao.ReaderDaoStorageImpl;
 import company.name.models.Book;
 import company.name.models.Reader;
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class LibraryServiceImpl implements LibraryService {
     private final LibraryDao libraryDao = new LibraryDaoImpl();
     private final BookDao bookDao = new BookDaoStorageImpl();
     private final ReaderDao readerDao = new ReaderDaoStorageImpl();
+    private static final Scanner scanner = new Scanner(System.in);
+
 
     @Override
     public void borrowBookForReader(Reader reader, Book book) {
@@ -39,24 +42,28 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public void doMenu1Handler() {
+    public void showAllBooks() {
         bookDao.getAll().forEach(System.out::println);
     }
 
     @Override
-    public void doMenu2Handler() {
+    public void showAllReaders() {
         readerDao.getAll().forEach(System.out::println);
     }
 
     @Override
-    public void doMenu3Handler(String readerName) {
+    public void registerNewReader() {
+        System.out.println("Please enter new reader full name!");
+        String readerName = scanner.nextLine();
         Reader reader = new Reader();
         reader.setName(readerName);
         readerDao.add(reader);
     }
 
     @Override
-    public void doMenu4Handler(String bookInput) {
+    public void addNewBook() {
+        System.out.println("Please enter new book name and author separated by “/”. Like this: name/author");
+        String bookInput = scanner.nextLine();
         String[] splittedInput = bookInput.split("/");
         Book book = new Book();
         book.setName(splittedInput[0]);
@@ -65,7 +72,9 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public void doMenu5Handler(String input) {
+    public void borrowBookToReader() {
+        System.out.println("Please enter book ID and reader ID separated by “/”. Like this: 1/2");
+        String input = scanner.nextLine();
         String[] splittedInput = input.split("/");
         Long bookId = Long.parseLong(splittedInput[0]);
         Long readerId = Long.parseLong(splittedInput[1]);
@@ -75,7 +84,9 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public void doMenu6Handler(String input) {
+    public void returnBookToLibrary() {
+        System.out.println("Please enter book ID");
+        String input = scanner.nextLine();
         Long bookId = Long.parseLong(input);
         Reader reader = getCurrentReaderOfBook(bookDao.get(bookId));
         Book book = bookDao.get(bookId);
@@ -83,14 +94,18 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public void doMenu7Handler(String input) {
+    public void showAllBooksByReader() {
+        System.out.println("Please enter reader ID");
+        String input = scanner.nextLine();
         Long readerId = Long.parseLong(input);
         getAllBooksByReader(readerDao.get(readerId))
                 .forEach(System.out::println);
     }
 
     @Override
-    public void doMenu8Handler(String input) {
+    public void showReaderOfBook() {
+        System.out.println("Please enter book ID");
+        String input = scanner.nextLine();
         Long bookId = Long.parseLong(input);
         Reader reader = getCurrentReaderOfBook(bookDao.get(bookId));
         System.out.println(reader);

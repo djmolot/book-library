@@ -16,38 +16,17 @@ public class Main {
         while(true) {
             printLibraryMenu();
             String command = scanner.nextLine();
-            if(command.equals("1")) {
-                libraryService.doMenu1Handler();
-            } else if(command.equals("2")) {
-                libraryService.doMenu2Handler();
-            } else if(command.equals("3")) {
-                System.out.println("Please enter new reader full name!");
-                String readerName = scanner.nextLine();
-                libraryService.doMenu3Handler(readerName);
-            } else if(command.equals("4")) {
-                System.out.println("Please enter new book name and author separated by “/”. Like this: name/author");
-                String bookInput = scanner.nextLine();
-                libraryService.doMenu4Handler(bookInput);
-            } else if(command.equals("5")) {
-                System.out.println("Please enter book ID and reader ID separated by “/”. Like this: 1/2");
-                String input = scanner.nextLine();
-                libraryService.doMenu5Handler(input);
-            } else if(command.equals("6")) {
-                System.out.println("Please enter book ID");
-                String input = scanner.nextLine();
-                libraryService.doMenu6Handler(input);
-            } else if(command.equals("7")) {
-                System.out.println("Please enter reader ID");
-                String input = scanner.nextLine();
-                libraryService.doMenu7Handler(input);
-            } else if(command.equals("8")) {
-                System.out.println("Please enter book ID");
-                String input = scanner.nextLine();
-                libraryService.doMenu8Handler(input);
-            } else if(command.toUpperCase().equals("EXIT")) {
-                System.exit(0);
-            } else {
-                System.out.println("Unknown command. Please try again.");
+            switch (command) {
+                case "1" -> libraryService.showAllBooks();
+                case "2" -> libraryService.showAllReaders();
+                case "3" -> libraryService.registerNewReader();
+                case "4" -> libraryService.addNewBook();
+                case "5" -> libraryService.borrowBookToReader();
+                case "6" -> libraryService.returnBookToLibrary();
+                case "7" -> libraryService.showAllBooksByReader();
+                case "8" -> libraryService.showReaderOfBook();
+                case "exit" -> System.exit(0);
+                default -> System.out.println("Unknown command. Please try again.");
             }
         }
     }
@@ -65,9 +44,9 @@ public class Main {
         [4]ADD NEW BOOK
         [5]BORROW A BOOK TO A READER
         [6]RETURN A BOOK TO THE LIBRARY
-        [7]SHOW ALL BORROWED BOOK BY USER ID
+        [7]SHOW ALL BORROWED BOOKS BY USER ID
         [8]SHOW CURRENT READER OF A BOOK WITH ID
-        TYPE “EXIT” TO STOP THE PROGRAM AND EXIT!
+        TYPE “exit” TO STOP THE PROGRAM AND EXIT!
         """;
 
         System.out.println(lineDelimiter);

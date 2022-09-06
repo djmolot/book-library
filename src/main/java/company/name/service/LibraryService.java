@@ -14,21 +14,21 @@ public interface LibraryService {
 
     List<Book> getAllBooksByReader(Reader reader);
 
-    void doMenu1Handler();
+    void showAllBooks();
 
-    void doMenu2Handler();
+    void showAllReaders();
 
-    void doMenu3Handler(String readerName);
+    void registerNewReader();
 
-    void doMenu4Handler(String bookInput);
+    void addNewBook();
 
-    void doMenu5Handler(String input);
+    void borrowBookToReader();
 
-    void doMenu6Handler(String input);
+    void returnBookToLibrary();
 
-    void doMenu7Handler(String input);
+    void showAllBooksByReader();
 
-    void doMenu8Handler(String input);
+    void showReaderOfBook();
 
     void prepareLibraryData();
 }
