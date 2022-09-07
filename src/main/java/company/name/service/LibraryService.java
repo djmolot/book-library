@@ -12,7 +12,7 @@ public interface LibraryService {
 
     Reader getCurrentReaderOfBook(Book book);
 
-    List<Book> getAllBooksByReader(Reader reader);
+    List<Book> getAllBooksByReader(Long readerId);
 
     void showAllBooks();
 

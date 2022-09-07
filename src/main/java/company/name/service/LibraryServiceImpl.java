@@ -35,10 +35,8 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public List<Book> getAllBooksByReader(Reader reader) {
-        return readerDao.getBorrowedBooksIds(reader).stream()
-                .map(id -> bookDao.get(id))
-                .collect(Collectors.toList());
+    public List<Book> getAllBooksByReader(Long readerId) {
+        return bookDao.getBorrowedBooksByReaderId(readerId);
     }
 
     @Override
@@ -95,7 +93,7 @@ public class LibraryServiceImpl implements LibraryService {
         System.out.println("Please enter reader ID");
         var input = scanner.nextLine();
         Long readerId = Long.parseLong(input);
-        getAllBooksByReader(readerDao.get(readerId))
+        getAllBooksByReader(readerId)
                 .forEach(System.out::println);
     }
 

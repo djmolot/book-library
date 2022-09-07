@@ -4,6 +4,7 @@ import company.name.db.Storage;
 import company.name.models.Book;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BookDaoStorageImpl implements BookDao {
     private final Long ID_OFFSET = 1000L;
@@ -26,5 +27,13 @@ public class BookDaoStorageImpl implements BookDao {
     public List<Book> getAll() {
         return new ArrayList<>(Storage.getBooks());
     }
+
+    @Override
+    public List<Book> getBorrowedBooksByReaderId(Long readerId) {
+        return Storage.getReaders_Books().get(readerId).stream()
+                .map(this::get)
+                .collect(Collectors.toList());
+    }
+
 
 }

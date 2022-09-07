@@ -38,11 +38,6 @@ public class ReaderDaoStorageImpl implements ReaderDao {
     }
 
     @Override
-    public List<Long> getBorrowedBooksIds(Reader reader) {
-        return Storage.getReaders_Books().get(reader.getId());
-    }
-
-    @Override
     public Reader getCurrentReaderOfBook(Book book) {
         Long readerId = Storage.getReaders_Books().entrySet().stream()
                 .filter(e -> e.getValue().contains(book.getId()))

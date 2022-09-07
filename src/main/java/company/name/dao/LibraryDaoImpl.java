@@ -1,8 +1,6 @@
 package company.name.dao;
 
 import company.name.db.Storage;
-import company.name.models.Book;
-import company.name.models.Reader;
 import java.util.List;
 
 public class LibraryDaoImpl implements LibraryDao {
