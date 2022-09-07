@@ -54,7 +54,7 @@ public class LibraryServiceImpl implements LibraryService {
     @Override
     public void registerNewReader() {
         System.out.println("Please enter new reader full name!");
-        String readerName = scanner.nextLine();
+        var readerName = scanner.nextLine();
         Reader reader = new Reader();
         reader.setName(readerName);
         readerDao.add(reader);
@@ -63,7 +63,7 @@ public class LibraryServiceImpl implements LibraryService {
     @Override
     public void addNewBook() {
         System.out.println("Please enter new book name and author separated by “/”. Like this: name/author");
-        String bookInput = scanner.nextLine();
+        var bookInput = scanner.nextLine();
         String[] splittedInput = bookInput.split("/");
         Book book = new Book();
         book.setName(splittedInput[0]);
@@ -74,7 +74,7 @@ public class LibraryServiceImpl implements LibraryService {
     @Override
     public void borrowBookToReader() {
         System.out.println("Please enter book ID and reader ID separated by “/”. Like this: 1/2");
-        String input = scanner.nextLine();
+        var input = scanner.nextLine();
         String[] splittedInput = input.split("/");
         Long bookId = Long.parseLong(splittedInput[0]);
         Long readerId = Long.parseLong(splittedInput[1]);
@@ -86,7 +86,7 @@ public class LibraryServiceImpl implements LibraryService {
     @Override
     public void returnBookToLibrary() {
         System.out.println("Please enter book ID");
-        String input = scanner.nextLine();
+        var input = scanner.nextLine();
         Long bookId = Long.parseLong(input);
         Reader reader = getCurrentReaderOfBook(bookDao.get(bookId));
         Book book = bookDao.get(bookId);
@@ -96,7 +96,7 @@ public class LibraryServiceImpl implements LibraryService {
     @Override
     public void showAllBooksByReader() {
         System.out.println("Please enter reader ID");
-        String input = scanner.nextLine();
+        var input = scanner.nextLine();
         Long readerId = Long.parseLong(input);
         getAllBooksByReader(readerDao.get(readerId))
                 .forEach(System.out::println);
@@ -105,7 +105,7 @@ public class LibraryServiceImpl implements LibraryService {
     @Override
     public void showReaderOfBook() {
         System.out.println("Please enter book ID");
-        String input = scanner.nextLine();
+        var input = scanner.nextLine();
         Long bookId = Long.parseLong(input);
         Reader reader = getCurrentReaderOfBook(bookDao.get(bookId));
         System.out.println(reader);
