@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReaderDaoStorageImpl implements ReaderDao {
+    private final Long ID_OFFSET = 1000L;
+
     @Override
     public void add(Reader reader) {
-        int size = Storage.getReaders().size();
-        reader.setId(size + 1L);
+        Storage.setReadersSize(Storage.getReadersSize() + 1L);;
+        reader.setId(Storage.getReadersSize() + ID_OFFSET);
         Storage.getReaders().add(reader);
         Storage.getReaders_Books().put(reader.getId(), new ArrayList<>());
 

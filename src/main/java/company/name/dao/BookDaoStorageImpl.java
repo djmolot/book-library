@@ -6,11 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookDaoStorageImpl implements BookDao {
+    private final Long ID_OFFSET = 1000L;
 
     @Override
     public void add(Book book) {
-        int size = Storage.getBooks().size();
-        book.setId(size + 1L);
+        Storage.setBooksSize(Storage.getBooksSize() + 1L);;
+        book.setId(Storage.getBooksSize() + ID_OFFSET);
         Storage.getBooks().add(book);
     }
 
