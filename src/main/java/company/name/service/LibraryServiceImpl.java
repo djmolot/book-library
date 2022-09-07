@@ -10,7 +10,6 @@ import company.name.models.Book;
 import company.name.models.Reader;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class LibraryServiceImpl implements LibraryService {
     private final LibraryDao libraryDao = new LibraryDaoImpl();
