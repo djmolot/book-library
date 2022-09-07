@@ -8,15 +8,15 @@ import java.util.List;
 public class LibraryDaoImpl implements LibraryDao {
 
     @Override
-    public void borrowBookForReader(Reader reader, Book book) {
-        List<Long> readerBooks = Storage.getReaders_Books().get(reader.getId());
-        readerBooks.add(book.getId());
+    public void borrowBookForReader(Long readerID, Long bookId) {
+        List<Long> readerBooks = Storage.getReaders_Books().get(readerID);
+        readerBooks.add(bookId);
     }
 
     @Override
-    public void returnBookFromReader(Reader reader, Book book) {
-        List<Long> readerBooks = Storage.getReaders_Books().get(reader.getId());
-        readerBooks.remove(book.getId());
+    public void returnBookFromReader(Long readerID, Long bookId) {
+        List<Long> readerBooks = Storage.getReaders_Books().get(readerID);
+        readerBooks.remove(bookId);
     }
 
 }

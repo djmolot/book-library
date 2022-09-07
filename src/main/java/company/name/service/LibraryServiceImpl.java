@@ -20,13 +20,13 @@ public class LibraryServiceImpl implements LibraryService {
 
 
     @Override
-    public void borrowBookForReader(Reader reader, Book book) {
-        libraryDao.borrowBookForReader(reader, book);
+    public void borrowBookForReader(Long readerID, Long bookId) {
+        libraryDao.borrowBookForReader(readerID, bookId);
     }
 
     @Override
-    public void returnBookFromReader(Reader reader, Book book) {
-        libraryDao.returnBookFromReader(reader, book);
+    public void returnBookFromReader(Long readerID, Long bookId) {
+        libraryDao.returnBookFromReader(readerID, bookId);
     }
 
     @Override
@@ -78,9 +78,7 @@ public class LibraryServiceImpl implements LibraryService {
         String[] splittedInput = input.split("/");
         Long bookId = Long.parseLong(splittedInput[0]);
         Long readerId = Long.parseLong(splittedInput[1]);
-        Book book = bookDao.get(bookId);
-        Reader reader = readerDao.get(readerId);
-        borrowBookForReader(reader, book);
+        borrowBookForReader(readerId, bookId);
     }
 
     @Override
@@ -89,8 +87,7 @@ public class LibraryServiceImpl implements LibraryService {
         var input = scanner.nextLine();
         Long bookId = Long.parseLong(input);
         Reader reader = getCurrentReaderOfBook(bookDao.get(bookId));
-        Book book = bookDao.get(bookId);
-        returnBookFromReader(reader, book);
+        returnBookFromReader(reader.getId(), bookId);
     }
 
     @Override
