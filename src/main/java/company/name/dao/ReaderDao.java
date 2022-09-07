@@ -14,6 +14,6 @@ public interface ReaderDao {
 
     void update(Reader reader);
 
-    Reader getCurrentReaderOfBook(Book book);
+    Reader getCurrentReaderOfBook(Long bookId);
 
 }

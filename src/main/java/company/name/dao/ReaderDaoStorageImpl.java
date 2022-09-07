@@ -38,9 +38,9 @@ public class ReaderDaoStorageImpl implements ReaderDao {
     }
 
     @Override
-    public Reader getCurrentReaderOfBook(Book book) {
+    public Reader getCurrentReaderOfBook(Long bookId) {
         Long readerId = Storage.getReaders_Books().entrySet().stream()
-                .filter(e -> e.getValue().contains(book.getId()))
+                .filter(e -> e.getValue().contains(bookId))
                 .findFirst()
                 .get()
                 .getKey();

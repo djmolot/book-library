@@ -30,8 +30,8 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public Reader getCurrentReaderOfBook(Book book) {
-        return readerDao.getCurrentReaderOfBook(book);
+    public Reader getCurrentReaderOfBook(Long bookId) {
+        return readerDao.getCurrentReaderOfBook(bookId);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class LibraryServiceImpl implements LibraryService {
         System.out.println("Please enter book ID");
         var input = scanner.nextLine();
         Long bookId = Long.parseLong(input);
-        Reader reader = getCurrentReaderOfBook(bookDao.get(bookId));
+        Reader reader = getCurrentReaderOfBook(bookId);
         returnBookFromReader(reader.getId(), bookId);
     }
 
@@ -102,7 +102,7 @@ public class LibraryServiceImpl implements LibraryService {
         System.out.println("Please enter book ID");
         var input = scanner.nextLine();
         Long bookId = Long.parseLong(input);
-        Reader reader = getCurrentReaderOfBook(bookDao.get(bookId));
+        Reader reader = getCurrentReaderOfBook(bookId);
         System.out.println(reader);
     }
 

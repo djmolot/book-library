@@ -10,7 +10,7 @@ public interface LibraryService {
 
     void returnBookFromReader(Long readerID, Long bookId);
 
-    Reader getCurrentReaderOfBook(Book book);
+    Reader getCurrentReaderOfBook(Long bookId);
 
     List<Book> getAllBooksByReader(Long readerId);
 
