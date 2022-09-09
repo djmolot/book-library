@@ -4,6 +4,7 @@ import company.name.db.Storage;
 import company.name.models.Book;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 public class BookDaoStorageImpl implements BookDao {
@@ -17,10 +18,20 @@ public class BookDaoStorageImpl implements BookDao {
     }
 
     @Override
+    public boolean containsBookWithId(Long id) {
+        return Storage.getBooks().stream().anyMatch(book -> book.getId().equals(id));
+    }
+
+    @Override
     public Book get(Long id) {
-        return Storage.getBooks().stream().
-                filter(book -> book.getId().equals(id)).
-                findFirst().get();
+        if(!this.containsBookWithId(id)) {
+            throw new NoSuchElementException("Book with id " + id + " does not exists in the storage");
+        } else {
+            return Storage.getBooks().stream()
+                    .filter(book -> book.getId().equals(id))
+                    .findFirst()
+                    .get();
+        }
     }
 
     @Override

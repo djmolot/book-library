@@ -5,6 +5,7 @@ import company.name.models.Book;
 import company.name.models.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class ReaderDaoStorageImpl implements ReaderDao {
     private final Long ID_OFFSET = 1000L;
@@ -19,10 +20,20 @@ public class ReaderDaoStorageImpl implements ReaderDao {
     }
 
     @Override
+    public boolean containsReaderWithId(Long id) {
+        return Storage.getReaders().stream().anyMatch(reader -> reader.getId().equals(id));
+    }
+
+    @Override
     public Reader get(Long id) {
-        return Storage.getReaders().stream().
-                filter(reader -> reader.getId().equals(id)).
-                findFirst().get();
+        if(!this.containsReaderWithId(id)) {
+            throw new NoSuchElementException("Reader with id " + id + " does not exists in the storage");
+        } else {
+            return Storage.getReaders().stream()
+                    .filter(reader -> reader.getId().equals(id))
+                    .findFirst()
+                    .get();
+        }
     }
 
     @Override

@@ -9,6 +9,7 @@ import company.name.dao.ReaderDaoStorageImpl;
 import company.name.models.Book;
 import company.name.models.Reader;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class LibraryServiceImpl implements LibraryService {
@@ -20,12 +21,24 @@ public class LibraryServiceImpl implements LibraryService {
 
     @Override
     public void borrowBookForReader(Long readerID, Long bookId) {
-        libraryDao.borrowBookForReader(readerID, bookId);
+        if(!readerDao.containsReaderWithId(readerID) ||
+                !bookDao.containsBookWithId(bookId)) {
+            throw new NoSuchElementException(
+                    "Reader or Book with specified id " + readerID + "/" + bookId + " does not exists in the storage");
+        } else {
+            libraryDao.borrowBookForReader(readerID, bookId);
+        }
     }
 
     @Override
     public void returnBookFromReader(Long readerID, Long bookId) {
-        libraryDao.returnBookFromReader(readerID, bookId);
+        if(!readerDao.containsReaderWithId(readerID) ||
+                !bookDao.containsBookWithId(bookId)) {
+            throw new NoSuchElementException(
+                    "Reader or Book with specified id " + readerID + "/" + bookId + " does not exists in the storage");
+        } else {
+            libraryDao.returnBookFromReader(readerID, bookId);
+        }
     }
 
     @Override

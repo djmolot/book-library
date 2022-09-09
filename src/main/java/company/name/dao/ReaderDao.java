@@ -8,6 +8,8 @@ import java.util.List;
 public interface ReaderDao {
     void add(Reader reader);
 
+    boolean containsReaderWithId(Long id);
+
     Reader get(Long id);
 
     List<Reader> getAll();
