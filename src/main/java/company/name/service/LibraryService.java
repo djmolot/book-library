@@ -6,9 +6,9 @@ import company.name.models.Reader;
 import java.util.List;
 
 public interface LibraryService {
-    void borrowBookForReader(Long readerID, Long bookId);
+    void borrowBookForReader(Long bookId, Long readerId);
 
-    void returnBookFromReader(Long readerID, Long bookId);
+    void returnBookFromReader(Long bookId, Long readerId);
 
     Reader getCurrentReaderOfBook(Long bookId);
 

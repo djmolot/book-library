@@ -20,24 +20,24 @@ public class LibraryServiceImpl implements LibraryService {
 
 
     @Override
-    public void borrowBookForReader(Long readerID, Long bookId) {
-        if(!readerDao.containsReaderWithId(readerID) ||
+    public void borrowBookForReader(Long bookId, Long readerId) {
+        if(!readerDao.containsReaderWithId(readerId) ||
                 !bookDao.containsBookWithId(bookId)) {
             throw new NoSuchElementException(
-                    "Reader or Book with specified id " + readerID + "/" + bookId + " does not exists in the storage");
+                    "Reader or Book with specified id " + readerId + "/" + bookId + " does not exists in the storage");
         } else {
-            libraryDao.borrowBookForReader(bookId, readerID);
+            libraryDao.borrowBookForReader(bookId, readerId);
         }
     }
 
     @Override
-    public void returnBookFromReader(Long readerID, Long bookId) {
-        if(!readerDao.containsReaderWithId(readerID) ||
+    public void returnBookFromReader(Long bookId, Long readerId) {
+        if(!readerDao.containsReaderWithId(readerId) ||
                 !bookDao.containsBookWithId(bookId)) {
             throw new NoSuchElementException(
-                    "Reader or Book with specified id " + readerID + "/" + bookId + " does not exists in the storage");
+                    "Reader or Book with specified id " + readerId + "/" + bookId + " does not exists in the storage");
         } else {
-            libraryDao.returnBookFromReader(bookId, readerID);
+            libraryDao.returnBookFromReader(bookId, readerId);
         }
     }
 
@@ -88,7 +88,7 @@ public class LibraryServiceImpl implements LibraryService {
         String[] splittedInput = input.split("/");
         Long bookId = Long.parseLong(splittedInput[0]);
         Long readerId = Long.parseLong(splittedInput[1]);
-        borrowBookForReader(readerId, bookId);
+        borrowBookForReader(bookId, readerId);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class LibraryServiceImpl implements LibraryService {
         var input = scanner.nextLine();
         Long bookId = Long.parseLong(input);
         Reader reader = getCurrentReaderOfBook(bookId);
-        returnBookFromReader(reader.getId(), bookId);
+        returnBookFromReader(bookId, reader.getId());
     }
 
     @Override
