@@ -1,7 +1,7 @@
 package company.name.dao;
 
 public interface LibraryDao {
-    void borrowBookForReader(Long readerId, Long bookId);
+    void borrowBookForReader(Long bookId, Long readerId);
 
-    void returnBookFromReader(Long readerId, Long bookId);
+    void returnBookFromReader(Long bookId, Long readerId);
 }

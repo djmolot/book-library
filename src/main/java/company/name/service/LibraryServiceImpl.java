@@ -26,7 +26,7 @@ public class LibraryServiceImpl implements LibraryService {
             throw new NoSuchElementException(
                     "Reader or Book with specified id " + readerID + "/" + bookId + " does not exists in the storage");
         } else {
-            libraryDao.borrowBookForReader(readerID, bookId);
+            libraryDao.borrowBookForReader(bookId, readerID);
         }
     }
 
@@ -37,7 +37,7 @@ public class LibraryServiceImpl implements LibraryService {
             throw new NoSuchElementException(
                     "Reader or Book with specified id " + readerID + "/" + bookId + " does not exists in the storage");
         } else {
-            libraryDao.returnBookFromReader(readerID, bookId);
+            libraryDao.returnBookFromReader(bookId, readerID);
         }
     }
 
