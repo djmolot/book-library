@@ -5,14 +5,14 @@ import company.name.models.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ReaderDaoStorageImpl implements ReaderDao {
-    private final Long ID_OFFSET = 1000L;
+    private static final AtomicLong idGenerator = new AtomicLong(1000);
 
     @Override
     public void add(Reader reader) {
-        Storage.setReadersSize(Storage.getReadersSize() + 1L);;
-        reader.setId(Storage.getReadersSize() + ID_OFFSET);
+        reader.setId(idGenerator.incrementAndGet());
         Storage.getReaders().add(reader);
         Storage.getReaders_Books().put(reader.getId(), new ArrayList<>());
 

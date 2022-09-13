@@ -3,7 +3,7 @@ package company.name.service;
 import company.name.dao.BookDao;
 import company.name.dao.BookDaoStorageImpl;
 import company.name.dao.LibraryDao;
-import company.name.dao.LibraryDaoImpl;
+import company.name.dao.LibraryDaoStorageImpl;
 import company.name.dao.ReaderDao;
 import company.name.dao.ReaderDaoStorageImpl;
 import company.name.exceptions.NoEntityWithSuchIdException;
@@ -14,7 +14,7 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class LibraryServiceImpl implements LibraryService {
-    private final LibraryDao libraryDao = new LibraryDaoImpl();
+    private final LibraryDao libraryDao = new LibraryDaoStorageImpl();
     private final BookDao bookDao = new BookDaoStorageImpl();
     private final ReaderDao readerDao = new ReaderDaoStorageImpl();
     private static final Scanner scanner = new Scanner(System.in);

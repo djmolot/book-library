@@ -3,7 +3,7 @@ package company.name.dao;
 import company.name.db.Storage;
 import java.util.List;
 
-public class LibraryDaoImpl implements LibraryDao {
+public class LibraryDaoStorageImpl implements LibraryDao {
 
     @Override
     public void borrowBookForReader(Long bookId, Long readerId) {

@@ -4,16 +4,15 @@ import company.name.db.Storage;
 import company.name.models.Book;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class BookDaoStorageImpl implements BookDao {
-    private final Long ID_OFFSET = 1000L;
+    private static final AtomicLong idGenerator = new AtomicLong(1000);
 
     @Override
     public void add(Book book) {
-        Storage.setBooksSize(Storage.getBooksSize() + 1L);;
-        book.setId(Storage.getBooksSize() + ID_OFFSET);
+        book.setId(idGenerator.incrementAndGet());
         Storage.getBooks().add(book);
     }
 
