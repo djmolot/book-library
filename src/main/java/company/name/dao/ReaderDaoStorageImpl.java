@@ -1,11 +1,10 @@
 package company.name.dao;
 
 import company.name.db.Storage;
-import company.name.models.Book;
 import company.name.models.Reader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class ReaderDaoStorageImpl implements ReaderDao {
     private final Long ID_OFFSET = 1000L;
@@ -25,15 +24,10 @@ public class ReaderDaoStorageImpl implements ReaderDao {
     }
 
     @Override
-    public Reader get(Long id) {
-        if(!this.containsReaderWithId(id)) {
-            throw new NoSuchElementException("Reader with id " + id + " does not exists in the storage");
-        } else {
-            return Storage.getReaders().stream()
-                    .filter(reader -> reader.getId().equals(id))
-                    .findFirst()
-                    .get();
-        }
+    public Optional<Reader> getById(Long id) {
+        return Storage.getReaders().stream()
+                .filter(reader -> reader.getId().equals(id))
+                .findFirst();
     }
 
     @Override
@@ -43,18 +37,9 @@ public class ReaderDaoStorageImpl implements ReaderDao {
 
     @Override
     public void update(Reader reader) {
-        Reader readerFromDB = get(reader.getId());
+        Reader readerFromDB = getById(reader.getId()).get();
         Storage.getReaders().remove(readerFromDB);
         add(reader);
     }
 
-    @Override
-    public Reader getCurrentReaderOfBook(Long bookId) {
-        Long readerId = Storage.getReaders_Books().entrySet().stream()
-                .filter(e -> e.getValue().contains(bookId))
-                .findFirst()
-                .get()
-                .getKey();
-        return get(readerId);
-    }
 }

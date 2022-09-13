@@ -23,7 +23,7 @@ public class Main {
                 case "4" -> libraryService.addNewBook();
                 case "5" -> libraryService.borrowBookToReader();
                 case "6" -> libraryService.returnBookToLibrary();
-                case "7" -> libraryService.showAllBooksByReader();
+                case "7" -> libraryService.showAllBooksOfReader();
                 case "8" -> libraryService.showReaderOfBook();
                 case "exit" -> System.exit(0);
                 default -> System.out.println("Unknown command. Please try again.");

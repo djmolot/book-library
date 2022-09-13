@@ -1,21 +1,18 @@
 package company.name.dao;
 
-import company.name.db.Storage;
-import company.name.models.Book;
 import company.name.models.Reader;
 import java.util.List;
+import java.util.Optional;
 
 public interface ReaderDao {
     void add(Reader reader);
 
-    boolean containsReaderWithId(Long id);
-
-    Reader get(Long id);
+    Optional<Reader> getById(Long id);
 
     List<Reader> getAll();
 
     void update(Reader reader);
 
-    Reader getCurrentReaderOfBook(Long bookId);
+    boolean containsReaderWithId(Long id);
 
 }
