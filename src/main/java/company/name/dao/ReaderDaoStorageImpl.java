@@ -36,10 +36,16 @@ public class ReaderDaoStorageImpl implements ReaderDao {
     }
 
     @Override
-    public void update(Reader reader) {
-        Reader readerFromDB = getById(reader.getId()).get();
-        Storage.getReaders().remove(readerFromDB);
-        add(reader);
+    public void update(Reader updatedReader) {
+        getById(updatedReader.getId())
+                .ifPresentOrElse(
+                        existingReader -> {
+                            Storage.getReaders().remove(existingReader);
+                            add(updatedReader);
+                        },
+                        () -> System.err.println("Reader with ID " + updatedReader.getId()
+                                + " does not exist. Failed to update.")
+                );
     }
 
 }
