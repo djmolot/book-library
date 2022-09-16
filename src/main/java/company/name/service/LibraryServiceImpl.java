@@ -175,10 +175,11 @@ public class LibraryServiceImpl implements LibraryService {
     private List<Book> getAllBooksByReader(Long readerId) throws NoEntityWithSuchIdException {
         if(!readerDao.containsReaderWithId(readerId)) {
             throw new NoEntityWithSuchIdException(
-                    "Reader with specified id " + readerId + " does not exists in the storage");
+                    "Reader with specified id " + readerId + " does not exist in the storage");
         }
         return libraryDao.getBooksIdsByReaderId(readerId).stream()
-                .map(id -> bookDao.getById(id).get())
+                .map(bookDao::getById)
+                .flatMap(Optional::stream)
                 .collect(Collectors.toList());
     }
 }
