@@ -58,9 +58,9 @@ public class LibraryServiceImpl implements LibraryService {
         Long bookId = Long.parseLong(splittedInput[0]);
         Long readerId = Long.parseLong(splittedInput[1]);
         try {
-            borrowBookForReader(bookId, readerId);
+            borrowBookToReader(bookId, readerId);
         } catch (NoEntityWithSuchIdException e) {
-            System.out.println(e.getMessage());;
+            System.err.println(e.getMessage());;
         }
     }
 
@@ -69,16 +69,10 @@ public class LibraryServiceImpl implements LibraryService {
         System.out.println("Please enter book ID");
         var input = scanner.nextLine();
         Long bookId = Long.parseLong(input);
-        Optional<Long> optionalLong = libraryDao.getReaderIdByBookId(bookId);
-        if(optionalLong.isPresent()) {
-            Long readerId = optionalLong.get();
-            try {
-                returnBookFromReader(bookId, readerId);
-            } catch (NoEntityWithSuchIdException e) {
-                System.out.println(e.getMessage());;
-            }
-        } else {
-            System.err.println("Can't get reader ID by book ID " + bookId);
+        try {
+            returnBookToLibrary(bookId);
+        } catch (NoEntityWithSuchIdException e) {
+            System.err.println(e.getMessage());;
         }
     }
 
@@ -90,7 +84,7 @@ public class LibraryServiceImpl implements LibraryService {
         try {
             getAllBooksByReader(readerId).forEach(System.out::println);
         } catch (NoEntityWithSuchIdException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 
@@ -102,7 +96,7 @@ public class LibraryServiceImpl implements LibraryService {
         try {
             showReaderOfBookWithId(bookId);
         } catch (NoEntityWithSuchIdException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 
@@ -136,30 +130,30 @@ public class LibraryServiceImpl implements LibraryService {
         readerDao.add(reader3);
     }
 
-    private void borrowBookForReader(Long bookId, Long readerId)
-            throws NoEntityWithSuchIdException {
+    private void borrowBookToReader(Long bookId, Long readerId) throws NoEntityWithSuchIdException {
         if(!readerDao.containsReaderWithId(readerId)) {
             throw new NoEntityWithSuchIdException(
-                    "Reader with specified id " + readerId + " does not exists in the storage");
+                    "Reader with specified id " + readerId + " does not exist in the storage");
         }
         if(!bookDao.containsBookWithId(bookId)) {
             throw new NoEntityWithSuchIdException(
-                    "Book with specified id " + bookId + " does not exists in the storage");
+                    "Book with specified id " + bookId + " does not exist in the storage");
         }
         libraryDao.borrowBookForReader(bookId, readerId);
     }
 
-    private void returnBookFromReader(Long bookId, Long readerId)
-            throws NoEntityWithSuchIdException {
-        if(!readerDao.containsReaderWithId(readerId)) {
-            throw new NoEntityWithSuchIdException(
-                    "Reader with specified id " + readerId + " does not exists in the storage");
-        }
+    private void returnBookToLibrary(Long bookId) throws NoEntityWithSuchIdException {
         if(!bookDao.containsBookWithId(bookId)) {
             throw new NoEntityWithSuchIdException(
-                    "Book with specified id " + bookId + " does not exists in the storage");
+                    "Book with specified id " + bookId + " does not exist in the storage");
         }
-        libraryDao.returnBookFromReader(bookId, readerId);
+        Optional<Long> optionalLong = libraryDao.getReaderIdByBookId(bookId);
+        if(optionalLong.isPresent()) {
+            Long readerId = optionalLong.get();
+            libraryDao.returnBookFromReader(bookId, readerId);
+        } else {
+            System.err.println("Can't get reader ID by book ID " + bookId);
+        }
     }
 
     private void showReaderOfBookWithId(Long bookId) throws NoEntityWithSuchIdException {
