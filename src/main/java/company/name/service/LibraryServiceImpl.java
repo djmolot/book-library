@@ -10,6 +10,7 @@ import company.name.exceptions.NoEntityWithSuchIdException;
 import company.name.models.Book;
 import company.name.models.Reader;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -68,11 +69,16 @@ public class LibraryServiceImpl implements LibraryService {
         System.out.println("Please enter book ID");
         var input = scanner.nextLine();
         Long bookId = Long.parseLong(input);
-        try {
-            Long readerId = getReaderIdByBookId(bookId);
-            returnBookFromReader(bookId, readerId);
-        } catch (NoEntityWithSuchIdException e) {
-            System.out.println(e.getMessage());;
+        Optional<Long> optionalLong = libraryDao.getReaderIdByBookId(bookId);
+        if(optionalLong.isPresent()) {
+            Long readerId = optionalLong.get();
+            try {
+                returnBookFromReader(bookId, readerId);
+            } catch (NoEntityWithSuchIdException e) {
+                System.out.println(e.getMessage());;
+            }
+        } else {
+            System.err.println("Can't get reader ID by book ID " + bookId);
         }
     }
 
@@ -94,12 +100,7 @@ public class LibraryServiceImpl implements LibraryService {
         var input = scanner.nextLine();
         Long bookId = Long.parseLong(input);
         try {
-            Long readerId = getReaderIdByBookId(bookId);
-            readerDao.getById(readerId)
-                    .ifPresentOrElse(
-                            System.out::println,
-                            () -> System.err.println("Reader with id " + readerId + " does not exists in the Library")
-                    );
+            showReaderOfBookWithId(bookId);
         } catch (NoEntityWithSuchIdException e) {
             System.out.println(e.getMessage());
         }
@@ -161,12 +162,20 @@ public class LibraryServiceImpl implements LibraryService {
         libraryDao.returnBookFromReader(bookId, readerId);
     }
 
-    private Long getReaderIdByBookId(Long bookId) throws NoEntityWithSuchIdException {
+    private void showReaderOfBookWithId(Long bookId) throws NoEntityWithSuchIdException {
         if(!bookDao.containsBookWithId(bookId)) {
             throw new NoEntityWithSuchIdException(
                     "Book with specified id " + bookId + " does not exists in the storage");
         }
-        return libraryDao.getReaderIdByBookId(bookId);
+        libraryDao.getReaderIdByBookId(bookId).ifPresentOrElse(
+                readerId -> {
+                    readerDao.getById(readerId).ifPresentOrElse(
+                            System.out::println,
+                            () -> System.err.println("Reader with ID " + readerId + " does not exist.")
+                    );
+                },
+                () -> System.err.println("Can not get reader of book with ID " + bookId + ".")
+        );
     }
 
     private List<Book> getAllBooksByReader(Long readerId) throws NoEntityWithSuchIdException {

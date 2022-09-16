@@ -2,6 +2,8 @@ package company.name.dao;
 
 import company.name.db.Storage;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class LibraryDaoStorageImpl implements LibraryDao {
 
@@ -18,11 +20,11 @@ public class LibraryDaoStorageImpl implements LibraryDao {
     }
 
     @Override
-    public Long getReaderIdByBookId(Long bookId) {
+    public Optional<Long> getReaderIdByBookId(Long bookId) {
         return Storage.getReaders_Books().entrySet().stream()
                 .filter(entry -> entry.getValue().contains(bookId))
                 .findFirst()
-                .get().getKey();
+                .map(Map.Entry::getKey);
     }
 
     @Override
