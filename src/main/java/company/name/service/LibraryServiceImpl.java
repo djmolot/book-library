@@ -82,7 +82,12 @@ public class LibraryServiceImpl implements LibraryService {
         var input = scanner.nextLine();
         Long readerId = Long.parseLong(input);
         try {
-            getAllBooksByReader(readerId).forEach(System.out::println);
+            List<Book> allBooksOfReader = getAllBooksByReader(readerId);
+            if(allBooksOfReader.isEmpty()) {
+                System.out.println("Reader with ID " + readerId + " has not borowed books.");
+            } else {
+                allBooksOfReader.forEach(System.out::println);
+            }
         } catch (NoEntityWithSuchIdException e) {
             System.err.println(e.getMessage());
         }
@@ -156,17 +161,14 @@ public class LibraryServiceImpl implements LibraryService {
     private void showReaderOfBookWithId(Long bookId) throws NoEntityWithSuchIdException {
         if(!bookDao.containsBookWithId(bookId)) {
             throw new NoEntityWithSuchIdException(
-                    "Book with specified id " + bookId + " does not exists in the storage");
+                    "Book with specified id " + bookId + " does not exist in the storage");
         }
-        libraryDao.getReaderIdByBookId(bookId).ifPresentOrElse(
-                readerId -> {
-                    readerDao.getById(readerId).ifPresentOrElse(
-                            System.out::println,
-                            () -> System.err.println("Reader with ID " + readerId + " does not exist.")
-                    );
-                },
-                () -> System.err.println("Can not get reader of book with ID " + bookId + ".")
-        );
+        libraryDao.getReaderIdByBookId(bookId)
+                .map(readerDao::getById)
+                .ifPresentOrElse(
+                        optnlRdr -> System.out.println(optnlRdr.get()),
+                        () -> System.out.println("Book with ID " + bookId + " is not borrowed. No reader to show.")
+                );
     }
 
     private List<Book> getAllBooksByReader(Long readerId) throws NoEntityWithSuchIdException {
