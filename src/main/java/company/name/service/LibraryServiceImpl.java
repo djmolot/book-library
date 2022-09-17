@@ -147,13 +147,10 @@ public class LibraryServiceImpl implements LibraryService {
             throw new NoEntityWithSuchIdException(
                     "Book with specified id " + bookId + " does not exist in the storage");
         }
-        Optional<Long> optionalLong = libraryDao.getReaderIdByBookId(bookId);
-        if(optionalLong.isPresent()) {
-            Long readerId = optionalLong.get();
-            libraryDao.returnBookFromReader(bookId, readerId);
-        } else {
-            System.err.println("Can't get reader ID by book ID " + bookId);
-        }
+        libraryDao.getReaderIdByBookId(bookId).ifPresentOrElse(
+                readerId -> libraryDao.returnBookFromReader(bookId, readerId),
+                () -> System.err.println("Can't get reader ID by book ID " + bookId)
+        );
     }
 
     private void showReaderOfBookWithId(Long bookId) throws NoEntityWithSuchIdException {
