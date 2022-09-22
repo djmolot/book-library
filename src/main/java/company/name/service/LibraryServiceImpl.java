@@ -164,9 +164,9 @@ public class LibraryServiceImpl implements LibraryService {
                     "Book with specified id " + bookId + " does not exist in the storage");
         }
         libraryDao.getReaderIdByBookId(bookId)
-                .map(readerDao::getById)
+                .flatMap(readerDao::getById)
                 .ifPresentOrElse(
-                        optnlRdr -> System.out.println(optnlRdr.get()),
+                        System.out::println,
                         () -> System.out.println("Book with ID " + bookId + " is not borrowed. No reader to show.")
                 );
     }
