@@ -4,20 +4,30 @@ import company.name.db.Storage;
 import company.name.models.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ReaderDaoStorageImpl implements ReaderDao {
+    private static final AtomicLong idGenerator = new AtomicLong(1000);
+
     @Override
     public void add(Reader reader) {
-        int size = Storage.getReaders().size();
-        reader.setId(size + 1L);
+        reader.setId(idGenerator.incrementAndGet());
         Storage.getReaders().add(reader);
+        Storage.getReaders_Books().put(reader.getId(), new ArrayList<>());
+
     }
 
     @Override
-    public Reader get(Long id) {
-        return Storage.getReaders().stream().
-                filter(reader -> reader.getId().equals(id)).
-                findFirst().get();
+    public boolean containsReaderWithId(Long id) {
+        return Storage.getReaders().stream().anyMatch(reader -> reader.getId().equals(id));
+    }
+
+    @Override
+    public Optional<Reader> getById(Long id) {
+        return Storage.getReaders().stream()
+                .filter(reader -> reader.getId().equals(id))
+                .findFirst();
     }
 
     @Override
@@ -26,9 +36,16 @@ public class ReaderDaoStorageImpl implements ReaderDao {
     }
 
     @Override
-    public void update(Reader reader) {
-        Reader readerFromDB = get(reader.getId());
-        Storage.getReaders().remove(readerFromDB);
-        add(reader);
+    public void update(Reader updatedReader) {
+        getById(updatedReader.getId())
+                .ifPresentOrElse(
+                        existingReader -> {
+                            Storage.getReaders().remove(existingReader);
+                            add(updatedReader);
+                        },
+                        () -> System.err.println("Reader with ID " + updatedReader.getId()
+                                + " does not exist. Failed to update.")
+                );
     }
+
 }
