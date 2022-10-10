@@ -2,8 +2,10 @@ package company.name.models;
 
 public class Book {
     private Long id;
-    private String name;
+    private String title;
     private String author;
+    //@OneToOne
+    private Reader reader;
 
     public Long getId() {
         return id;
@@ -13,12 +15,12 @@ public class Book {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getAuthor() {
@@ -29,9 +31,18 @@ public class Book {
         this.author = author;
     }
 
+    public Reader getReader() {
+        return reader;
+    }
+
+    public void setReader(Reader reader) {
+        this.reader = reader;
+    }
+
+
     @Override
     public String toString() {
-        return (id + ". " + author + ". \"" + name + ".\"");
+        return (id + ". " + author + ". \"" + title + ".\"");
     }
 
 }

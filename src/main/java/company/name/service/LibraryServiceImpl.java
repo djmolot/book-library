@@ -1,184 +1,210 @@
 package company.name.service;
 
 import company.name.dao.BookDao;
-import company.name.dao.BookDaoStorageImpl;
-import company.name.dao.LibraryDao;
-import company.name.dao.LibraryDaoStorageImpl;
+import company.name.dao.BookDaoPostgreSqlImpl;
 import company.name.dao.ReaderDao;
-import company.name.dao.ReaderDaoStorageImpl;
-import company.name.exceptions.NoEntityWithSuchIdException;
+import company.name.dao.ReaderDaoPostgreSqlImpl;
+import company.name.exceptions.DaoLayerException;
+import company.name.exceptions.ServiceLayerException;
 import company.name.models.Book;
 import company.name.models.Reader;
 import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
-import java.util.stream.Collectors;
+import java.util.NoSuchElementException;
 
 public class LibraryServiceImpl implements LibraryService {
-    private final LibraryDao libraryDao = new LibraryDaoStorageImpl();
-    private final BookDao bookDao = new BookDaoStorageImpl();
-    private final ReaderDao readerDao = new ReaderDaoStorageImpl();
-    private static final Scanner scanner = new Scanner(System.in);
+    private final BookDao bookDao = new BookDaoPostgreSqlImpl();
+    private final ReaderDao readerDao = new ReaderDaoPostgreSqlImpl();
 
     @Override
-    public void showAllBooks() {
-        bookDao.getAll().forEach(System.out::println);
+    public List<Book> getAllBooks() {
+        return bookDao.getAll();
     }
 
     @Override
-    public void showAllReaders() {
-        readerDao.getAll().forEach(System.out::println);
+    public List<Reader> getAllReaders() {
+        return readerDao.getAll();
     }
 
     @Override
-    public void registerNewReader() {
-        System.out.println("Please enter new reader full name!");
-        var readerName = scanner.nextLine();
+    public Reader registerNewReader(String input) {
+        validateInputNewReader(input);
         Reader reader = new Reader();
-        reader.setName(readerName);
-        readerDao.add(reader);
+        reader.setName(input);
+        return readerDao.add(reader);
     }
 
     @Override
-    public void addNewBook() {
-        System.out.println("Please enter new book name and author separated by “/”. Like this: name/author");
-        var bookInput = scanner.nextLine();
-        String[] splittedInput = bookInput.split("/");
-        Book book = new Book();
-        book.setName(splittedInput[0]);
-        book.setAuthor(splittedInput[1]);
-        bookDao.add(book);
-    }
-
-    @Override
-    public void borrowBookToReader() {
-        System.out.println("Please enter book ID and reader ID separated by “/”. Like this: 1/2");
-        var input = scanner.nextLine();
+    public Book addNewBook(String input) {
+        validateInputNewBook(input);
         String[] splittedInput = input.split("/");
-        Long bookId = Long.parseLong(splittedInput[0]);
-        Long readerId = Long.parseLong(splittedInput[1]);
-        try {
-            borrowBookToReader(bookId, readerId);
-        } catch (NoEntityWithSuchIdException e) {
-            System.err.println(e.getMessage());;
-        }
+        String bookTitle = splittedInput[0];
+        String bookAuthor = splittedInput[1];
+        Book book = new Book();
+        book.setTitle(bookTitle);
+        book.setAuthor(bookAuthor);
+        return bookDao.add(book);
     }
 
     @Override
-    public void returnBookToLibrary() {
-        System.out.println("Please enter book ID");
-        var input = scanner.nextLine();
-        Long bookId = Long.parseLong(input);
+    public void borrowBookToReader(String input) {
+        validateInputBorrowBookToReader(input);
+        String[] splittedInput = input.split("/");
+        final Long bookId;
+        final Long readerId;
         try {
-            returnBookToLibrary(bookId);
-        } catch (NoEntityWithSuchIdException e) {
-            System.err.println(e.getMessage());;
+            bookId = Long.parseLong(splittedInput[0]);
+            readerId = Long.parseLong(splittedInput[1]);
+        } catch (NumberFormatException e) {
+            throw new ServiceLayerException("The string does not contain a parsable long. " + e.getMessage());
         }
+        Reader reader = readerDao.getById(readerId).orElseThrow(
+                () -> new DaoLayerException("Reader with ID " + readerId + " does not exist in DB.")
+        );
+        Book book = bookDao.getById(bookId).orElseThrow(
+                () -> new DaoLayerException("Book with ID " + bookId + " does not exist in DB.")
+        );
+        if(book.getReader() != null) {
+            throw new ServiceLayerException("Book with ID " + bookId + " has already borrowed by reader " + book.getReader());
+        }
+        book.setReader(reader);
+        bookDao.update(book);
     }
 
     @Override
-    public void showAllBooksOfReader() {
-        System.out.println("Please enter reader ID");
-        var input = scanner.nextLine();
-        Long readerId = Long.parseLong(input);
+    public void returnBookToLibrary(String input) {
+        validateInputReturnBookToLibrary(input);
+        Long bookId;
         try {
-            List<Book> allBooksOfReader = getAllBooksByReader(readerId);
-            if(allBooksOfReader.isEmpty()) {
-                System.out.println("Reader with ID " + readerId + " has not borowed books.");
-            } else {
-                allBooksOfReader.forEach(System.out::println);
-            }
-        } catch (NoEntityWithSuchIdException e) {
-            System.err.println(e.getMessage());
+            bookId = Long.parseLong(input);
+        } catch (NumberFormatException e) {
+            throw new ServiceLayerException("The string " + input + " does not contain a parsable long. " + e.getMessage());
         }
+        bookDao.getById(bookId).ifPresent(
+                book -> {
+                    book.setReader(null);
+                    bookDao.update(book);
+                }
+        );
     }
 
     @Override
-    public void showReaderOfBook() {
-        System.out.println("Please enter book ID");
-        var input = scanner.nextLine();
-        Long bookId = Long.parseLong(input);
+    public List<Book> getAllBooksOfReader(String input) {
+        validateInputGetAllBooksOfReader(input);
+        Long readerId;
         try {
-            showReaderOfBookWithId(bookId);
-        } catch (NoEntityWithSuchIdException e) {
-            System.err.println(e.getMessage());
+            readerId = Long.parseLong(input);
+        } catch (NumberFormatException e) {
+            throw new ServiceLayerException("The string " + input + " does not contain a parsable long. " + e.getMessage());
+        }
+        return bookDao.getBooksByReaderId(readerId);
+    }
+
+    @Override
+    public Reader getReaderOfBookWithId(String input) {
+        validateInputGetReaderOfBookWithId(input);
+        Long bookId;
+        try {
+            bookId = Long.parseLong(input);
+        } catch (NumberFormatException e) {
+            throw new ServiceLayerException("The string " + input + " does not contain a parsable long. " + e.getMessage());
+        }
+        try {
+            return readerDao.getReaderByBookId(bookId).orElseThrow();
+        } catch (NoSuchElementException e) {
+            throw new DaoLayerException("Book with ID " + bookId + " is not borrowed. No reader to show. " + e.getMessage());
         }
     }
 
     @Override
     public void prepareLibraryData() {
-        Book book1 = new Book();
-        book1.setAuthor("Herbert Schildt");
-        book1.setName("Java. The Complete Reference. Twelfth Edition");
-        bookDao.add(book1);
+        if(bookDao.getAll().size() == 0 || readerDao.getAll().size() == 0) {
+            Reader reader1 = new Reader();
+            reader1.setName("Zhirayr Hovik");
+            readerDao.add(reader1);
 
-        Book book2 = new Book();
-        book2.setAuthor("Walter Savitch");
-        book2.setName("Java. An Introduction to Problem Solving & Programming");
-        bookDao.add(book2);
+            Reader reader2 = new Reader();
+            reader2.setName("Voski Daniel");
+            readerDao.add(reader2);
 
-        Book book3 = new Book();
-        book3.setAuthor("Narasimha Karumanchi");
-        book3.setName("Data Structures And Algorithms Made Easy In JAVA");
-        bookDao.add(book3);
+            Reader reader3 = new Reader();
+            reader3.setName("Ruben Nazaret");
+            readerDao.add(reader3);
 
-        Reader reader1 = new Reader();
-        reader1.setName("Zhirayr Hovik");
-        readerDao.add(reader1);
+            Book book1 = new Book();
+            book1.setAuthor("Herbert Schildt");
+            book1.setTitle("Java. The Complete Reference. Twelfth Edition");
+            readerDao.getById(1L).ifPresent(book1::setReader);
+            bookDao.add(book1);
 
-        Reader reader2 = new Reader();
-        reader2.setName("Voski Daniel");
-        readerDao.add(reader2);
+            Book book2 = new Book();
+            book2.setAuthor("Walter Savitch");
+            book2.setTitle("Java. An Introduction to Problem Solving & Programming");
+            readerDao.getById(2L).ifPresent(book2::setReader);
+            bookDao.add(book2);
 
-        Reader reader3 = new Reader();
-        reader3.setName("Ruben Nazaret");
-        readerDao.add(reader3);
+            Book book3 = new Book();
+            book3.setAuthor("Narasimha Karumanchi");
+            book3.setTitle("Data Structures And Algorithms Made Easy In JAVA");
+            readerDao.getById(3L).ifPresent(book3::setReader);
+            bookDao.add(book3);
+        }
     }
 
-    private void borrowBookToReader(Long bookId, Long readerId) throws NoEntityWithSuchIdException {
-        if(!readerDao.containsReaderWithId(readerId)) {
-            throw new NoEntityWithSuchIdException(
-                    "Reader with specified id " + readerId + " does not exist in the storage");
+    private void validateInputNewReader(String input) {
+        if(input == null || input.length() == 0) {
+            throw new ServiceLayerException("Reader name can't be null or empty.");
         }
-        if(!bookDao.containsBookWithId(bookId)) {
-            throw new NoEntityWithSuchIdException(
-                    "Book with specified id " + bookId + " does not exist in the storage");
+        if(countCharOccurrencesInString(input, '/') > 0) {
+            throw new ServiceLayerException("Reader name can't contain symbol '/'.");
         }
-        libraryDao.borrowBookForReader(bookId, readerId);
     }
 
-    private void returnBookToLibrary(Long bookId) throws NoEntityWithSuchIdException {
-        if(!bookDao.containsBookWithId(bookId)) {
-            throw new NoEntityWithSuchIdException(
-                    "Book with specified id " + bookId + " does not exist in the storage");
+    private void validateInputNewBook(String input) {
+        if(input == null || input.length() == 0) {
+            throw new ServiceLayerException("New book input can't be null or empty.");
+        } else if(countCharOccurrencesInString(input, '/') != 1) {
+            throw new ServiceLayerException("New book input must contain one '/' character.");
         }
-        libraryDao.getReaderIdByBookId(bookId).ifPresentOrElse(
-                readerId -> libraryDao.returnBookFromReader(bookId, readerId),
-                () -> System.err.println("Can't get reader ID by book ID " + bookId)
-        );
     }
 
-    private void showReaderOfBookWithId(Long bookId) throws NoEntityWithSuchIdException {
-        if(!bookDao.containsBookWithId(bookId)) {
-            throw new NoEntityWithSuchIdException(
-                    "Book with specified id " + bookId + " does not exist in the storage");
+    private void validateInputBorrowBookToReader(String input) {
+        if(input == null || input.length() == 0) {
+            throw new ServiceLayerException("BorrowBookToReader input can't be null or empty.");
+        } else if(countCharOccurrencesInString(input, '/') != 1) {
+            throw new ServiceLayerException("BorrowBookToReader input must contain one '/' character.");
         }
-        libraryDao.getReaderIdByBookId(bookId)
-                .flatMap(readerDao::getById)
-                .ifPresentOrElse(
-                        System.out::println,
-                        () -> System.out.println("Book with ID " + bookId + " is not borrowed. No reader to show.")
-                );
     }
 
-    private List<Book> getAllBooksByReader(Long readerId) throws NoEntityWithSuchIdException {
-        if(!readerDao.containsReaderWithId(readerId)) {
-            throw new NoEntityWithSuchIdException(
-                    "Reader with specified id " + readerId + " does not exist in the storage");
+    private void validateInputReturnBookToLibrary(String input) {
+        if(input == null || input.length() == 0) {
+            throw new ServiceLayerException("ReturnBookToLibrary input can't be null or empty.");
         }
-        return libraryDao.getBooksIdsByReaderId(readerId).stream()
-                .map(bookDao::getById)
-                .flatMap(Optional::stream)
-                .collect(Collectors.toList());
+        if(countCharOccurrencesInString(input, '/') > 0) {
+            throw new ServiceLayerException("ReturnBookToLibrary input can't contain symbol '/'.");
+        }
     }
+
+    private void validateInputGetAllBooksOfReader(String input) {
+        if(input == null || input.length() == 0) {
+            throw new ServiceLayerException("GetAllBooksOfReader input can't be null or empty.");
+        }
+        if(countCharOccurrencesInString(input, '/') > 0) {
+            throw new ServiceLayerException("GetAllBooksOfReader input can't contain symbol '/'.");
+        }
+    }
+
+    private void validateInputGetReaderOfBookWithId(String input) {
+        if(input == null || input.length() == 0) {
+            throw new ServiceLayerException("GetReaderOfBookWithId input can't be null or empty.");
+        }
+        if(countCharOccurrencesInString(input, '/') > 0) {
+            throw new ServiceLayerException("GetReaderOfBookWithId input can't contain symbol '/'.");
+        }
+    }
+
+    private long countCharOccurrencesInString(String string, char character) {
+        return string.chars()
+                .filter(ch -> ch == character).count();
+    }
+
 }

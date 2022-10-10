@@ -1,18 +1,19 @@
 package company.name.dao;
 
+import company.name.exceptions.DaoLayerException;
 import company.name.models.Reader;
 import java.util.List;
 import java.util.Optional;
 
 public interface ReaderDao {
-    void add(Reader reader);
+    Reader add(Reader reader) throws DaoLayerException;
 
     Optional<Reader> getById(Long id);
 
-    List<Reader> getAll();
+    List<Reader> getAll() throws DaoLayerException;
 
     void update(Reader reader);
 
-    boolean containsReaderWithId(Long id);
+    Optional<Reader> getReaderByBookId(Long bookId);
 
 }

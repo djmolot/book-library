@@ -1,8 +1,12 @@
 package company.name.models;
 
+import java.util.List;
+
 public class Reader {
     private Long id;
     private String name;
+    //@OneToMany
+    List<Book> books;
 
     public Long getId() {
         return id;
@@ -18,6 +22,29 @@ public class Reader {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == this) {
+            return true;
+        }
+        if(obj == null) {
+            return false;
+        }
+        if(obj.getClass().equals(Reader.class)) {
+            Reader casted = (Reader) obj;
+            return this.id.equals(casted.id) && this.name.equals(casted.name);
+        }
+        return false;
     }
 
     @Override
