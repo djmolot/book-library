@@ -18,8 +18,8 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
     public Reader add(Reader reader) throws DaoLayerException {
         String request = "INSERT INTO readers (name) VALUES (?);";
         try (Connection connection = ConnectionUtil.getConnection();
-             PreparedStatement statement = connection.prepareStatement(request,
-                     Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement statement = connection.prepareStatement(request,
+                        Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, reader.getName());
             statement.executeUpdate();
             ResultSet resultSet = statement.getGeneratedKeys();
@@ -28,7 +28,8 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
             }
             return reader;
         } catch (SQLException e) {
-            throw new DaoLayerException("Can't insert reader " + reader + " to DB. " + e.getMessage());
+            throw new DaoLayerException("Can't insert reader " + reader + " to DB. "
+                    + e.getMessage());
         }
     }
 
@@ -36,7 +37,7 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
     public Optional<Reader> getById(Long id) {
         String request = "SELECT * FROM readers WHERE id = ?;";
         try (Connection connection = ConnectionUtil.getConnection();
-             PreparedStatement statement = connection.prepareStatement(request)) {
+                PreparedStatement statement = connection.prepareStatement(request)) {
             statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -51,10 +52,10 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
     @Override
     public List<Reader> getAll() {
         List<Reader> allReaders = new ArrayList<>();
-        String query = "SELECT r.id as reader_id, r.name, b.id as book_id, b.title, b.author " +
-                "FROM books b RIGHT JOIN readers r ON b.reader_id = r.id;";
+        String query = "SELECT r.id as reader_id, r.name, b.id as book_id, b.title, b.author "
+                + "FROM books b RIGHT JOIN readers r ON b.reader_id = r.id;";
         try (Connection connection = ConnectionUtil.getConnection();
-             Statement statement = connection.createStatement()) {
+                Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
                 processCurrentLine(resultSet, allReaders);
@@ -72,10 +73,10 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
 
     @Override
     public Optional<Reader> getReaderByBookId(Long bookId) {
-        String request = "SELECT b.reader_id as reader_id, r.name as reader_name " +
-                "FROM books b JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;";
+        String request = "SELECT b.reader_id as reader_id, r.name as reader_name "
+                + "FROM books b JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;";
         try (Connection connection = ConnectionUtil.getConnection();
-             PreparedStatement statement = connection.prepareStatement(request)) {
+                PreparedStatement statement = connection.prepareStatement(request)) {
             statement.setLong(1, bookId);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -86,7 +87,8 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
             }
             return Optional.empty();
         } catch (SQLException e) {
-            throw new DaoLayerException("Can't get reader of book with ID" + bookId + " from DB" + e.getMessage());
+            throw new DaoLayerException("Can't get reader of book with ID" + bookId + " from DB"
+                    + e.getMessage());
         }
     }
 
@@ -98,12 +100,13 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
 
     }
 
-    private void processCurrentLine(ResultSet resultSet, List<Reader> allReaders) throws SQLException {
+    private void processCurrentLine(ResultSet resultSet, List<Reader> allReaders)
+            throws SQLException {
         Reader reader = new Reader();
         reader.setBooks(new ArrayList<>());
         reader.setId(resultSet.getObject("reader_id", Long.class));
         reader.setName(resultSet.getString("name"));
-        if(resultSet.getObject("book_id", Long.class) == null) {
+        if (resultSet.getObject("book_id", Long.class) == null) {
             allReaders.add(reader);
             return;
         }
@@ -111,7 +114,7 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
         book.setId(resultSet.getObject("book_id", Long.class));
         book.setTitle(resultSet.getString("title"));
         book.setAuthor(resultSet.getString("author"));
-        if(allReaders.contains(reader)) {
+        if (allReaders.contains(reader)) {
             int indexOf = allReaders.indexOf(reader);
             Reader reader1 = allReaders.get(indexOf);
             reader1.getBooks().add(book);

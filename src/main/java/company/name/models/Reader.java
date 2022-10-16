@@ -6,7 +6,7 @@ public class Reader {
     private Long id;
     private String name;
     //@OneToMany
-    List<Book> books;
+    private List<Book> books;
 
     public Long getId() {
         return id;
@@ -34,13 +34,13 @@ public class Reader {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == this) {
+        if (obj == this) {
             return true;
         }
-        if(obj == null) {
+        if (obj == null) {
             return false;
         }
-        if(obj.getClass().equals(Reader.class)) {
+        if (obj.getClass().equals(Reader.class)) {
             Reader casted = (Reader) obj;
             return this.id.equals(casted.id) && this.name.equals(casted.name);
         }

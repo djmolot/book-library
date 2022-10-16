@@ -55,7 +55,8 @@ public class LibraryServiceImpl implements LibraryService {
             bookId = Long.parseLong(splittedInput[0]);
             readerId = Long.parseLong(splittedInput[1]);
         } catch (NumberFormatException e) {
-            throw new ServiceLayerException("The string does not contain a parsable long. " + e.getMessage());
+            throw new ServiceLayerException("The string does not contain a parsable long. "
+                    + e.getMessage());
         }
         Reader reader = readerDao.getById(readerId).orElseThrow(
                 () -> new DaoLayerException("Reader with ID " + readerId + " does not exist in DB.")
@@ -63,8 +64,9 @@ public class LibraryServiceImpl implements LibraryService {
         Book book = bookDao.getById(bookId).orElseThrow(
                 () -> new DaoLayerException("Book with ID " + bookId + " does not exist in DB.")
         );
-        if(book.getReader() != null) {
-            throw new ServiceLayerException("Book with ID " + bookId + " has already borrowed by reader " + book.getReader());
+        if (book.getReader() != null) {
+            throw new ServiceLayerException("Book with ID " + bookId
+                    + " has already borrowed by reader " + book.getReader());
         }
         book.setReader(reader);
         bookDao.update(book);
@@ -77,7 +79,8 @@ public class LibraryServiceImpl implements LibraryService {
         try {
             bookId = Long.parseLong(input);
         } catch (NumberFormatException e) {
-            throw new ServiceLayerException("The string " + input + " does not contain a parsable long. " + e.getMessage());
+            throw new ServiceLayerException("The string " + input
+                    + " does not contain a parsable long. " + e.getMessage());
         }
         bookDao.getById(bookId).ifPresent(
                 book -> {
@@ -94,7 +97,8 @@ public class LibraryServiceImpl implements LibraryService {
         try {
             readerId = Long.parseLong(input);
         } catch (NumberFormatException e) {
-            throw new ServiceLayerException("The string " + input + " does not contain a parsable long. " + e.getMessage());
+            throw new ServiceLayerException("The string " + input
+                    + " does not contain a parsable long. " + e.getMessage());
         }
         return bookDao.getBooksByReaderId(readerId);
     }
@@ -106,18 +110,20 @@ public class LibraryServiceImpl implements LibraryService {
         try {
             bookId = Long.parseLong(input);
         } catch (NumberFormatException e) {
-            throw new ServiceLayerException("The string " + input + " does not contain a parsable long. " + e.getMessage());
+            throw new ServiceLayerException("The string " + input
+                    + " does not contain a parsable long. " + e.getMessage());
         }
         try {
             return readerDao.getReaderByBookId(bookId).orElseThrow();
         } catch (NoSuchElementException e) {
-            throw new DaoLayerException("Book with ID " + bookId + " is not borrowed. No reader to show. " + e.getMessage());
+            throw new DaoLayerException("Book with ID " + bookId
+                    + " is not borrowed. No reader to show. " + e.getMessage());
         }
     }
 
     @Override
     public void prepareLibraryData() {
-        if(bookDao.getAll().size() == 0 || readerDao.getAll().size() == 0) {
+        if (bookDao.getAll().size() == 0 || readerDao.getAll().size() == 0) {
             Reader reader1 = new Reader();
             reader1.setName("Zhirayr Hovik");
             readerDao.add(reader1);
@@ -151,54 +157,58 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     private void validateInputNewReader(String input) {
-        if(input == null || input.length() == 0) {
+        if (input == null || input.length() == 0) {
             throw new ServiceLayerException("Reader name can't be null or empty.");
         }
-        if(countCharOccurrencesInString(input, '/') > 0) {
+        if (countCharOccurrencesInString(input, '/') > 0) {
             throw new ServiceLayerException("Reader name can't contain symbol '/'.");
         }
     }
 
     private void validateInputNewBook(String input) {
-        if(input == null || input.length() == 0) {
+        if (input == null || input.length() == 0) {
             throw new ServiceLayerException("New book input can't be null or empty.");
-        } else if(countCharOccurrencesInString(input, '/') != 1) {
+        } else if (countCharOccurrencesInString(input, '/') != 1) {
             throw new ServiceLayerException("New book input must contain one '/' character.");
+        } else if (countCharOccurrencesInString(input, '/') == 1 && input.length() == 1) {
+            throw new ServiceLayerException("New book input '/' is not valid here.");
         }
     }
 
     private void validateInputBorrowBookToReader(String input) {
-        if(input == null || input.length() == 0) {
+        if (input == null || input.length() == 0) {
             throw new ServiceLayerException("BorrowBookToReader input can't be null or empty.");
-        } else if(countCharOccurrencesInString(input, '/') != 1) {
-            throw new ServiceLayerException("BorrowBookToReader input must contain one '/' character.");
+        } else if (countCharOccurrencesInString(input, '/') != 1) {
+            throw new ServiceLayerException(
+                    "BorrowBookToReader input must contain one '/' character.");
         }
     }
 
     private void validateInputReturnBookToLibrary(String input) {
-        if(input == null || input.length() == 0) {
+        if (input == null || input.length() == 0) {
             throw new ServiceLayerException("ReturnBookToLibrary input can't be null or empty.");
         }
-        if(countCharOccurrencesInString(input, '/') > 0) {
+        if (countCharOccurrencesInString(input, '/') > 0) {
             throw new ServiceLayerException("ReturnBookToLibrary input can't contain symbol '/'.");
         }
     }
 
     private void validateInputGetAllBooksOfReader(String input) {
-        if(input == null || input.length() == 0) {
+        if (input == null || input.length() == 0) {
             throw new ServiceLayerException("GetAllBooksOfReader input can't be null or empty.");
         }
-        if(countCharOccurrencesInString(input, '/') > 0) {
+        if (countCharOccurrencesInString(input, '/') > 0) {
             throw new ServiceLayerException("GetAllBooksOfReader input can't contain symbol '/'.");
         }
     }
 
     private void validateInputGetReaderOfBookWithId(String input) {
-        if(input == null || input.length() == 0) {
+        if (input == null || input.length() == 0) {
             throw new ServiceLayerException("GetReaderOfBookWithId input can't be null or empty.");
         }
-        if(countCharOccurrencesInString(input, '/') > 0) {
-            throw new ServiceLayerException("GetReaderOfBookWithId input can't contain symbol '/'.");
+        if (countCharOccurrencesInString(input, '/') > 0) {
+            throw new ServiceLayerException(
+                    "GetReaderOfBookWithId input can't contain symbol '/'.");
         }
     }
 

@@ -39,7 +39,6 @@ public class Book {
         this.reader = reader;
     }
 
-
     @Override
     public String toString() {
         return (id + ". " + author + ". \"" + title + ".\"");
