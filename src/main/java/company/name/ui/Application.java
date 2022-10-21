@@ -7,6 +7,7 @@ import company.name.models.Reader;
 import company.name.service.LibraryService;
 import company.name.service.LibraryServiceImpl;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Application {
@@ -182,8 +183,12 @@ public class Application {
         System.out.println("Please enter book ID");
         var input = scanner.nextLine();
         try {
-            Reader reader = libraryService.getReaderOfBookWithId(input);
-            System.out.println("Reader of this book is " + reader);
+            Optional<Reader> optional = libraryService.getReaderOfBookWithId(input);
+            if(optional.isPresent()) {
+                System.out.println("Reader of this book is " + optional.get());
+            } else {
+                System.out.println("Book is not borrowed. No reader to show");
+            }
         } catch (ServiceLayerException e) {
             System.err.println("Can't get reader of book due to error on service layer. "
                     + e.getMessage());

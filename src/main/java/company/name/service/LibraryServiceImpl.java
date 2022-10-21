@@ -109,7 +109,7 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public Reader getReaderOfBookWithId(String input) {
+    public Optional<Reader> getReaderOfBookWithId(String input) {
         validateInputGetReaderOfBookWithId(input);
         Long bookId;
         try {
@@ -121,12 +121,7 @@ public class LibraryServiceImpl implements LibraryService {
         bookDao.getById(bookId).orElseThrow(
                 () -> new DaoLayerException("Book with ID " + bookId + " does not exist in DB.")
         );
-        try {
-            return readerDao.getReaderByBookId(bookId).orElseThrow();
-        } catch (NoSuchElementException e) {
-            throw new DaoLayerException("Book with ID " + bookId
-                    + " is not borrowed. No reader to show. " + e.getMessage());
-        }
+        return readerDao.getReaderByBookId(bookId);
     }
 
     @Override

@@ -3,6 +3,7 @@ package company.name.service;
 import company.name.models.Book;
 import company.name.models.Reader;
 import java.util.List;
+import java.util.Optional;
 
 public interface LibraryService {
     List<Book> getAllBooks();
@@ -19,7 +20,7 @@ public interface LibraryService {
 
     List<Book> getAllBooksOfReader(String input);
 
-    Reader getReaderOfBookWithId(String input);
+    Optional<Reader> getReaderOfBookWithId(String input);
 
     void prepareLibraryData();
 }
