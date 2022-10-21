@@ -1,11 +1,13 @@
 package company.name.models;
 
+import java.util.Optional;
+
 public class Book {
     private Long id;
     private String title;
     private String author;
     //@OneToOne
-    private Reader reader;
+    private Optional<Reader> reader;
 
     public Long getId() {
         return id;
@@ -31,11 +33,11 @@ public class Book {
         this.author = author;
     }
 
-    public Reader getReader() {
+    public Optional<Reader> getReader() {
         return reader;
     }
 
-    public void setReader(Reader reader) {
+    public void setReader(Optional<Reader> reader) {
         this.reader = reader;
     }
 

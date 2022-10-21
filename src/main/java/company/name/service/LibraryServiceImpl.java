@@ -10,6 +10,7 @@ import company.name.models.Book;
 import company.name.models.Reader;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class LibraryServiceImpl implements LibraryService {
     private final BookDao bookDao = new BookDaoPostgreSqlImpl();
@@ -64,11 +65,13 @@ public class LibraryServiceImpl implements LibraryService {
         Book book = bookDao.getById(bookId).orElseThrow(
                 () -> new DaoLayerException("Book with ID " + bookId + " does not exist in DB.")
         );
-        if (book.getReader() != null) {
-            throw new ServiceLayerException("Book with ID " + bookId
-                    + " has already borrowed by reader " + book.getReader());
-        }
-        book.setReader(reader);
+        book.getReader().ifPresent(
+                r -> {
+                    throw new ServiceLayerException("Book with ID " + bookId
+                            + " has already borrowed by reader " + r);
+                }
+        );
+        book.setReader(Optional.of(reader));
         bookDao.update(book);
     }
 
@@ -82,12 +85,11 @@ public class LibraryServiceImpl implements LibraryService {
             throw new ServiceLayerException("The string " + input
                     + " does not contain a parsable long. " + e.getMessage());
         }
-        bookDao.getById(bookId).ifPresent(
-                book -> {
-                    book.setReader(null);
-                    bookDao.update(book);
-                }
+        Book book = bookDao.getById(bookId).orElseThrow(
+                () -> new DaoLayerException("Book with ID " + bookId + " does not exist in DB.")
         );
+        book.setReader(Optional.empty());
+        bookDao.update(book);
     }
 
     @Override
@@ -100,6 +102,9 @@ public class LibraryServiceImpl implements LibraryService {
             throw new ServiceLayerException("The string " + input
                     + " does not contain a parsable long. " + e.getMessage());
         }
+        readerDao.getById(readerId).orElseThrow(
+                () -> new DaoLayerException("Reader with ID " + readerId + " does not exist in DB.")
+        );
         return bookDao.getBooksByReaderId(readerId);
     }
 
@@ -113,6 +118,9 @@ public class LibraryServiceImpl implements LibraryService {
             throw new ServiceLayerException("The string " + input
                     + " does not contain a parsable long. " + e.getMessage());
         }
+        bookDao.getById(bookId).orElseThrow(
+                () -> new DaoLayerException("Book with ID " + bookId + " does not exist in DB.")
+        );
         try {
             return readerDao.getReaderByBookId(bookId).orElseThrow();
         } catch (NoSuchElementException e) {
@@ -123,6 +131,7 @@ public class LibraryServiceImpl implements LibraryService {
 
     @Override
     public void prepareLibraryData() {
+        /*
         if (bookDao.getAll().size() == 0 || readerDao.getAll().size() == 0) {
             Reader reader1 = new Reader();
             reader1.setName("Zhirayr Hovik");
@@ -154,6 +163,7 @@ public class LibraryServiceImpl implements LibraryService {
             readerDao.getById(3L).ifPresent(book3::setReader);
             bookDao.add(book3);
         }
+         */
     }
 
     private void validateInputNewReader(String input) {

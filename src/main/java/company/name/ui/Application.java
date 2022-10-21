@@ -67,13 +67,12 @@ public class Application {
 
     private void showAllBooks() {
         try {
-            libraryService.getAllBooks().forEach(b -> {
-                System.out.println(b);
-                if (b.getReader() != null) {
-                    System.out.println(" borowed by reader " + b.getReader());
-                } else {
-                    System.out.println(" available");
-                }
+            libraryService.getAllBooks().forEach(book -> {
+                System.out.println(book);
+                book.getReader().ifPresentOrElse(
+                        reader -> System.out.println(" borowed by reader " + reader),
+                        () -> System.out.println(" available")
+                );
             });
         } catch (DaoLayerException e) {
             System.err.println("Can't get all books from DB due to error on DAO layer. "
@@ -83,11 +82,12 @@ public class Application {
 
     private void showAllReaders() {
         try {
-            libraryService.getAllReaders().forEach(r -> {
-                System.out.println(r);
-                if (!r.getBooks().isEmpty()) {
+            libraryService.getAllReaders().forEach(reader -> {
+                System.out.println(reader);
+                if (!reader.getBooks().isEmpty()) {
                     System.out.println("     Borrowed books: ");
-                    r.getBooks().forEach(book -> System.out.println("     " + book));
+                    reader.getBooks().forEach(
+                            book -> System.out.println("     " + book));
                 } else {
                     System.out.println("     Has not borrowed books");
                 }
@@ -173,7 +173,7 @@ public class Application {
             System.err.println("Can't get all books of reader due to error on service layer. "
                     + e.getMessage());
         } catch (DaoLayerException e) {
-            System.err.println("Can't get all books of reader due to error on DAO layer ."
+            System.err.println("Can't get all books of reader due to error on DAO layer. "
                     + e.getMessage());
         }
     }
@@ -188,7 +188,7 @@ public class Application {
             System.err.println("Can't get reader of book due to error on service layer. "
                     + e.getMessage());
         } catch (DaoLayerException e) {
-            System.err.println("Can't get reader of book due to error on DAO layer ."
+            System.err.println("Can't get reader of book due to error on DAO layer. "
                     + e.getMessage());
         }
     }

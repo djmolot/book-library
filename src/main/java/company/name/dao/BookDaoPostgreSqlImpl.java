@@ -48,7 +48,7 @@ public class BookDaoPostgreSqlImpl implements BookDao {
                 return Optional.of(getCurrentBook(resultSet));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Can't get book with ID" + id + " from DB", e);
+            throw new DaoLayerException("Can't get book with ID" + id + " from DB");
         }
         return Optional.empty();
     }
@@ -76,8 +76,8 @@ public class BookDaoPostgreSqlImpl implements BookDao {
         String request = "UPDATE books SET reader_id = ? WHERE id = ?;";
         try (Connection connection = ConnectionUtil.getConnection();
                 PreparedStatement statement = connection.prepareStatement(request)) {
-            if (book.getReader() != null) {
-                statement.setObject(1, book.getReader().getId());
+            if (book.getReader().isPresent()) {
+                statement.setObject(1, book.getReader().get().getId());
             } else {
                 statement.setNull(1, Types.BIGINT);
             }
@@ -109,14 +109,16 @@ public class BookDaoPostgreSqlImpl implements BookDao {
 
     private Book getCurrentBook(ResultSet resultSet) throws SQLException {
         Book book = new Book();
-        book.setId(resultSet.getObject("book_id", Long.class));
+        book.setId(resultSet.getLong("book_id"));
         book.setTitle(resultSet.getString("title"));
         book.setAuthor(resultSet.getString("author"));
         if (resultSet.getObject("reader_id", Long.class) != null) {
             Reader reader = new Reader();
-            reader.setId(resultSet.getObject("reader_id", Long.class));
+            reader.setId(resultSet.getLong("reader_id"));
             reader.setName(resultSet.getString("reader_name"));
-            book.setReader(reader);
+            book.setReader(Optional.of(reader));
+        } else {
+            book.setReader(Optional.empty());
         }
         return book;
     }
