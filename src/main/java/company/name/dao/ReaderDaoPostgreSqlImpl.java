@@ -4,7 +4,6 @@ import company.name.exceptions.DaoLayerException;
 import company.name.models.Book;
 import company.name.models.Reader;
 import company.name.util.ConnectionUtil;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,7 +18,7 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
     public Reader add(Reader reader) throws DaoLayerException {
         String request = "INSERT INTO readers (name) VALUES (?);";
         try (Connection connection = ConnectionUtil.getConnection();
-             PreparedStatement statement = connection.prepareStatement(request,
+                PreparedStatement statement = connection.prepareStatement(request,
                         Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, reader.getName());
             statement.executeUpdate();
