@@ -184,7 +184,7 @@ public class Application {
         var input = scanner.nextLine();
         try {
             Optional<Reader> optional = libraryService.getReaderOfBookWithId(input);
-            if(optional.isPresent()) {
+            if (optional.isPresent()) {
                 System.out.println("Reader of this book is " + optional.get());
             } else {
                 System.out.println("Book is not borrowed. No reader to show");

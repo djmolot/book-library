@@ -9,7 +9,6 @@ import company.name.exceptions.ServiceLayerException;
 import company.name.models.Book;
 import company.name.models.Reader;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class LibraryServiceImpl implements LibraryService {
