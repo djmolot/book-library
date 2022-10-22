@@ -41,7 +41,7 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
             statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                return Optional.of(mapResultSetToReader(resultSet));
+                return Optional.of(mapResultSetToReaderWithoutBooks(resultSet));
             }
             return Optional.empty();
         } catch (SQLException e) {
@@ -52,15 +52,12 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
 
     @Override
     public List<Reader> getAll() {
-        List<Reader> allReaders = new ArrayList<>();
         String query = "SELECT r.id as reader_id, r.name, b.id as book_id, b.title, b.author "
                 + "FROM books b RIGHT JOIN readers r ON b.reader_id = r.id;";
         try (Connection connection = ConnectionUtil.getConnection();
                 Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(query);
-            while (resultSet.next()) {
-                processCurrentLine(resultSet, allReaders);
-            }
+            List<Reader> allReaders = mapResultSetToReaders(resultSet);
             return allReaders;
         } catch (SQLException e) {
             throw new DaoLayerException("Can't get all readers from DB. " + e.getMessage());
@@ -93,7 +90,7 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
         }
     }
 
-    private Reader mapResultSetToReader(ResultSet resultSet) throws SQLException {
+    private Reader mapResultSetToReaderWithoutBooks(ResultSet resultSet) throws SQLException {
         Reader reader = new Reader();
         reader.setId(resultSet.getLong("id"));
         reader.setName(resultSet.getString("name"));
@@ -101,28 +98,32 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
 
     }
 
-    private void processCurrentLine(ResultSet resultSet, List<Reader> allReaders)
+    private List<Reader> mapResultSetToReaders(ResultSet resultSet)
             throws SQLException {
-        Reader reader = new Reader();
-        reader.setBooks(new ArrayList<>());
-        reader.setId(resultSet.getLong("reader_id"));
-        reader.setName(resultSet.getString("name"));
-        if (resultSet.getObject("book_id", Long.class) == null) {
-            allReaders.add(reader);
-            return;
+        List<Reader> readers = new ArrayList<>();
+        Long previousReaderId = 0L;
+        Reader currentReader = null;
+        while (resultSet.next()) {
+            Long currentReaderId = resultSet.getLong("reader_id");
+            if (!currentReaderId.equals(previousReaderId)) {
+                currentReader = new Reader();
+                currentReader.setId(currentReaderId);
+                currentReader.setName(resultSet.getString("name"));
+                currentReader.setBooks(new ArrayList<>());
+                readers.add(currentReader);
+                previousReaderId = currentReaderId;
+            }
+            if (resultSet.getLong("book_id") != 0) {
+                Book book = new Book();
+                book.setId(resultSet.getLong("book_id"));
+                book.setTitle(resultSet.getString("title"));
+                book.setAuthor(resultSet.getString("author"));
+                if (currentReader != null) {
+                    currentReader.getBooks().add(book);
+                }
+            }
         }
-        Book book = new Book();
-        book.setId(resultSet.getLong("book_id"));
-        book.setTitle(resultSet.getString("title"));
-        book.setAuthor(resultSet.getString("author"));
-        if (allReaders.contains(reader)) {
-            int indexOf = allReaders.indexOf(reader);
-            Reader reader1 = allReaders.get(indexOf);
-            reader1.getBooks().add(book);
-            return;
-        }
-        reader.getBooks().add(book);
-        allReaders.add(reader);
+        return readers;
     }
 
 }
