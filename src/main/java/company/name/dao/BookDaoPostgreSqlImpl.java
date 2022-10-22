@@ -72,7 +72,7 @@ public class BookDaoPostgreSqlImpl implements BookDao {
     }
 
     @Override
-    public boolean update(Book book) {
+    public Book update(Book book) {
         String request = "UPDATE books SET reader_id = ? WHERE id = ?;";
         try (Connection connection = ConnectionUtil.getConnection();
                 PreparedStatement statement = connection.prepareStatement(request)) {
@@ -82,8 +82,8 @@ public class BookDaoPostgreSqlImpl implements BookDao {
                 statement.setNull(1, Types.BIGINT);
             }
             statement.setLong(2, book.getId());
-            int numberOfUpdated = statement.executeUpdate();
-            return numberOfUpdated != 0;
+            statement.executeUpdate();
+            return book;
         } catch (SQLException e) {
             throw new DaoLayerException("Can't update reader of book in DB" + e.getMessage());
         }

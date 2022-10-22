@@ -125,7 +125,6 @@ public class LibraryServiceImpl implements LibraryService {
 
     @Override
     public void prepareLibraryData() {
-        /*
         if (bookDao.getAll().size() == 0 || readerDao.getAll().size() == 0) {
             Reader reader1 = new Reader();
             reader1.setName("Zhirayr Hovik");
@@ -142,22 +141,21 @@ public class LibraryServiceImpl implements LibraryService {
             Book book1 = new Book();
             book1.setAuthor("Herbert Schildt");
             book1.setTitle("Java. The Complete Reference. Twelfth Edition");
-            readerDao.getById(1L).ifPresent(book1::setReader);
+            book1.setReader(readerDao.getById(1L));
             bookDao.add(book1);
 
             Book book2 = new Book();
             book2.setAuthor("Walter Savitch");
             book2.setTitle("Java. An Introduction to Problem Solving & Programming");
-            readerDao.getById(2L).ifPresent(book2::setReader);
+            book2.setReader(readerDao.getById(2L));
             bookDao.add(book2);
 
             Book book3 = new Book();
             book3.setAuthor("Narasimha Karumanchi");
             book3.setTitle("Data Structures And Algorithms Made Easy In JAVA");
-            readerDao.getById(3L).ifPresent(book3::setReader);
+            book3.setReader(readerDao.getById(3L));
             bookDao.add(book3);
         }
-         */
     }
 
     private void validateInputNewReader(String input) {

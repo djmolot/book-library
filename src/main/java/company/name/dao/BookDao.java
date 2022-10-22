@@ -11,7 +11,7 @@ public interface BookDao {
 
     List<Book> getAll();
 
-    boolean update(Book book);
+    Book update(Book book);
 
     List<Book> getBooksByReaderId(Long readerId);
 
