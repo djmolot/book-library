@@ -24,7 +24,7 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
             statement.executeUpdate();
             ResultSet resultSet = statement.getGeneratedKeys();
             if (resultSet.next()) {
-                reader.setId(resultSet.getObject(1, Long.class));
+                reader.setId(resultSet.getLong(1));
             }
             return reader;
         } catch (SQLException e) {
@@ -41,7 +41,7 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
             statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                return Optional.of(getCurrentReader(resultSet));
+                return Optional.of(mapResultSetToReader(resultSet));
             }
             return Optional.empty();
         } catch (SQLException e) {
@@ -82,7 +82,7 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 Reader reader = new Reader();
-                reader.setId(resultSet.getObject("reader_id", Long.class));
+                reader.setId(resultSet.getLong("reader_id"));
                 reader.setName(resultSet.getString("reader_name"));
                 return Optional.of(reader);
             }
@@ -93,9 +93,9 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
         }
     }
 
-    private Reader getCurrentReader(ResultSet resultSet) throws SQLException {
+    private Reader mapResultSetToReader(ResultSet resultSet) throws SQLException {
         Reader reader = new Reader();
-        reader.setId(resultSet.getObject("id", Long.class));
+        reader.setId(resultSet.getLong("id"));
         reader.setName(resultSet.getString("name"));
         return reader;
 
@@ -105,14 +105,14 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
             throws SQLException {
         Reader reader = new Reader();
         reader.setBooks(new ArrayList<>());
-        reader.setId(resultSet.getObject("reader_id", Long.class));
+        reader.setId(resultSet.getLong("reader_id"));
         reader.setName(resultSet.getString("name"));
         if (resultSet.getObject("book_id", Long.class) == null) {
             allReaders.add(reader);
             return;
         }
         Book book = new Book();
-        book.setId(resultSet.getObject("book_id", Long.class));
+        book.setId(resultSet.getLong("book_id"));
         book.setTitle(resultSet.getString("title"));
         book.setAuthor(resultSet.getString("author"));
         if (allReaders.contains(reader)) {
