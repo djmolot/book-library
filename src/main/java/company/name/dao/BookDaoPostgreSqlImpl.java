@@ -26,10 +26,12 @@ public class BookDaoPostgreSqlImpl implements BookDao {
             statement.executeUpdate();
             ResultSet resultSet = statement.getGeneratedKeys();
             if (resultSet.next()) {
-                Long id = resultSet.getObject(1, Long.class);
+                Long id = resultSet.getLong(1);
                 book.setId(id);
+                return book;
+            } else {
+                throw new DaoLayerException("Empty ResultSet object was returned");
             }
-            return book;
         } catch (SQLException e) {
             throw new DaoLayerException("Can't insert book " + book + " to DB. " + e.getMessage());
         }
@@ -45,7 +47,7 @@ public class BookDaoPostgreSqlImpl implements BookDao {
             statement.setLong(1, id);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                return Optional.of(getCurrentBook(resultSet));
+                return Optional.of(mapResultSetToBook(resultSet));
             }
         } catch (SQLException e) {
             throw new DaoLayerException("Can't get book with ID" + id + " from DB");
@@ -63,7 +65,7 @@ public class BookDaoPostgreSqlImpl implements BookDao {
                 Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
-                allBooks.add(getCurrentBook(resultSet));
+                allBooks.add(mapResultSetToBook(resultSet));
             }
             return allBooks;
         } catch (SQLException e) {
@@ -98,7 +100,7 @@ public class BookDaoPostgreSqlImpl implements BookDao {
             statement.setLong(1, readerId);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                booksOfReader.add(getCurrentBookWithoutReader(resultSet));
+                booksOfReader.add(mapResultSetToBookWithoutReader(resultSet));
             }
             return booksOfReader;
         } catch (SQLException e) {
@@ -107,7 +109,7 @@ public class BookDaoPostgreSqlImpl implements BookDao {
         }
     }
 
-    private Book getCurrentBook(ResultSet resultSet) throws SQLException {
+    private Book mapResultSetToBook(ResultSet resultSet) throws SQLException {
         Book book = new Book();
         book.setId(resultSet.getLong("book_id"));
         book.setTitle(resultSet.getString("title"));
@@ -123,7 +125,7 @@ public class BookDaoPostgreSqlImpl implements BookDao {
         return book;
     }
 
-    private Book getCurrentBookWithoutReader(ResultSet resultSet) throws SQLException {
+    private Book mapResultSetToBookWithoutReader(ResultSet resultSet) throws SQLException {
         Book book = new Book();
         book.setId(resultSet.getObject("id", Long.class));
         book.setTitle(resultSet.getString("title"));
