@@ -45,7 +45,7 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
             }
             return Optional.empty();
         } catch (SQLException e) {
-            throw new RuntimeException("Can't get reader with ID " + id + " from DB", e);
+            throw new DaoLayerException("Can't get reader with ID " + id + " from DB" + e.getMessage());
         }
     }
 
