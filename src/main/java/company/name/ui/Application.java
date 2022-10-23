@@ -15,7 +15,6 @@ public class Application {
     private static final Scanner scanner = new Scanner(System.in);
 
     public void run() {
-        prepareLibraryData();
         while (true) {
             printLibraryMenu();
             var command = scanner.nextLine();
@@ -31,14 +30,6 @@ public class Application {
                 case "exit" -> System.exit(0);
                 default -> System.out.println("Unknown command. Please try again.");
             }
-        }
-    }
-
-    private void prepareLibraryData() {
-        try {
-            libraryService.prepareLibraryData();
-        } catch (DaoLayerException e) {
-            System.err.println("Error on DAO layer during preparing Library Data" + e.getMessage());
         }
     }
 
