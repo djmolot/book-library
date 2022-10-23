@@ -8,6 +8,8 @@ import company.name.exceptions.DaoLayerException;
 import company.name.exceptions.ServiceLayerException;
 import company.name.models.Book;
 import company.name.models.Reader;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -128,7 +130,7 @@ public class LibraryServiceImpl implements LibraryService {
         if (input == null || input.length() == 0) {
             throw new ServiceLayerException("Reader name can't be null or empty.");
         }
-        if (countCharOccurrencesInString(input, '/') > 0) {
+        if (StringUtils.countMatches(input, '/') > 0) {
             throw new ServiceLayerException("Reader name can't contain symbol '/'.");
         }
     }
@@ -136,9 +138,9 @@ public class LibraryServiceImpl implements LibraryService {
     private void validateInputNewBook(String input) {
         if (input == null || input.length() == 0) {
             throw new ServiceLayerException("New book input can't be null or empty.");
-        } else if (countCharOccurrencesInString(input, '/') != 1) {
+        } else if (StringUtils.countMatches(input, '/') != 1) {
             throw new ServiceLayerException("New book input must contain one '/' character.");
-        } else if (countCharOccurrencesInString(input, '/') == 1 && input.length() == 1) {
+        } else if (StringUtils.countMatches(input, '/') == 1 && input.length() == 1) {
             throw new ServiceLayerException("New book input '/' is not valid here.");
         }
     }
@@ -146,7 +148,7 @@ public class LibraryServiceImpl implements LibraryService {
     private void validateInputBorrowBookToReader(String input) {
         if (input == null || input.length() == 0) {
             throw new ServiceLayerException("BorrowBookToReader input can't be null or empty.");
-        } else if (countCharOccurrencesInString(input, '/') != 1) {
+        } else if (StringUtils.countMatches(input, '/') != 1) {
             throw new ServiceLayerException(
                     "BorrowBookToReader input must contain one '/' character.");
         }
@@ -156,7 +158,7 @@ public class LibraryServiceImpl implements LibraryService {
         if (input == null || input.length() == 0) {
             throw new ServiceLayerException("ReturnBookToLibrary input can't be null or empty.");
         }
-        if (countCharOccurrencesInString(input, '/') > 0) {
+        if (StringUtils.countMatches(input, '/') > 0) {
             throw new ServiceLayerException("ReturnBookToLibrary input can't contain symbol '/'.");
         }
     }
@@ -165,7 +167,7 @@ public class LibraryServiceImpl implements LibraryService {
         if (input == null || input.length() == 0) {
             throw new ServiceLayerException("GetAllBooksOfReader input can't be null or empty.");
         }
-        if (countCharOccurrencesInString(input, '/') > 0) {
+        if (StringUtils.countMatches(input, '/') > 0) {
             throw new ServiceLayerException("GetAllBooksOfReader input can't contain symbol '/'.");
         }
     }
@@ -174,15 +176,10 @@ public class LibraryServiceImpl implements LibraryService {
         if (input == null || input.length() == 0) {
             throw new ServiceLayerException("GetReaderOfBookWithId input can't be null or empty.");
         }
-        if (countCharOccurrencesInString(input, '/') > 0) {
+        if (StringUtils.countMatches(input, '/') > 0) {
             throw new ServiceLayerException(
                     "GetReaderOfBookWithId input can't contain symbol '/'.");
         }
-    }
-
-    private long countCharOccurrencesInString(String string, char character) {
-        return string.chars()
-                .filter(ch -> ch == character).count();
     }
 
 }
