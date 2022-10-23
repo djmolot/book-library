@@ -8,10 +8,9 @@ import company.name.exceptions.DaoLayerException;
 import company.name.exceptions.ServiceLayerException;
 import company.name.models.Book;
 import company.name.models.Reader;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 
 public class LibraryServiceImpl implements LibraryService {
     private final BookDao bookDao = new BookDaoPostgreSqlImpl();
