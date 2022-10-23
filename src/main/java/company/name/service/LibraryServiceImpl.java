@@ -85,7 +85,7 @@ public class LibraryServiceImpl implements LibraryService {
                     + " does not contain a parsable long. " + e.getMessage());
         }
         Book book = bookDao.getById(bookId).orElseThrow(
-                () -> new DaoLayerException("Book with ID " + bookId + " does not exist in DB.")
+                () -> new ServiceLayerException("Book with ID " + bookId + " does not exist in DB.")
         );
         book.setReader(Optional.empty());
         bookDao.update(book);
@@ -119,7 +119,7 @@ public class LibraryServiceImpl implements LibraryService {
                     + " does not contain a parsable long. " + e.getMessage());
         }
         bookDao.getById(bookId).orElseThrow(
-                () -> new DaoLayerException("Book with ID " + bookId + " does not exist in DB.")
+                () -> new ServiceLayerException("Book with ID " + bookId + " does not exist in DB.")
         );
         return readerDao.getReaderByBookId(bookId);
     }
