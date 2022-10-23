@@ -124,41 +124,6 @@ public class LibraryServiceImpl implements LibraryService {
         return readerDao.getReaderByBookId(bookId);
     }
 
-    @Override
-    public void prepareLibraryData() {
-        if (bookDao.getAll().size() == 0 || readerDao.getAll().size() == 0) {
-            Reader reader1 = new Reader();
-            reader1.setName("Zhirayr Hovik");
-            readerDao.add(reader1);
-
-            Reader reader2 = new Reader();
-            reader2.setName("Voski Daniel");
-            readerDao.add(reader2);
-
-            Reader reader3 = new Reader();
-            reader3.setName("Ruben Nazaret");
-            readerDao.add(reader3);
-
-            Book book1 = new Book();
-            book1.setAuthor("Herbert Schildt");
-            book1.setTitle("Java. The Complete Reference. Twelfth Edition");
-            book1.setReader(readerDao.getById(1L));
-            bookDao.add(book1);
-
-            Book book2 = new Book();
-            book2.setAuthor("Walter Savitch");
-            book2.setTitle("Java. An Introduction to Problem Solving & Programming");
-            book2.setReader(readerDao.getById(2L));
-            bookDao.add(book2);
-
-            Book book3 = new Book();
-            book3.setAuthor("Narasimha Karumanchi");
-            book3.setTitle("Data Structures And Algorithms Made Easy In JAVA");
-            book3.setReader(readerDao.getById(3L));
-            bookDao.add(book3);
-        }
-    }
-
     private void validateInputNewReader(String input) {
         if (input == null || input.length() == 0) {
             throw new ServiceLayerException("Reader name can't be null or empty.");

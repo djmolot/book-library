@@ -21,6 +21,4 @@ public interface LibraryService {
     List<Book> getAllBooksOfReader(String input);
 
     Optional<Reader> getReaderOfBookWithId(String input);
-
-    void prepareLibraryData();
 }
