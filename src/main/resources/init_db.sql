@@ -23,18 +23,13 @@ CREATE TABLE books(
 	  ON DELETE SET NULL
 );
 -- --------------------------------------------------------------
-INSERT INTO books (title, author)
-VALUES ('Java. The Complete Reference. Twelfth Edition', 'Herbert Schildt');
-
-INSERT INTO books (title, author)
-VALUES ('Java. An Introduction to Problem Solving & Programming', 'Walter Savitch');
-
-INSERT INTO books (title, author)
-VALUES ('Data Structures And Algorithms Made Easy In JAVA', 'Narasimha Karumanchi');
+INSERT INTO books (title, author) VALUES
+('Java. The Complete Reference. Twelfth Edition', 'Herbert Schildt'),
+('Java. An Introduction to Problem Solving & Programming', 'Walter Savitch'),
+('Data Structures And Algorithms Made Easy In JAVA', 'Narasimha Karumanchi');
 -- --------------------------------------------------------------
-INSERT INTO readers (name) VALUES ('Zhirayr Hovik');
-
-INSERT INTO readers (name) VALUES ('Voski Daniel');
-
-INSERT INTO readers (name) VALUES ('Ruben Nazaret');
+INSERT INTO readers (name) VALUES
+('Zhirayr Hovik'),
+('Voski Daniel'),
+('Ruben Nazaret');
 -- --------------------------------------------------------------
