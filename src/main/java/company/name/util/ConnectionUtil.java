@@ -1,5 +1,6 @@
 package company.name.util;
 
+import company.name.exceptions.DaoLayerException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -18,7 +19,7 @@ public class ConnectionUtil {
         try {
             return DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (SQLException e) {
-            throw new RuntimeException("Can't create connection to DB", e);
+            throw new DaoLayerException("Can't create connection to DB" + e.getMessage());
         }
     }
 }
