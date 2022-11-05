@@ -178,7 +178,7 @@ public class Application {
             if (optional.isPresent()) {
                 System.out.println("Reader of this book is " + optional.get());
             } else {
-                System.out.println("Book is not borrowed. No reader to show");
+                System.out.println("Book is not borrowed.");
             }
         } catch (ServiceLayerException e) {
             System.err.println("Can't get reader of book due to error on service layer. "
