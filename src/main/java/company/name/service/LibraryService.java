@@ -1,7 +1,7 @@
 package company.name.service;
 
-import company.name.models.Book;
-import company.name.models.Reader;
+import company.name.entities.Book;
+import company.name.entities.Reader;
 import java.util.List;
 import java.util.Optional;
 

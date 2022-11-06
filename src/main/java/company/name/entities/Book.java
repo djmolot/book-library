@@ -1,4 +1,4 @@
-package company.name.models;
+package company.name.entities;
 
 import java.util.Optional;
 

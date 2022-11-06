@@ -2,8 +2,8 @@ package company.name.ui;
 
 import company.name.exceptions.DaoLayerException;
 import company.name.exceptions.ServiceLayerException;
-import company.name.models.Book;
-import company.name.models.Reader;
+import company.name.entities.Book;
+import company.name.entities.Reader;
 import company.name.service.LibraryService;
 import company.name.service.LibraryServiceImpl;
 import java.util.List;

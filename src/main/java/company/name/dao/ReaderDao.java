@@ -1,7 +1,7 @@
 package company.name.dao;
 
 import company.name.exceptions.DaoLayerException;
-import company.name.models.Reader;
+import company.name.entities.Reader;
 import java.util.List;
 import java.util.Optional;
 
