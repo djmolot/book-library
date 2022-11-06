@@ -1,21 +1,24 @@
 package company.name.service;
 
+import company.name.entities.Book;
+import company.name.entities.Reader;
+import java.util.List;
+import java.util.Optional;
+
 public interface LibraryService {
-    void showAllBooks();
+    List<Book> getAllBooks();
 
-    void showAllReaders();
+    List<Reader> getAllReaders();
 
-    void registerNewReader();
+    Reader registerNewReader(String input);
 
-    void addNewBook();
+    Book addNewBook(String input);
 
-    void borrowBookToReader();
+    void borrowBookToReader(String input);
 
-    void returnBookToLibrary();
+    void returnBookToLibrary(String input);
 
-    void showAllBooksOfReader();
+    List<Book> getAllBooksOfReader(String input);
 
-    void showReaderOfBook();
-
-    void prepareLibraryData();
+    Optional<Reader> getReaderOfBookWithId(String input);
 }
