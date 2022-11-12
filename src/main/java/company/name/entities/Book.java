@@ -1,5 +1,6 @@
 package company.name.entities;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class Book {
@@ -46,4 +47,16 @@ public class Book {
         return (id + ". " + author + ". \"" + title + ".\"");
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Book book = (Book) o;
+        return id.equals(book.id) && title.equals(book.title) && author.equals(book.author);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, author, reader);
+    }
 }
