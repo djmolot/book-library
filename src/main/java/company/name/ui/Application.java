@@ -5,12 +5,14 @@ import company.name.entities.Reader;
 import company.name.exceptions.DaoLayerException;
 import company.name.exceptions.ServiceLayerException;
 import company.name.service.LibraryService;
-import company.name.service.LibraryServiceImpl;
 import java.util.List;
 import java.util.Scanner;
 
 public class Application {
-    private static final LibraryService libraryService = new LibraryServiceImpl();
+    LibraryService libraryService;
+    public Application(LibraryService libraryService) {
+        this.libraryService = libraryService;
+    }
     private static final Scanner scanner = new Scanner(System.in);
 
     public void run() {

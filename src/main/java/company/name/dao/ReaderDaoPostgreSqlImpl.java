@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public class ReaderDaoPostgreSqlImpl implements ReaderDao {
     @Override
-    public Reader add(Reader reader) throws DaoLayerException {
+    public Reader add(Reader reader) {
         String request = "INSERT INTO readers (name) VALUES (?);";
         try (Connection connection = ConnectionUtil.getConnection();
                 PreparedStatement statement = connection.prepareStatement(request,

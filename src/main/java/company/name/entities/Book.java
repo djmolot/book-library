@@ -55,8 +55,12 @@ public class Book {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Book book = (Book) o;
-        return id.equals(book.id) && title.equals(book.title) && author.equals(book.author);
+        Book casted = (Book) o;
+        if (casted.id == null) {
+            return title.equals(casted.title) && author.equals(casted.author);
+        } else {
+            return id.equals(casted.id) && title.equals(casted.title) && author.equals(casted.author);
+        }
     }
 
     @Override

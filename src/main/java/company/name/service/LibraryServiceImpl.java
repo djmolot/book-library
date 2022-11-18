@@ -1,20 +1,24 @@
 package company.name.service;
 
 import company.name.dao.BookDao;
-import company.name.dao.BookDaoPostgreSqlImpl;
 import company.name.dao.ReaderDao;
-import company.name.dao.ReaderDaoPostgreSqlImpl;
 import company.name.entities.Book;
 import company.name.entities.Reader;
 import company.name.exceptions.DaoLayerException;
 import company.name.exceptions.ServiceLayerException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 public class LibraryServiceImpl implements LibraryService {
-    private final BookDao bookDao = new BookDaoPostgreSqlImpl();
-    private final ReaderDao readerDao = new ReaderDaoPostgreSqlImpl();
+    private final BookDao bookDao;
+    private final ReaderDao readerDao;
+
+    public LibraryServiceImpl(BookDao bookDao, ReaderDao readerDao) {
+        this.bookDao = bookDao;
+        this.readerDao = readerDao;
+    }
 
     @Override
     public List<Book> getAllBooks() {
@@ -139,8 +143,16 @@ public class LibraryServiceImpl implements LibraryService {
             throw new ServiceLayerException("New book input can't be null or empty.");
         } else if (StringUtils.countMatches(input, '/') != 1) {
             throw new ServiceLayerException("New book input must contain one '/' character.");
-        } else if (StringUtils.countMatches(input, '/') == 1 && input.length() == 1) {
-            throw new ServiceLayerException("New book input '/' is not valid here.");
+        } else if (StringUtils.countMatches(input, '/') == 1 && input.length() < 3) {
+            throw new ServiceLayerException("New book input is not valid.");
+        }
+        String[] splittedInput = input.split("/");
+        if (splittedInput.length != 2) {
+            throw new ServiceLayerException("New book input is not valid.");
+        } else if (Objects.equals(splittedInput[0], "") || Objects.equals(splittedInput[1], "")) {
+            throw new ServiceLayerException("New book input is not valid.");
+        } else if (Objects.equals(splittedInput[0], " ") || Objects.equals(splittedInput[1], " ")) {
+            throw new ServiceLayerException("New book input is not valid.");
         }
     }
 
@@ -157,28 +169,34 @@ public class LibraryServiceImpl implements LibraryService {
         if (input == null || input.length() == 0) {
             throw new ServiceLayerException("ReturnBookToLibrary input can't be null or empty.");
         }
+        /*
         if (StringUtils.countMatches(input, '/') > 0) {
             throw new ServiceLayerException("ReturnBookToLibrary input can't contain symbol '/'.");
         }
+         */
     }
 
     private void validateInputGetAllBooksOfReader(String input) {
         if (input == null || input.length() == 0) {
-            throw new ServiceLayerException("GetAllBooksOfReader input can't be null or empty.");
+            throw new ServiceLayerException("getAllBooksOfReader input can't be null or empty.");
         }
+        /*
         if (StringUtils.countMatches(input, '/') > 0) {
             throw new ServiceLayerException("GetAllBooksOfReader input can't contain symbol '/'.");
         }
+         */
     }
 
     private void validateInputGetReaderOfBookWithId(String input) {
         if (input == null || input.length() == 0) {
-            throw new ServiceLayerException("GetReaderOfBookWithId input can't be null or empty.");
+            throw new ServiceLayerException("getReaderOfBookWithId input can't be null or empty.");
         }
+        /*
         if (StringUtils.countMatches(input, '/') > 0) {
             throw new ServiceLayerException(
                     "GetReaderOfBookWithId input can't contain symbol '/'.");
         }
+         */
     }
 
 }
