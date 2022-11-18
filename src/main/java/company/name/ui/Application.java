@@ -9,11 +9,12 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Application {
-    LibraryService libraryService;
+    private static final Scanner scanner = new Scanner(System.in);
+    private final LibraryService libraryService;
+
     public Application(LibraryService libraryService) {
         this.libraryService = libraryService;
     }
-    private static final Scanner scanner = new Scanner(System.in);
 
     public void run() {
         while (true) {

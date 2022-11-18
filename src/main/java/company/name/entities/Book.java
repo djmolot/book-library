@@ -59,7 +59,8 @@ public class Book {
         if (casted.id == null) {
             return title.equals(casted.title) && author.equals(casted.author);
         } else {
-            return id.equals(casted.id) && title.equals(casted.title) && author.equals(casted.author);
+            return id.equals(casted.id) && title.equals(casted.title)
+                    && author.equals(casted.author);
         }
     }
 
