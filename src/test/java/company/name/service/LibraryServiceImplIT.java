@@ -5,23 +5,16 @@ import company.name.dao.BookDaoPostgreSqlImpl;
 import company.name.dao.ReaderDao;
 import company.name.dao.ReaderDaoPostgreSqlImpl;
 import company.name.dao.TestUtilDao;
-import company.name.dao.TestUtilDaoImpl;
 import company.name.entities.Book;
 import company.name.entities.Reader;
-import company.name.exceptions.ServiceLayerException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LibraryServiceImplIT {
@@ -34,7 +27,7 @@ class LibraryServiceImplIT {
         BookDao bookDao = new BookDaoPostgreSqlImpl();
         ReaderDao readerDao = new ReaderDaoPostgreSqlImpl();
         libraryService = new LibraryServiceImpl(bookDao, readerDao);
-        testUtilDao = new TestUtilDaoImpl();
+        testUtilDao = new TestUtilDao();
     }
 
     @AfterAll

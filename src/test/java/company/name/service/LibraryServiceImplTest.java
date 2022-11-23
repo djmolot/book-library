@@ -7,22 +7,28 @@ import company.name.entities.Reader;
 import company.name.exceptions.DaoLayerException;
 import company.name.exceptions.ServiceLayerException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-class LibraryServiceImplUnit {
+class LibraryServiceImplTest {
     private final BookDao bookDaoMock = Mockito.mock(BookDao.class);
     private final ReaderDao readerDaoMock = Mockito.mock(ReaderDao.class);
     private final LibraryService libraryService = new LibraryServiceImpl(bookDaoMock, readerDaoMock);
 
     @Test
+    @DisplayName("Should successfully create new reader")
     void registerNewReader_ok() {
         String input = "Rudolf Mann";
 
@@ -35,38 +41,33 @@ class LibraryServiceImplUnit {
 
         Mockito.when(readerDaoMock.add(readerToPass)).thenReturn(readerToReturn);
         Reader createdReader = libraryService.registerNewReader(input);
-        assertNotNull(createdReader, "libraryService.registerNewReader(input) returned null");
-        assertNotNull(createdReader.getId(), "libraryService.registerNewReader(input) returned reader with id == null");
-        assertEquals(444L, createdReader.getId(), "libraryService.registerNewReader(input) returned reader with wrong id");
-        assertEquals("Rudolf Mann", createdReader.getName(), "libraryService.registerNewReader(input) returned reader with wrong name");
+        assertAll(
+                () -> assertNotNull(createdReader, "method must not return instead of added into DB reader null"),
+                () -> assertNotNull(createdReader.getId(), "id of added into DB reader can't be null"),
+                () -> assertEquals(444L, createdReader.getId(), "libraryService.registerNewReader(input) returned reader with wrong id"),
+                () -> assertEquals("Rudolf Mann", createdReader.getName(), "libraryService.registerNewReader(input) returned reader with wrong name")
+        );
+    }
+
+    @ParameterizedTest(name = "case #{index}: invalid user input [{0}]")
+    @DisplayName("Should fail create new reader with invalid user input")
+    @MethodSource("registerNewReader_not_ok_argumentsProvider")
+    void registerNewReader_not_ok(String input, String expectedMessage) {
+        var ex = assertThrows(ServiceLayerException.class,
+                () -> libraryService.registerNewReader(input),
+                "libraryService.registerNewReader(input) must throw ServiceLayerException when input is wrong");
+        assertEquals(expectedMessage, ex.getMessage(), "actual message in exception object is wrong");
+    }
+    static Stream<Arguments> registerNewReader_not_ok_argumentsProvider() {
+        return Stream.of(
+                arguments(null, "Reader name can't be null or empty."),
+                arguments("", "Reader name can't be null or empty."),
+                arguments("Rudolf/Mann", "Reader name can't contain symbol '/'.")
+        );
     }
 
     @Test
-    void registerNewReader_not_ok() {
-        String input1 = null;
-        String expectedMessage1 = "Reader name can't be null or empty.";
-        var ex1 = assertThrows(ServiceLayerException.class,
-                () -> libraryService.registerNewReader(input1),
-                "libraryService.registerNewReader(input) must throw ServiceLayerException when input == null");
-        assertEquals(expectedMessage1, ex1.getMessage(), "actual message in exception object is wrong");
-
-        String input2 = "";
-        String expectedMessage2 = "Reader name can't be null or empty.";
-        var ex2 = assertThrows(ServiceLayerException.class,
-                () -> libraryService.registerNewReader(input2),
-                "libraryService.registerNewReader(input) must throw ServiceLayerException when input.length() == 0");
-        assertEquals(expectedMessage2, ex2.getMessage(), "actual message in exception object is wrong");
-
-
-        String input3 = "Rudolf/Mann";
-        String expectedMessage3 = "Reader name can't contain symbol '/'.";
-        var ex3 = assertThrows(ServiceLayerException.class,
-                () -> libraryService.registerNewReader(input3),
-                "libraryService.registerNewReader(input) must throw ServiceLayerException when input contain /");
-        assertEquals(expectedMessage3, ex3.getMessage(), "actual message in exception object is wrong");
-    }
-
-    @Test
+    @DisplayName("Should successfully create new book")
     void addNewBook_ok() {
         String input = "Data Structures and Abstractions with Java/Frank M. Carrano, Timothy M. Henry";
 
@@ -81,64 +82,45 @@ class LibraryServiceImplUnit {
 
         Mockito.when(bookDaoMock.add(bookToPass)).thenReturn(bookToReturn);
         Book createdBook = libraryService.addNewBook(input);
-        assertNotNull(createdBook, "libraryService.addNewBook(input) returned null");
-        assertEquals(555L, createdBook.getId(), "libraryService.addNewBook(input) returned book with wrong id");
-        assertEquals("Frank M. Carrano, Timothy M. Henry", createdBook.getAuthor(), "libraryService.addNewBook(input) returned book with wrong author");
-        assertEquals("Data Structures and Abstractions with Java", createdBook.getTitle(), "libraryService.addNewBook(input) returned book with wrong title");
+        assertAll(
+                () -> assertNotNull(createdBook, "libraryService.addNewBook(input) returned null"),
+                () -> assertEquals(555L, createdBook.getId(), "libraryService.addNewBook(input) returned book with wrong id"),
+                () -> assertEquals("Frank M. Carrano, Timothy M. Henry", createdBook.getAuthor(), "libraryService.addNewBook(input) returned book with wrong author"),
+                () -> assertEquals("Data Structures and Abstractions with Java", createdBook.getTitle(), "libraryService.addNewBook(input) returned book with wrong title")
+        );
+    }
+
+    @ParameterizedTest(name = "case #{index}: invalid book input [{0}]")
+    @DisplayName("Should fail create new book with invalid user input")
+    @MethodSource("addNewBook_not_ok_argumentsProvider")
+    void addNewBook_not_ok(String input, String expectedMessage) {
+        var ex = assertThrows(ServiceLayerException.class,
+                () -> libraryService.addNewBook(input),
+                "libraryService.addNewBook(input) must throw ServiceLayerException when input is wrong");
+        assertEquals(expectedMessage, ex.getMessage(), "actual message in exception object is wrong");
+    }
+    static Stream<Arguments> addNewBook_not_ok_argumentsProvider() {
+        return Stream.of(
+                arguments(null, "New book input can't be null and should contain at least 1 symbol for both name and author."),
+                arguments("", "New book input can't be null and should contain at least 1 symbol for both name and author."),
+                arguments("/", "New book input can't be null and should contain at least 1 symbol for both name and author."),
+                arguments("A/", "New book input can't be null and should contain at least 1 symbol for both name and author."),
+                arguments("/B", "New book input can't be null and should contain at least 1 symbol for both name and author."),
+                arguments("Data Structures and Abstractions with Java//Frank M. Carrano, Timothy M. Henry",
+                        "New book input must contain one '/' character."),
+                arguments("/Frank M. Carrano, Timothy M. Henry",
+                        "New book input is not valid."),
+                arguments("Data Structures and Abstractions with Java/",
+                        "New book input is not valid."),
+                arguments(" /Frank M. Carrano, Timothy M. Henry",
+                        "New book input is not valid."),
+                arguments("Data Structures and Abstractions with Java/ ",
+                        "New book input is not valid.")
+                );
     }
 
     @Test
-    void addNewBook_not_ok() {
-        /*
-        Book bookToReturn = new Book();
-        bookToReturn.setId(555L);
-        bookToReturn.setAuthor("Frank M. Carrano, Timothy M. Henry");
-        bookToReturn.setTitle("Data Structures and Abstractions with Java");
-        Mockito.when(bookDaoMock.add(ArgumentMatchers.any())).thenReturn(bookToReturn);
-         */
-
-        String input1 = null;
-        assertThrows(ServiceLayerException.class,
-                () -> libraryService.addNewBook(input1),
-                "libraryService.addNewBook(input) must throw ServiceLayerException when input == null");
-
-        String input2 = "";
-        assertThrows(ServiceLayerException.class,
-                () -> libraryService.addNewBook(input2),
-                "libraryService.addNewBook(input) must throw ServiceLayerException when input.length() == 0");
-
-        String input3 = "/";
-        assertThrows(ServiceLayerException.class,
-                () -> libraryService.addNewBook(input3),
-                "libraryService.addNewBook(input) must throw ServiceLayerException when input = /");
-
-        String input4 = "Data Structures and Abstractions with Java//Frank M. Carrano, Timothy M. Henry";
-        assertThrows(ServiceLayerException.class,
-                () -> libraryService.addNewBook(input4),
-                "libraryService.addNewBook(input) must throw ServiceLayerException when input contain not one /");
-
-        String input5 = "/Frank M. Carrano, Timothy M. Henry";
-        assertThrows(ServiceLayerException.class,
-                () -> libraryService.addNewBook(input5),
-                "libraryService.addNewBook(input) must throw ServiceLayerException when input is invalid");
-
-        String input6 = "Data Structures and Abstractions with Java/";
-        assertThrows(ServiceLayerException.class,
-                () -> libraryService.addNewBook(input6),
-                "libraryService.addNewBook(input) must throw ServiceLayerException when input is invalid");
-
-        String input7 = " /Frank M. Carrano, Timothy M. Henry";
-        assertThrows(ServiceLayerException.class,
-                () -> libraryService.addNewBook(input7),
-                "libraryService.addNewBook(input) must throw ServiceLayerException when input is invalid");
-
-        String input8 = "Data Structures and Abstractions with Java/ ";
-        assertThrows(ServiceLayerException.class,
-                () -> libraryService.addNewBook(input8),
-                "libraryService.addNewBook(input) must throw ServiceLayerException when input is invalid");
-    }
-
-    @Test
+    @DisplayName("Should successfully borrow book to reader")
     void borrowBookToReader_ok() {
         String input = "1/2";
         Reader readerToReturn = new Reader();
@@ -148,46 +130,38 @@ class LibraryServiceImplUnit {
         bookToReturn.setReader(Optional.empty());
         Mockito.when(readerDaoMock.getById(2L)).thenReturn(Optional.of(readerToReturn));
         Mockito.when(bookDaoMock.getById(1L)).thenReturn(Optional.of(bookToReturn));
-        Mockito.when(readerDaoMock.getReaderByBookId(1L)).thenReturn(Optional.of(readerToReturn));
         libraryService.borrowBookToReader(input);
-        libraryService.getReaderOfBookWithId("1").ifPresentOrElse(
-                reader -> assertEquals(2L, reader.getId(), "reader id does not equal to 2"),
+        ArgumentCaptor<Book> bookCaptor = ArgumentCaptor.forClass(Book.class);
+        Mockito.verify(bookDaoMock).update(bookCaptor.capture());
+        Book capturedBook = bookCaptor.getValue();
+        capturedBook.getReader().ifPresentOrElse(
+                reader -> assertEquals(2L, reader.getId(), "reader id is wrong"),
                 Assertions::fail
         );
     }
 
-    @Test
-    void borrowBookToReader_not_ok() {
-        String input1 = null;
-        assertThrows(ServiceLayerException.class,
-                () -> libraryService.borrowBookToReader(input1),
-                "libraryService.borrowBookToReader(input) must throw ServiceLayerException when input == null");
-
-        String input2 = "";
-        assertThrows(ServiceLayerException.class,
-                () -> libraryService.borrowBookToReader(input2),
-                "libraryService.borrowBookToReader(input) must throw ServiceLayerException when input.length() == 0");
-
-        String input3 = "2.3";
-        assertThrows(ServiceLayerException.class,
-                () -> libraryService.borrowBookToReader(input3),
-                "libraryService.borrowBookToReader(input) must throw ServiceLayerException when input does not contain /");
-
-        String input4 = "2//3";
-        assertThrows(ServiceLayerException.class,
-                () -> libraryService.borrowBookToReader(input4),
-                "libraryService.borrowBookToReader(input) must throw ServiceLayerException when input contain not one /");
-
-        String input5 = "nrd/3";
-        assertThrows(ServiceLayerException.class,
-                () -> libraryService.borrowBookToReader(input5),
-                "libraryService.borrowBookToReader(input) must throw ServiceLayerException when input does not contain parsable long");
-
-        String input6 = "2/bhb";
-        assertThrows(ServiceLayerException.class,
-                () -> libraryService.borrowBookToReader(input6),
-                "libraryService.borrowBookToReader(input) must throw ServiceLayerException when input does not contain parsable long");
-
+    @ParameterizedTest(name = "case #{index}: invalid user input [{0}]")
+    @DisplayName("Should fail borrow book to reader with invalid user input")
+    @MethodSource("borrowBookToReader_not_ok_argumentsProvider")
+    void borrowBookToReader_not_ok(String input, Exception expectedEx, String expectedMessage) {
+        var ex = assertThrows(expectedEx.getClass(),
+                () -> libraryService.borrowBookToReader(input),
+                "libraryService.borrowBookToReader(input) must throw ServiceLayerException when input is wrong.");
+        assertEquals(expectedMessage, ex.getMessage(), "actual message in exception object is wrong");
+    }
+    static Stream<Arguments> borrowBookToReader_not_ok_argumentsProvider() {
+        return Stream.of(
+                arguments(null, ServiceLayerException.class, "BorrowBookToReader input can't be null or empty."),
+                arguments("", ServiceLayerException.class, "BorrowBookToReader input can't be null or empty."),
+                arguments("2.3", ServiceLayerException.class, "BorrowBookToReader input must contain one '/' character."),
+                arguments("2//3", ServiceLayerException.class, "BorrowBookToReader input must contain one '/' character."),
+                arguments("nrd/3", ServiceLayerException.class, "The string does not contain a parsable long. For input string: \"nrd\""),
+                arguments("2/bhb", ServiceLayerException.class, "The string does not contain a parsable long. For input string: \"bhb\""),
+                arguments("1/99999", DaoLayerException.class, "Reader with ID 99999 does not exist in DB."),
+                arguments("99999/2", DaoLayerException.class, "Book with ID 99999 does not exist in DB.")
+        );
+    }
+    /*
         String input7 = "1/99999";
         String expectedMessage7 = "Reader with ID 99999 does not exist in DB.";
         var ex7 = assertThrows(DaoLayerException.class,
@@ -205,21 +179,16 @@ class LibraryServiceImplUnit {
 
         String input9 = "1/2";
         Reader readerToReturn = new Reader();
-        readerToReturn.setId(2L);
         Book bookToReturn = new Book();
-        bookToReturn.setId(1L);
-        Reader readerWhoReadsThisBook = new Reader();
-        readerWhoReadsThisBook.setId(5L);
-        readerWhoReadsThisBook.setName("Michael Muller");
-        bookToReturn.setReader(Optional.of(readerWhoReadsThisBook));
-        String expectedMessage9 = "Book with ID 1 has already borrowed by reader 5. Michael Muller";
+        bookToReturn.setReader(Optional.of(readerToReturn));
+        String expectedMessage9 = "Book with ID 1 has already borrowed by reader null. null.";
         Mockito.when(readerDaoMock.getById(2L)).thenReturn(Optional.of(readerToReturn));
         Mockito.when(bookDaoMock.getById(1L)).thenReturn(Optional.of(bookToReturn));
         var ex9 = assertThrows(ServiceLayerException.class,
                 () -> libraryService.borrowBookToReader(input9),
                 "libraryService.borrowBookToReader(input) must throw ServiceLayerException when book is already borrowed");
         assertEquals(expectedMessage9, ex9.getMessage(), "actual message in exception object is wrong");
-    }
+     */
 
     @Test
     void returnBookToLibrary_ok() {

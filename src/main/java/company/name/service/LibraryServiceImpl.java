@@ -72,7 +72,7 @@ public class LibraryServiceImpl implements LibraryService {
         book.getReader().ifPresent(
                 r -> {
                     throw new ServiceLayerException("Book with ID " + bookId
-                            + " has already borrowed by reader " + r);
+                            + " has already borrowed by reader " + r + ".");
                 }
         );
         book.setReader(Optional.of(reader));
@@ -139,19 +139,13 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     private void validateInputNewBook(String input) {
-        if (input == null || input.length() == 0) {
-            throw new ServiceLayerException("New book input can't be null or empty.");
+        if (input == null || input.length() < 3) {
+            throw new ServiceLayerException("New book input can't be null and should contain at least 1 symbol for both name and author.");
         } else if (StringUtils.countMatches(input, '/') != 1) {
             throw new ServiceLayerException("New book input must contain one '/' character.");
-        } else if (StringUtils.countMatches(input, '/') == 1 && input.length() < 3) {
-            throw new ServiceLayerException("New book input is not valid.");
         }
         String[] splittedInput = input.split("/");
-        if (splittedInput.length != 2) {
-            throw new ServiceLayerException("New book input is not valid.");
-        } else if (Objects.equals(splittedInput[0], "") || Objects.equals(splittedInput[1], "")) {
-            throw new ServiceLayerException("New book input is not valid.");
-        } else if (Objects.equals(splittedInput[0], " ") || Objects.equals(splittedInput[1], " ")) {
+        if (splittedInput.length != 2 || StringUtils.isAnyBlank(splittedInput)) {
             throw new ServiceLayerException("New book input is not valid.");
         }
     }
