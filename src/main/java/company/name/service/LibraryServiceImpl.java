@@ -4,10 +4,8 @@ import company.name.dao.BookDao;
 import company.name.dao.ReaderDao;
 import company.name.entities.Book;
 import company.name.entities.Reader;
-import company.name.exceptions.DaoLayerException;
 import company.name.exceptions.ServiceLayerException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
@@ -64,10 +62,12 @@ public class LibraryServiceImpl implements LibraryService {
                     + e.getMessage());
         }
         Reader reader = readerDao.getById(readerId).orElseThrow(
-                () -> new ServiceLayerException("Reader with ID " + readerId + " does not exist in DB.")
+                () -> new ServiceLayerException("Reader with ID " + readerId
+                        + " does not exist in DB.")
         );
         Book book = bookDao.getById(bookId).orElseThrow(
-                () -> new ServiceLayerException("Book with ID " + bookId + " does not exist in DB.")
+                () -> new ServiceLayerException("Book with ID " + bookId
+                        + " does not exist in DB.")
         );
         book.getReader().ifPresent(
                 r -> {
@@ -140,7 +140,9 @@ public class LibraryServiceImpl implements LibraryService {
 
     private void validateInputNewBook(String input) {
         if (input == null || input.length() < 3) {
-            throw new ServiceLayerException("New book input can't be null and should contain at least 1 symbol for both name and author.");
+            throw new ServiceLayerException(
+                    "New book input can't be null and should contain at least 1 symbol "
+                            + "for both name and author.");
         } else if (StringUtils.countMatches(input, '/') != 1) {
             throw new ServiceLayerException("New book input must contain one '/' character.");
         }
