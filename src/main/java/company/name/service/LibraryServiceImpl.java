@@ -64,10 +64,10 @@ public class LibraryServiceImpl implements LibraryService {
                     + e.getMessage());
         }
         Reader reader = readerDao.getById(readerId).orElseThrow(
-                () -> new DaoLayerException("Reader with ID " + readerId + " does not exist in DB.")
+                () -> new ServiceLayerException("Reader with ID " + readerId + " does not exist in DB.")
         );
         Book book = bookDao.getById(bookId).orElseThrow(
-                () -> new DaoLayerException("Book with ID " + bookId + " does not exist in DB.")
+                () -> new ServiceLayerException("Book with ID " + bookId + " does not exist in DB.")
         );
         book.getReader().ifPresent(
                 r -> {
