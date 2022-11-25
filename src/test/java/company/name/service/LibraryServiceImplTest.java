@@ -15,7 +15,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
@@ -131,10 +130,9 @@ class LibraryServiceImplTest {
         ArgumentCaptor<Book> bookCaptor = ArgumentCaptor.forClass(Book.class);
         Mockito.verify(bookDaoMock).update(bookCaptor.capture());
         Book capturedBook = bookCaptor.getValue();
-        capturedBook.getReader().ifPresentOrElse(
-                reader -> assertEquals(2L, reader.getId(), "reader id is wrong"),
-                Assertions::fail
-        );
+        assertTrue(capturedBook.getReader().isPresent(), "borrowed book should have a reader");
+        assertEquals(2L, capturedBook.getReader().map(Reader::getId).orElse(null),
+                "reader id is wrong");
     }
 
     @ParameterizedTest(name = "case #{index}: invalid user input [{0}]")
