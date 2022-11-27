@@ -5,7 +5,6 @@ import company.name.dao.ReaderDao;
 import company.name.entities.Book;
 import company.name.entities.Reader;
 import company.name.exceptions.ServiceLayerException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -156,7 +155,7 @@ class LibraryServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should fail borrow book to reader with invalid user input")
+    @DisplayName("Should fail borrow book to reader when object does not exist in DB")
     void borrowBookToReader_not_ok2() {
         String input7 = "1/99999";
         String expectedMessage7 = "Reader with ID 99999 does not exist in DB.";
@@ -258,6 +257,27 @@ class LibraryServiceImplTest {
         );
     }
 
+    @Test
+    void getAllBooksOfReader_not_ok2() {
+        String input = "99999";
+        String expectedMessage = "Reader with ID 99999 does not exist in DB.";
+        Mockito.when(readerDaoMock.getById(99999L)).thenReturn(Optional.empty());
+        var ex = assertThrows(ServiceLayerException.class,
+                () -> libraryService.getAllBooksOfReader(input),
+                "libraryService.getAllBooksOfReader(input) must throw ServiceLayerException when user input is invalid");
+        assertEquals(expectedMessage, ex.getMessage(), "actual message in exception object is wrong");
+    }
+
+
+    @Test
+    @DisplayName("Should successfully get reader of book with ID")
+    void getReaderOfBookWithId_ok() {
+        String input = "2";
+        Mockito.when(bookDaoMock.getById(2L)).thenReturn(Optional.of(new Book()));
+        libraryService.getReaderOfBookWithId(input);
+        Mockito.verify(readerDaoMock, Mockito.times(1)).getReaderByBookId(2L);
+    }
+
     @ParameterizedTest(name = "case #{index}: invalid user input [{0}]")
     @DisplayName("Should fail get reader of book with ID with invalid user input")
     @MethodSource("getReaderOfBookWithId_not_ok_argumentsProvider")
@@ -276,7 +296,7 @@ class LibraryServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should fail get reader of book with ID with invalid user input")
+    @DisplayName("Should fail get reader of book with ID which does not exist in DB")
     void getReaderOfBookWithId_not_ok2() {
         String input4 = "99999";
         String expectedMessage4 = "Book with ID 99999 does not exist in DB.";

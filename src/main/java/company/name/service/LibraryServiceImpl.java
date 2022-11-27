@@ -165,34 +165,18 @@ public class LibraryServiceImpl implements LibraryService {
         if (input == null || input.length() == 0) {
             throw new ServiceLayerException("ReturnBookToLibrary input can't be null or empty.");
         }
-        /*
-        if (StringUtils.countMatches(input, '/') > 0) {
-            throw new ServiceLayerException("ReturnBookToLibrary input can't contain symbol '/'.");
-        }
-         */
     }
 
     private void validateInputGetAllBooksOfReader(String input) {
         if (input == null || input.length() == 0) {
             throw new ServiceLayerException("getAllBooksOfReader input can't be null or empty.");
         }
-        /*
-        if (StringUtils.countMatches(input, '/') > 0) {
-            throw new ServiceLayerException("GetAllBooksOfReader input can't contain symbol '/'.");
-        }
-         */
     }
 
     private void validateInputGetReaderOfBookWithId(String input) {
         if (input == null || input.length() == 0) {
             throw new ServiceLayerException("getReaderOfBookWithId input can't be null or empty.");
         }
-        /*
-        if (StringUtils.countMatches(input, '/') > 0) {
-            throw new ServiceLayerException(
-                    "GetReaderOfBookWithId input can't contain symbol '/'.");
-        }
-         */
     }
 
 }
