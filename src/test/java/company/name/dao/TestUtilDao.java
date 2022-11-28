@@ -16,7 +16,7 @@ public class TestUtilDao {
     }
 
     public int deleteAllEntriesFromTable(String tableName) {
-        String request = String.format("TRUNCATE %s;", tableName);
+        String request = String.format("TRUNCATE %s RESTART IDENTITY CASCADE;", tableName);
         try (Connection connection = ConnectionUtil.getConnection();
              PreparedStatement statement = connection.prepareStatement(request)) {
             return statement.executeUpdate();
