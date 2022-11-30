@@ -3,7 +3,6 @@ package company.name.dao;
 import company.name.entities.Book;
 import company.name.entities.Reader;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,8 +22,6 @@ class BookDaoPostgreSqlImplIT {
         bookDao = new BookDaoPostgreSqlImpl();
         readerDao = new ReaderDaoPostgreSqlImpl();
         testUtilDao = new TestUtilDao();
-        System.out.println(" deleted all " + testUtilDao.deleteAllReaders() + " readers");
-        System.out.println(" deleted all " + testUtilDao.deleteAllBooks() + " books");
     }
 
     @AfterAll
@@ -41,22 +38,14 @@ class BookDaoPostgreSqlImplIT {
         System.out.println(" deleted all " + testUtilDao.deleteAllBooks() + " books");
     }
 
-    @AfterEach
-    void tearDown() {
-        System.out.println("@AfterEach");
-        System.out.println(" deleted all " + testUtilDao.deleteAllReaders() + " readers");
-        System.out.println(" deleted all " + testUtilDao.deleteAllBooks() + " books");
-    }
-
     @Test
-    @DisplayName("Should successfully add new book to DB")
-    void add_ok() {
-        System.out.println(" add_ok()");
-        String title = "book title";
-        String author = "book author";
+    @DisplayName("Should successfully save new book and find it by ID")
+    void add_and_getById_ok() {
+        String author = "Walter Savitch";
+        String title = "Java. An Introduction to Problem Solving & Programming.";
         Book bookToSave = new Book();
-        bookToSave.setTitle(title);
         bookToSave.setAuthor(author);
+        bookToSave.setTitle(title);
         Book savedBook = bookDao.add(bookToSave);
         assertAll(
                 () -> assertNotNull(savedBook, "bookDao.add(bookToSave) must not return null."),
@@ -64,15 +53,8 @@ class BookDaoPostgreSqlImplIT {
                 () -> assertEquals(author, savedBook.getAuthor(), "author of added to DB book is wrong."),
                 () -> assertEquals(title, savedBook.getTitle(), "title of added to DB book is wrong.")
         );
-    }
 
-    @Test
-    @DisplayName("Should successfully get book by ID")
-    void getById_ok() {
-        String author = "Walter Savitch";
-        String title = "Java. An Introduction to Problem Solving & Programming.";
-        Book addedBook = addNewBookToDB(author, title);
-        Optional<Book> bookByIdOptional = bookDao.getById(addedBook.getId());
+        Optional<Book> bookByIdOptional = bookDao.getById(savedBook.getId());
         Book bookById = bookByIdOptional.orElse(null);
         assertNotNull(bookById, "bookDao.getById(id) can't return empty optional for existing in DB book.");
         assertAll(
@@ -80,6 +62,7 @@ class BookDaoPostgreSqlImplIT {
                 () -> assertEquals(author, bookById.getAuthor(), "author of returned book is wrong."),
                 () -> assertEquals(title, bookById.getTitle(), "title of returned book is wrong.")
         );
+
     }
 
     @Test
@@ -87,10 +70,18 @@ class BookDaoPostgreSqlImplIT {
     void getAll_ok() {
         String author1 = "Herbert Schildt";
         String title1 = "Java. The Complete Reference. Twelfth Edition.";
-        addNewBookToDB(author1, title1);
+        Book bookToAdd1 = new Book();
+        bookToAdd1.setAuthor(author1);
+        bookToAdd1.setTitle(title1);
+        bookDao.add(bookToAdd1);
+
         String author2 = "Walter Savitch";
         String title2 = "Java. An Introduction to Problem Solving & Programming.";
-        addNewBookToDB(author2, title2);
+        Book bookToAdd2 = new Book();
+        bookToAdd2.setAuthor(author2);
+        bookToAdd2.setTitle(title2);
+        bookDao.add(bookToAdd2);
+
         List<Book> allBooks = bookDao.getAll();
         assertAll(
                 () -> assertFalse(allBooks.isEmpty()),
@@ -111,7 +102,10 @@ class BookDaoPostgreSqlImplIT {
     void update_ok() {
         String author1 = "Herbert Schildt";
         String title1 = "Java. The Complete Reference. Twelfth Edition.";
-        Book addedBook = addNewBookToDB(author1, title1);
+        Book bookToAdd1 = new Book();
+        bookToAdd1.setAuthor(author1);
+        bookToAdd1.setTitle(title1);
+        Book addedBook = bookDao.add(bookToAdd1);
         Reader reader1 = new Reader();
         reader1.setName("Zhirayr Hovik");
         Reader addedReader = readerDao.add(reader1);
@@ -123,6 +117,13 @@ class BookDaoPostgreSqlImplIT {
                 () -> assertEquals(1L, readerFromBook.getId(), "reader from updated book has wrong ID."),
                 () -> assertEquals("Zhirayr Hovik", readerFromBook.getName(), "reader from updated book has wrong name.")
         );
+
+        addedBook.setReader(Optional.empty());
+        bookDao.update(addedBook);
+        Optional<Book> bookByIdOptional = bookDao.getById(addedBook.getId());
+        Book bookById = bookByIdOptional.orElse(null);
+        assertNotNull(bookById, "bookDao.getById(id) can't return empty optional for existing in DB book.");
+        assertTrue(bookById.getReader().isEmpty(), "for book that was returned by reader field reader must be empty optional.");
     }
 
     @Test
@@ -130,17 +131,25 @@ class BookDaoPostgreSqlImplIT {
     void getBooksByReaderId() {
         String author1 = "Herbert Schildt";
         String title1 = "Java. The Complete Reference. Twelfth Edition.";
-        Book book1 = addNewBookToDB(author1, title1);
+        Book bookToAdd1 = new Book();
+        bookToAdd1.setAuthor(author1);
+        bookToAdd1.setTitle(title1);
+        Book addedBook1 = bookDao.add(bookToAdd1);
+
         String author2 = "Walter Savitch";
         String title2 = "Java. An Introduction to Problem Solving & Programming.";
-        Book book2 = addNewBookToDB(author2, title2);
+        Book bookToAdd2 = new Book();
+        bookToAdd2.setAuthor(author2);
+        bookToAdd2.setTitle(title2);
+        Book addedBook2 = bookDao.add(bookToAdd2);
+
         Reader reader = new Reader();
         reader.setName("Zhirayr Hovik");
         Reader addedReader = readerDao.add(reader);
-        book1.setReader(Optional.of(addedReader));
-        bookDao.update(book1);
-        book2.setReader(Optional.of(addedReader));
-        bookDao.update(book2);
+        addedBook1.setReader(Optional.of(addedReader));
+        bookDao.update(addedBook1);
+        addedBook2.setReader(Optional.of(addedReader));
+        bookDao.update(addedBook2);
         List<Book> booksOfReader = bookDao.getBooksByReaderId(addedReader.getId());
         assertAll(
                 () -> assertFalse(booksOfReader.isEmpty(),
@@ -157,10 +166,4 @@ class BookDaoPostgreSqlImplIT {
         assertEquals(title2, book2OfReader.getTitle(), "book from list of reader books has wrong title.");
     }
 
-    private Book addNewBookToDB(String author, String title) {
-        Book bookToAdd = new Book();
-        bookToAdd.setAuthor(author);
-        bookToAdd.setTitle(title);
-        return bookDao.add(bookToAdd);
-    }
 }
