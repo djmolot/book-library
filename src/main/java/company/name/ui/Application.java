@@ -5,13 +5,16 @@ import company.name.entities.Reader;
 import company.name.exceptions.DaoLayerException;
 import company.name.exceptions.ServiceLayerException;
 import company.name.service.LibraryService;
-import company.name.service.LibraryServiceImpl;
 import java.util.List;
 import java.util.Scanner;
 
 public class Application {
-    private static final LibraryService libraryService = new LibraryServiceImpl();
     private static final Scanner scanner = new Scanner(System.in);
+    private final LibraryService libraryService;
+
+    public Application(LibraryService libraryService) {
+        this.libraryService = libraryService;
+    }
 
     public void run() {
         while (true) {
@@ -38,7 +41,7 @@ public class Application {
 
         var greetingMessage = """
         WELCOME TO THE LIBRARY!
-        PLEASE, SELECT ONE OF THE FOLLOWING ACTIONS BY TYPING THE OPTION’S NUMBER
+        PLEASE, SELECT ONE OF THE FOLLOWING ACTIONS BY TYPING THE OPTION'S NUMBER
         AND PRESSING ENTER KEY:
         [1]SHOW ALL BOOKS IN THE LIBRARY
         [2]SHOW ALL READERS REGISTERED IN THE LIBRARY
@@ -48,7 +51,7 @@ public class Application {
         [6]RETURN A BOOK TO THE LIBRARY
         [7]SHOW ALL BORROWED BOOKS BY READER ID
         [8]SHOW CURRENT READER OF A BOOK WITH ID
-        TYPE “exit” TO STOP THE PROGRAM AND EXIT!
+        TYPE "exit" TO STOP THE PROGRAM AND EXIT!
                 """;
 
         System.out.println(lineDelimiter);

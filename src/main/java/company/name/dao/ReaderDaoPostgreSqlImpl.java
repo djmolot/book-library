@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public class ReaderDaoPostgreSqlImpl implements ReaderDao {
     @Override
-    public Reader add(Reader reader) throws DaoLayerException {
+    public Reader add(Reader reader) {
         String request = "INSERT INTO readers (name) VALUES (?);";
         try (Connection connection = ConnectionUtil.getConnection();
                 PreparedStatement statement = connection.prepareStatement(request,
@@ -57,8 +57,7 @@ public class ReaderDaoPostgreSqlImpl implements ReaderDao {
         try (Connection connection = ConnectionUtil.getConnection();
                 Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery(query);
-            List<Reader> allReaders = mapResultSetToReaders(resultSet);
-            return allReaders;
+            return mapResultSetToReaders(resultSet);
         } catch (SQLException e) {
             throw new DaoLayerException("Can't get all readers from DB. " + e.getMessage());
         }

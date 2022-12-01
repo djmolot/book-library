@@ -42,7 +42,11 @@ public class Reader {
         }
         if (obj.getClass().equals(Reader.class)) {
             Reader casted = (Reader) obj;
-            return this.id.equals(casted.id) && this.name.equals(casted.name);
+            if (casted.id == null) {
+                return this.name.equals(casted.name);
+            } else {
+                return this.id.equals(casted.id) && this.name.equals(casted.name);
+            }
         }
         return false;
     }

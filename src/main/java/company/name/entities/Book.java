@@ -1,5 +1,6 @@
 package company.name.entities;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class Book {
@@ -46,4 +47,25 @@ public class Book {
         return (id + ". " + author + ". \"" + title + ".\"");
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Book casted = (Book) o;
+        if (casted.id == null) {
+            return title.equals(casted.title) && author.equals(casted.author);
+        } else {
+            return id.equals(casted.id) && title.equals(casted.title)
+                    && author.equals(casted.author);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, author, reader);
+    }
 }

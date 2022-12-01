@@ -1,20 +1,22 @@
 package company.name.service;
 
 import company.name.dao.BookDao;
-import company.name.dao.BookDaoPostgreSqlImpl;
 import company.name.dao.ReaderDao;
-import company.name.dao.ReaderDaoPostgreSqlImpl;
 import company.name.entities.Book;
 import company.name.entities.Reader;
-import company.name.exceptions.DaoLayerException;
 import company.name.exceptions.ServiceLayerException;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 public class LibraryServiceImpl implements LibraryService {
-    private final BookDao bookDao = new BookDaoPostgreSqlImpl();
-    private final ReaderDao readerDao = new ReaderDaoPostgreSqlImpl();
+    private final BookDao bookDao;
+    private final ReaderDao readerDao;
+
+    public LibraryServiceImpl(BookDao bookDao, ReaderDao readerDao) {
+        this.bookDao = bookDao;
+        this.readerDao = readerDao;
+    }
 
     @Override
     public List<Book> getAllBooks() {
@@ -60,15 +62,17 @@ public class LibraryServiceImpl implements LibraryService {
                     + e.getMessage());
         }
         Reader reader = readerDao.getById(readerId).orElseThrow(
-                () -> new DaoLayerException("Reader with ID " + readerId + " does not exist in DB.")
+                () -> new ServiceLayerException("Reader with ID " + readerId
+                        + " does not exist in DB.")
         );
         Book book = bookDao.getById(bookId).orElseThrow(
-                () -> new DaoLayerException("Book with ID " + bookId + " does not exist in DB.")
+                () -> new ServiceLayerException("Book with ID " + bookId
+                        + " does not exist in DB.")
         );
         book.getReader().ifPresent(
                 r -> {
                     throw new ServiceLayerException("Book with ID " + bookId
-                            + " has already borrowed by reader " + r);
+                            + " has already borrowed by reader " + r + ".");
                 }
         );
         book.setReader(Optional.of(reader));
@@ -135,12 +139,16 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     private void validateInputNewBook(String input) {
-        if (input == null || input.length() == 0) {
-            throw new ServiceLayerException("New book input can't be null or empty.");
+        if (input == null || input.length() < 3) {
+            throw new ServiceLayerException(
+                    "New book input can't be null and should contain at least 1 symbol "
+                            + "for both name and author.");
         } else if (StringUtils.countMatches(input, '/') != 1) {
             throw new ServiceLayerException("New book input must contain one '/' character.");
-        } else if (StringUtils.countMatches(input, '/') == 1 && input.length() == 1) {
-            throw new ServiceLayerException("New book input '/' is not valid here.");
+        }
+        String[] splittedInput = input.split("/");
+        if (splittedInput.length != 2 || StringUtils.isAnyBlank(splittedInput)) {
+            throw new ServiceLayerException("New book input is not valid.");
         }
     }
 
@@ -157,27 +165,17 @@ public class LibraryServiceImpl implements LibraryService {
         if (input == null || input.length() == 0) {
             throw new ServiceLayerException("ReturnBookToLibrary input can't be null or empty.");
         }
-        if (StringUtils.countMatches(input, '/') > 0) {
-            throw new ServiceLayerException("ReturnBookToLibrary input can't contain symbol '/'.");
-        }
     }
 
     private void validateInputGetAllBooksOfReader(String input) {
         if (input == null || input.length() == 0) {
-            throw new ServiceLayerException("GetAllBooksOfReader input can't be null or empty.");
-        }
-        if (StringUtils.countMatches(input, '/') > 0) {
-            throw new ServiceLayerException("GetAllBooksOfReader input can't contain symbol '/'.");
+            throw new ServiceLayerException("getAllBooksOfReader input can't be null or empty.");
         }
     }
 
     private void validateInputGetReaderOfBookWithId(String input) {
         if (input == null || input.length() == 0) {
-            throw new ServiceLayerException("GetReaderOfBookWithId input can't be null or empty.");
-        }
-        if (StringUtils.countMatches(input, '/') > 0) {
-            throw new ServiceLayerException(
-                    "GetReaderOfBookWithId input can't contain symbol '/'.");
+            throw new ServiceLayerException("getReaderOfBookWithId input can't be null or empty.");
         }
     }
 
