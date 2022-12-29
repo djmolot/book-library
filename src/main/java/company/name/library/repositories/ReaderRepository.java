@@ -4,7 +4,7 @@ import company.name.library.entities.Reader;
 import java.util.List;
 import java.util.Optional;
 
-public interface ReaderDao {
+public interface ReaderRepository {
     Reader add(Reader reader);
 
     Optional<Reader> getById(Long id);
