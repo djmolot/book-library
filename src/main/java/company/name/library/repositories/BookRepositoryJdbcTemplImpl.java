@@ -47,9 +47,7 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
                         + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
                 this::mapRowToBook,
                 id);
-        return book == null ?
-                Optional.empty() :
-                Optional.of(book);
+        return Optional.of(book);
     }
 
     @Override
