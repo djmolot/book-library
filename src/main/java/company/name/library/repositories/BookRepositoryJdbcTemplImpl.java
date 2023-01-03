@@ -79,12 +79,9 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
     }
 
     private Book mapRowToBook(ResultSet resultSet, int rowNum) throws SQLException {
-        Book book = new Book();
-        book.setId(resultSet.getLong("book_id"));
-        book.setTitle(resultSet.getString("title"));
-        book.setAuthor(resultSet.getString("author"));
+        var book = mapRowToBookWithoutReader(resultSet, rowNum);
         if (resultSet.getObject("reader_id", Long.class) != null) {
-            Reader reader = new Reader();
+            var reader = new Reader();
             reader.setId(resultSet.getLong("reader_id"));
             reader.setName(resultSet.getString("reader_name"));
             book.setReader(Optional.of(reader));
@@ -95,7 +92,7 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
     }
 
     private Book mapRowToBookWithoutReader(ResultSet resultSet, int rowNum) throws SQLException {
-        Book book = new Book();
+        var book = new Book();
         book.setId(resultSet.getObject("id", Long.class));
         book.setTitle(resultSet.getString("title"));
         book.setAuthor(resultSet.getString("author"));
