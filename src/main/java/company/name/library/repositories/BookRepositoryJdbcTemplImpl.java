@@ -35,8 +35,8 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
         }, keyHolder);
         try {
             book.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
-        } catch (InvalidDataAccessApiUsageException e) {
-            throw new DaoLayerException("keyHolder contains no Key" + e.getMessage());
+        } catch (NullPointerException e) {
+            throw new DaoLayerException("Failed to save new book, DB returned empty generated ID: " + e.getMessage());
         }
         return book;
     }
