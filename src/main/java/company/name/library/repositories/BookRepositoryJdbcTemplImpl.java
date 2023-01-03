@@ -42,14 +42,14 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
 
     @Override
     public Optional<Book> getById(Long id) {
-        List<Book> results = jdbcTemplate.query(
+        Book book = jdbcTemplate.queryForObject(
                 "SELECT b.id as book_id, b.author, b.title, b.reader_id, r.name as reader_name "
                         + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
                 this::mapRowToBook,
                 id);
-        return results.size() == 0 ?
+        return book == null ?
                 Optional.empty() :
-                Optional.of(results.get(0));
+                Optional.of(book);
     }
 
     @Override
