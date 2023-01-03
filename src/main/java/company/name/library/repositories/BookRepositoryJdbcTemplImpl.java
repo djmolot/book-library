@@ -63,17 +63,10 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
 
     @Override
     public Book update(Book book) {
-        if (book.getReader().isPresent()) {
-            jdbcTemplate.update(
-                    "UPDATE books SET reader_id = ? WHERE id = ?;",
-                    book.getReader().get().getId(),
-                    book.getId());
-        } else {
-            jdbcTemplate.update(
-                    "UPDATE books SET reader_id = ? WHERE id = ?;",
-                    null,
-                    book.getId());
-        }
+        jdbcTemplate.update(
+                "UPDATE books SET reader_id = ? WHERE id = ?;",
+                book.getReader().map(Reader::getId).orElse(null),
+                book.getId());
         return book;
     }
 
