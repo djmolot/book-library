@@ -3,6 +3,7 @@ package company.name.library.repositories;
 import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import company.name.library.exceptions.DaoLayerException;
+import lombok.Data;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -16,13 +17,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@Data
 @Repository
 public class BookRepositoryJdbcTemplImpl implements BookRepository {
     private JdbcTemplate jdbcTemplate;
-
-    public BookRepositoryJdbcTemplImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public Book add(Book book) {
