@@ -43,8 +43,7 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
     @Override
     public Optional<Book> getById(Long id) {
         List<Book> results = jdbcTemplate.query(
-                "SELECT b.id as book_id, b.author, b.title, b.reader_id as reader_id, "
-                        + "r.name as reader_name "
+                "SELECT b.id as book_id, b.author, b.title, b.reader_id, r.name as reader_name "
                         + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
                 this::mapRowToBook,
                 id);
