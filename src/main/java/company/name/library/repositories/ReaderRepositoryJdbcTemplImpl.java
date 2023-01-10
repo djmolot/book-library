@@ -3,6 +3,7 @@ package company.name.library.repositories;
 import company.name.library.entities.Reader;
 import company.name.library.exceptions.DaoLayerException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -64,14 +65,16 @@ public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
 
     @Override
     public Optional<Reader> getReaderByBookId(Long bookId) {
-        List<Reader> results = jdbcTemplate.query(
-                "SELECT b.reader_id as id, r.name as name "
-                        + "FROM books b JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
-                this::mapRowToReader,
-                bookId);
-        return results.size() == 0 ?
-                Optional.empty() :
-                Optional.of(results.get(0));
+        try {
+            Reader reader = jdbcTemplate.queryForObject(
+                    "SELECT b.reader_id as id, r.name as name "
+                            + "FROM books b JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
+                    this::mapRowToReader,
+                    bookId);
+            return Optional.of(reader);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     private Reader mapRowToReader(ResultSet resultSet, int rowNum)
