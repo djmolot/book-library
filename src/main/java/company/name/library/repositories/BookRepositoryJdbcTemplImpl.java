@@ -3,7 +3,7 @@ package company.name.library.repositories;
 import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import company.name.library.exceptions.DaoLayerException;
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Data
+@RequiredArgsConstructor
 @Repository
 public class BookRepositoryJdbcTemplImpl implements BookRepository {
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public Book add(Book book) {
