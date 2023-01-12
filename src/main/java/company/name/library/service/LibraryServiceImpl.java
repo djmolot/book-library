@@ -5,22 +5,17 @@ import company.name.library.entities.Reader;
 import company.name.library.exceptions.ServiceLayerException;
 import company.name.library.repositories.BookRepository;
 import company.name.library.repositories.ReaderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 public class LibraryServiceImpl implements LibraryService {
     private final BookRepository bookRepository;
     private final ReaderRepository readerRepository;
-
-    @Autowired
-    public LibraryServiceImpl(BookRepository bookRepository, ReaderRepository readerRepository) {
-        this.bookRepository = bookRepository;
-        this.readerRepository = readerRepository;
-    }
 
     @Override
     public List<Book> getAllBooks() {
