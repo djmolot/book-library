@@ -54,8 +54,8 @@ public class BookController {
     @GetMapping("/{bookId}/readers")
     public ResponseEntity<Reader> showReaderOfBook(@PathVariable("bookId") @Positive Long bookId) {
         return libraryService.getReaderOfBookWithId(bookId)
-                .map(reader -> new ResponseEntity<>(reader, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }
