@@ -103,20 +103,6 @@ public class LibraryServiceImpl implements LibraryService {
         }
     }
 
-    private void validateInputNewBook(String input) {
-        if (input == null || input.length() < 3) {
-            throw new ServiceLayerException(
-                    "New book input can't be null and should contain at least 1 symbol "
-                            + "for both name and author.");
-        } else if (StringUtils.countMatches(input, '/') != 1) {
-            throw new ServiceLayerException("New book input must contain one '/' character.");
-        }
-        String[] splittedInput = input.split("/");
-        if (splittedInput.length != 2 || StringUtils.isAnyBlank(splittedInput)) {
-            throw new ServiceLayerException("New book input is not valid.");
-        }
-    }
-
     private void validateInputGetAllBooksOfReader(String input) {
         if (input == null || input.length() == 0) {
             throw new ServiceLayerException("getAllBooksOfReader input can't be null or empty.");

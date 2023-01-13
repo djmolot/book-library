@@ -4,6 +4,7 @@ import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import company.name.library.exceptions.DaoLayerException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -32,22 +33,25 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
             ps.setString(2, book.getTitle());
             return ps;
         }, keyHolder);
-        try {
-            book.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
-        } catch (NullPointerException e) {
-            throw new DaoLayerException("Failed to save new book, DB returned empty generated ID: " + e.getMessage());
-        }
+        var generatedId = Optional.ofNullable(keyHolder.getKey())
+                .map(Number::longValue)
+                .orElseThrow(() -> new DaoLayerException("Failed to save new Book to DB, no generated ID returned"));
+        book.setId(generatedId);
         return book;
     }
 
     @Override
     public Optional<Book> getById(Long id) {
-        Book book = jdbcTemplate.queryForObject(
-                "SELECT b.id as book_id, b.author, b.title, b.reader_id, r.name as reader_name "
-                        + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
-                this::mapRowToBook,
-                id);
-        return Optional.of(book);
+        try {
+            Book book = jdbcTemplate.queryForObject(
+                    "SELECT b.id as book_id, b.author, b.title, b.reader_id, r.name as reader_name "
+                            + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
+                    this::mapRowToBook,
+                    id);
+            return Optional.ofNullable(book);
+        } catch (DataAccessException e) {
+            throw new DaoLayerException("Book with ID " + id + " does not exist in DB. " + e.getMessage());
+        }
     }
 
     @Override

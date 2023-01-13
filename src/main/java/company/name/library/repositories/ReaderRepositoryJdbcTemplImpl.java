@@ -3,8 +3,8 @@ package company.name.library.repositories;
 import company.name.library.entities.Reader;
 import company.name.library.exceptions.DaoLayerException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -15,7 +15,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -32,23 +31,25 @@ public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
                     .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, reader.getName());
             return ps;
-        }, keyHolder);
-        try {
-            reader.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
-        } catch (InvalidDataAccessApiUsageException e) {
-            throw new DaoLayerException("keyHolder contains no Key" + e.getMessage());
-        }
-        return reader;    }
+            }, keyHolder);
+        var generatedId = Optional.ofNullable(keyHolder.getKey())
+                .map(Number::longValue)
+                .orElseThrow(() -> new DaoLayerException("Failed to save new reader to DB, no generated ID returned"));
+        reader.setId(generatedId);
+        return reader;
+    }
 
     @Override
     public Optional<Reader> getById(Long id) {
-        List<Reader> results = jdbcTemplate.query(
-                "SELECT * FROM readers WHERE id = ?;",
-                this::mapRowToReader,
-                id);
-        return results.size() == 0 ?
-                Optional.empty() :
-                Optional.of(results.get(0));
+        try {
+            Reader reader = jdbcTemplate.queryForObject(
+                    "SELECT * FROM readers WHERE id = ?;",
+                    this::mapRowToReader,
+                    id);
+            return Optional.ofNullable(reader);
+        } catch (DataAccessException e) {
+            throw new DaoLayerException("Reader with ID " + id + " does not exist in DB. " + e.getMessage());
+        }
     }
 
     @Override
@@ -67,18 +68,18 @@ public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
     public Optional<Reader> getReaderByBookId(Long bookId) {
         try {
             Reader reader = jdbcTemplate.queryForObject(
-                    "SELECT b.reader_id as id, r.name as name "
+                    "SELECT r.id, r.name "
                             + "FROM books b JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
                     this::mapRowToReader,
                     bookId);
-            return Optional.of(reader);
+            return Optional.ofNullable(reader);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
 
     private Reader mapRowToReader(ResultSet resultSet, int rowNum)
-            throws SQLException {
+        throws SQLException {
         Reader reader = new Reader();
         reader.setId(resultSet.getLong("id"));
         reader.setName(resultSet.getString("name"));
