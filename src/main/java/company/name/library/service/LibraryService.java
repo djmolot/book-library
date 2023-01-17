@@ -10,7 +10,7 @@ public interface LibraryService {
 
     List<Reader> getAllReaders();
 
-    Reader registerNewReader(String input);
+    Reader registerNewReader(Reader reader);
 
     Book addNewBook(Book book);
 
@@ -18,7 +18,7 @@ public interface LibraryService {
 
     Book returnBookToLibrary(Long bookId);
 
-    List<Book> getAllBooksOfReader(String input);
+    List<Book> getAllBooksOfReader(Long readerId);
 
     Optional<Reader> getReaderOfBookWithId(Long bookId);
 }

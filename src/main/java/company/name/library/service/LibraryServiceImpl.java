@@ -28,10 +28,7 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public Reader registerNewReader(String input) {
-        validateInputNewReader(input);
-        Reader reader = new Reader();
-        reader.setName(input);
+    public Reader registerNewReader(Reader reader) {
         return readerRepository.add(reader);
     }
 
@@ -73,15 +70,7 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public List<Book> getAllBooksOfReader(String input) {
-        validateInputGetAllBooksOfReader(input);
-        Long readerId;
-        try {
-            readerId = Long.parseLong(input);
-        } catch (NumberFormatException e) {
-            throw new ServiceLayerException("The string " + input
-                    + " does not contain a parsable long. " + e.getMessage());
-        }
+    public List<Book> getAllBooksOfReader(Long readerId) {
         readerRepository.getById(readerId).orElseThrow(
                 () -> new ServiceLayerException("Reader with ID " + readerId
                         + " does not exist in DB.")
@@ -95,21 +84,6 @@ public class LibraryServiceImpl implements LibraryService {
                 () -> new ServiceLayerException("Book with ID " + bookId + " does not exist in DB.")
         );
         return readerRepository.getReaderByBookId(bookId);
-    }
-
-    private void validateInputNewReader(String input) {
-        if (input == null || input.length() == 0) {
-            throw new ServiceLayerException("Reader name can't be null or empty.");
-        }
-        if (StringUtils.countMatches(input, '/') > 0) {
-            throw new ServiceLayerException("Reader name can't contain symbol '/'.");
-        }
-    }
-
-    private void validateInputGetAllBooksOfReader(String input) {
-        if (input == null || input.length() == 0) {
-            throw new ServiceLayerException("getAllBooksOfReader input can't be null or empty.");
-        }
     }
 
 }
