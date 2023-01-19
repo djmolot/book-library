@@ -99,7 +99,7 @@ public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
                     this::mapRowToReaderWithoutBooks,
                     bookId);
             return Optional.ofNullable(reader);
-        } catch (EmptyResultDataAccessException e) {
+        } catch (DataAccessException e) {
             return Optional.empty();
         }
     }
