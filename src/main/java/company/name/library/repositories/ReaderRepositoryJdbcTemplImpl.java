@@ -99,8 +99,11 @@ public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
                     this::mapRowToReaderWithoutBooks,
                     bookId);
             return Optional.ofNullable(reader);
-        } catch (DataAccessException e) {
+        } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
+        } catch (DataAccessException e) {
+            log.error("Error during getting the reader from DB. " + e);
+            throw new DaoLayerException("Error during getting the reader from DB. " + e);
         }
     }
 
