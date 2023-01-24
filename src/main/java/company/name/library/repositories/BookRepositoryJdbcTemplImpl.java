@@ -4,7 +4,10 @@ import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import company.name.library.exceptions.DaoLayerException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -20,23 +23,30 @@ import java.util.Optional;
 @Repository
 public class BookRepositoryJdbcTemplImpl implements BookRepository {
     private final JdbcTemplate jdbcTemplate;
+    private static final Logger logger =
+            LoggerFactory.getLogger(BookRepositoryJdbcTemplImpl.class);
 
     @Override
     public Book add(Book book) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String sql = "insert into books (author, title) values (?, ?);";
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection
-                    .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, book.getAuthor());
-            ps.setString(2, book.getTitle());
-            return ps;
-        }, keyHolder);
-        var generatedId = Optional.ofNullable(keyHolder.getKey())
-                .map(Number::longValue)
-                .orElseThrow(() -> new DaoLayerException("Failed to save new Book to DB, no generated ID returned"));
-        book.setId(generatedId);
-        return book;
+        try {
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection
+                        .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, book.getAuthor());
+                ps.setString(2, book.getTitle());
+                return ps;
+            }, keyHolder);
+            var generatedId = Optional.ofNullable(keyHolder.getKey())
+                    .map(Number::longValue)
+                    .orElseThrow(() -> new DaoLayerException("Failed to save new Book to DB, no generated ID returned"));
+            book.setId(generatedId);
+            return book;
+        } catch (DataAccessException e) {
+            logger.error("Error during saving book to DB. " + e);
+            throw new DaoLayerException("Error during saving book to DB. " + e);
+        }
     }
 
     @Override
@@ -48,35 +58,54 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
                     this::mapRowToBook,
                     id);
             return Optional.ofNullable(book);
+        } catch (EmptyResultDataAccessException e) {
+            logger.info("Book with ID " + id + " does not exist in DB. " + e);
+            throw new DaoLayerException("Book with ID " + id + " does not exist in DB. " + e);
         } catch (DataAccessException e) {
-            throw new DaoLayerException("Book with ID " + id + " does not exist in DB. " + e.getMessage());
+            logger.error("Error during getting book by ID from DB. " + e);
+            throw new DaoLayerException("Error during getting book by ID from DB. " + e);
         }
     }
 
     @Override
     public List<Book> getAll() {
-        return jdbcTemplate.query(
-                "SELECT b.id as book_id, b.author, b.title, b.reader_id as reader_id, "
-                        + "r.name as reader_name "
-                        + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id ORDER BY b.id ASC;",
-                this::mapRowToBook);
+        try {
+            return jdbcTemplate.query(
+                    "SELECT b.id as book_id, b.author, b.title, b.reader_id as reader_id, "
+                            + "r.name as reader_name "
+                            + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id ORDER BY b.id ASC;",
+                    this::mapRowToBook);
+        } catch (DataAccessException e) {
+            logger.error("Error during getting all books from DB. " + e);
+            throw new DaoLayerException("Error during getting all books from DB. " + e);
+        }
     }
 
     @Override
     public Book update(Book book) {
-        jdbcTemplate.update(
-                "UPDATE books SET reader_id = ? WHERE id = ?;",
-                book.getReader().map(Reader::getId).orElse(null),
-                book.getId());
-        return book;
+        try {
+            jdbcTemplate.update(
+                    "UPDATE books SET reader_id = ? WHERE id = ?;",
+                    book.getReader().map(Reader::getId).orElse(null),
+                    book.getId());
+            return book;
+        } catch (DataAccessException e) {
+            logger.error("Error during update of book in DB. " + e);
+            throw new DaoLayerException("Error during update of book in DB. " + e);
+        }
     }
 
     @Override
     public List<Book> getBooksByReaderId(Long readerId) {
-        return jdbcTemplate.query(
-                "SELECT id, author, title FROM books WHERE reader_id = ? ORDER BY id ASC;",
-                this::mapRowToBookWithoutReader,
-                readerId);
+        try {
+            return jdbcTemplate.query(
+                    "SELECT id, author, title FROM books WHERE reader_id = ? ORDER BY id ASC;",
+                    this::mapRowToBookWithoutReader,
+                    readerId);
+        } catch (DataAccessException e) {
+            logger.error("Error during getBooksByReaderId from DB. " + e);
+            throw new DaoLayerException("Error during getBooksByReaderId from DB. " + e);
+        }
     }
 
     private Book mapRowToBook(ResultSet resultSet, int rowNum) throws SQLException {

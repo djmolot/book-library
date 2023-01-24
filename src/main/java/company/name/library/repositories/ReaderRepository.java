@@ -11,7 +11,5 @@ public interface ReaderRepository {
 
     List<Reader> getAll();
 
-    void update(Reader reader);
-
     Optional<Reader> getReaderByBookId(Long bookId);
 }
