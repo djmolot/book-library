@@ -4,8 +4,7 @@ import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import company.name.library.exceptions.DaoLayerException;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,11 +20,10 @@ import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
+@Slf4j
 @Repository
 public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
     private final JdbcTemplate jdbcTemplate;
-    private static final Logger logger =
-            LoggerFactory.getLogger(ReaderRepositoryJdbcTemplImpl.class);
 
     @Override
     public Reader add(Reader reader) {
@@ -44,7 +42,7 @@ public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
             reader.setId(generatedId);
             return reader;
         } catch (DataAccessException e) {
-            logger.error("Error during adding reader to DB. " + e);
+            log.error("Error during adding reader to DB. " + e);
             throw new DaoLayerException("Error during adding reader to DB. " + e);
         }
     }
@@ -58,10 +56,10 @@ public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
                     id);
             return Optional.ofNullable(reader);
         } catch (EmptyResultDataAccessException e) {
-            logger.error("Reader with ID " + id + " does not exist in DB. " + e);
+            log.error("Reader with ID " + id + " does not exist in DB. " + e);
             throw new DaoLayerException("Reader with ID " + id + " does not exist in DB. " + e);
         } catch (DataAccessException e) {
-            logger.error("Error during getting reader by ID from DB. " + e);
+            log.error("Error during getting reader by ID from DB. " + e);
             throw new DaoLayerException("Error during getting reader by ID from DB. " + e);
         }
     }
@@ -98,7 +96,7 @@ public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
                 return readers;
             });
         } catch (DataAccessException e) {
-            logger.error("Error during getting all readers from DB. " + e);
+            log.error("Error during getting all readers from DB. " + e);
             throw new DaoLayerException("Error during getting all readers from DB. " + e);
         }
     }
@@ -113,10 +111,10 @@ public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
                     bookId);
             return Optional.ofNullable(reader);
         } catch (EmptyResultDataAccessException e) {
-            logger.info("Zero rows were returned during getting the reader of book from DB. " + e);
+            log.info("Zero rows were returned during getting the reader of book from DB. " + e);
             return Optional.empty();
         } catch (DataAccessException e) {
-            logger.error("Error during getting the reader of book from DB. " + e);
+            log.error("Error during getting the reader of book from DB. " + e);
             throw new DaoLayerException("Error during getting the reader of book from DB. " + e);
         }
     }

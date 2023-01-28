@@ -4,8 +4,7 @@ import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import company.name.library.exceptions.DaoLayerException;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,11 +19,10 @@ import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
+@Slf4j
 @Repository
 public class BookRepositoryJdbcTemplImpl implements BookRepository {
     private final JdbcTemplate jdbcTemplate;
-    private static final Logger logger =
-            LoggerFactory.getLogger(BookRepositoryJdbcTemplImpl.class);
 
     @Override
     public Book add(Book book) {
@@ -44,7 +42,7 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
             book.setId(generatedId);
             return book;
         } catch (DataAccessException e) {
-            logger.error("Error during saving book to DB. " + e);
+            log.error("Error during saving book to DB. " + e);
             throw new DaoLayerException("Error during saving book to DB. " + e);
         }
     }
@@ -59,11 +57,12 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
                     id);
             return Optional.ofNullable(book);
         } catch (EmptyResultDataAccessException e) {
-            logger.info("Book with ID " + id + " does not exist in DB. " + e);
-            throw new DaoLayerException("Book with ID " + id + " does not exist in DB. " + e);
+            log.info("Book with ID " + id + " does not exist in DB. " + e);
+            return Optional.empty();
         } catch (DataAccessException e) {
-            logger.error("Error during getting book by ID from DB. " + e);
-            throw new DaoLayerException("Error during getting book by ID from DB. " + e);
+            log.error("Error during getting book by ID {} from DB: {}", id, e.getLocalizedMessage());
+            throw new DaoLayerException("Error during getting book by ID " + id
+                    + "from DB: " + e.getLocalizedMessage());
         }
     }
 
@@ -76,7 +75,7 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
                             + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id ORDER BY b.id ASC;",
                     this::mapRowToBook);
         } catch (DataAccessException e) {
-            logger.error("Error during getting all books from DB. " + e);
+            log.error("Error during getting all books from DB. " + e);
             throw new DaoLayerException("Error during getting all books from DB. " + e);
         }
     }
@@ -90,8 +89,9 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
                     book.getId());
             return book;
         } catch (DataAccessException e) {
-            logger.error("Error during update of book in DB. " + e);
-            throw new DaoLayerException("Error during update of book in DB. " + e);
+            log.error("Failed to update the book in DB: {}", book);
+            throw new DaoLayerException("Failed to update the book in DB: " + book + ". "
+                    + e.getLocalizedMessage());
         }
     }
 
@@ -103,8 +103,9 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
                     this::mapRowToBookWithoutReader,
                     readerId);
         } catch (DataAccessException e) {
-            logger.error("Error during getBooksByReaderId from DB. " + e);
-            throw new DaoLayerException("Error during getBooksByReaderId from DB. " + e);
+            log.error("Error during get books of reader with ID {} from DB.", readerId);
+            throw new DaoLayerException("Error during get books of reader with ID "
+                    + readerId + "from DB. " + e.getLocalizedMessage());
         }
     }
 
