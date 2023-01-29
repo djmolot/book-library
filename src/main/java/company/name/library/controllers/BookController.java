@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
@@ -27,28 +26,28 @@ public class BookController {
     private final LibraryService libraryService;
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<Book> showAllBooks() {
-        return libraryService.getAllBooks();
+    public ResponseEntity<List<Book>> showAllBooks() {
+        List<Book> books = libraryService.getAllBooks();
+        return ResponseEntity.ok(books);
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Book addNewBook(@Valid @RequestBody Book book) {
-        return libraryService.addNewBook(book);
+    public ResponseEntity<Book> addNewBook(@Valid @RequestBody Book book) {
+        Book bookFromDB = libraryService.addNewBook(book);
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookFromDB);
     }
 
     @PostMapping("/{bookId}/readers/{readerId}")
-    @ResponseStatus(HttpStatus.OK)
-    public Book borrowBookToReader(@PathVariable("bookId") @Positive Long bookId,
+    public ResponseEntity<Book> borrowBookToReader(@PathVariable("bookId") @Positive Long bookId,
                                    @PathVariable("readerId") @Positive Long readerId) {
-        return libraryService.borrowBookToReader(bookId, readerId);
+        Book book = libraryService.borrowBookToReader(bookId, readerId);
+        return ResponseEntity.ok(book);
     }
 
     @DeleteMapping("/{bookId}/readers")
-    @ResponseStatus(HttpStatus.OK)
-    public Book returnBookToLibrary(@PathVariable("bookId") @Positive Long bookId) {
-        return libraryService.returnBookToLibrary(bookId);
+    public ResponseEntity<Book> returnBookToLibrary(@PathVariable("bookId") @Positive Long bookId) {
+        Book book = libraryService.returnBookToLibrary(bookId);
+        return ResponseEntity.ok(book);
     }
 
     @GetMapping("/{bookId}/readers")
