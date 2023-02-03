@@ -36,9 +36,11 @@ public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
                 ps.setString(1, reader.getName());
                 return ps;
             }, keyHolder);
-            var generatedId = Optional.ofNullable(keyHolder.getKey())
-                    .map(Number::longValue)
-                    .orElseThrow(() -> new DaoLayerException("Failed to save new reader to DB, no generated ID returned"));
+            var generatedId = Optional.ofNullable(keyHolder.getKeys())
+                    .map(keys -> keys.get("id"))
+                    .map(Long.class::cast)
+                    .orElseThrow(() -> new DaoLayerException(
+                            "Failed to save new reader to DB, no generated ID returned. "));
             reader.setId(generatedId);
             return reader;
         } catch (DataAccessException e) {
