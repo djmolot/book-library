@@ -36,9 +36,11 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
                 ps.setString(2, book.getTitle());
                 return ps;
             }, keyHolder);
-            var generatedId = Optional.ofNullable(keyHolder.getKey())
-                    .map(Number::longValue)
-                    .orElseThrow(() -> new DaoLayerException("Failed to save new Book to DB, no generated ID returned"));
+            var generatedId = Optional.ofNullable(keyHolder.getKeys())
+                    .map(keys -> keys.get("id"))
+                    .map(Long.class::cast)
+                    .orElseThrow(() -> new DaoLayerException(
+                            "Failed to save new Book to DB, no generated ID returned. "));
             book.setId(generatedId);
             return book;
         } catch (DataAccessException e) {
@@ -51,7 +53,7 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
     public Optional<Book> getById(Long id) {
         try {
             Book book = jdbcTemplate.queryForObject(
-                    "SELECT b.id as book_id, b.author, b.title, b.reader_id, r.name as reader_name "
+                    "SELECT b.id, b.author, b.title, b.reader_id, r.name as reader_name "
                             + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
                     this::mapRowToBook,
                     id);
@@ -70,7 +72,7 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
     public List<Book> getAll() {
         try {
             return jdbcTemplate.query(
-                    "SELECT b.id as book_id, b.author, b.title, b.reader_id as reader_id, "
+                    "SELECT b.id, b.author, b.title, b.reader_id, "
                             + "r.name as reader_name "
                             + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id ORDER BY b.id ASC;",
                     this::mapRowToBook);
