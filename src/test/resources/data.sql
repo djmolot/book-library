@@ -9,3 +9,5 @@ INSERT INTO readers (name) VALUES
 ('Voski Daniel'),
 ('Ruben Nazaret');
 -- --------------------------------------------------------------
+UPDATE books SET reader_id = 2 WHERE id = 1;
+UPDATE books SET reader_id = 2 WHERE id = 2;

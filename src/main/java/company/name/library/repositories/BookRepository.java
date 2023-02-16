@@ -9,6 +9,8 @@ public interface BookRepository {
 
     Optional<Book> getById(Long id);
 
+    boolean deleteById(Long id);
+
     List<Book> getAll();
 
     Book update(Book book);
