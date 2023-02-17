@@ -95,7 +95,7 @@ public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
     @Override
     public List<Reader> getAll() {
         String sql = "SELECT r.id as reader_id, r.name, b.id as book_id, b.title, b.author "
-                + "FROM books b RIGHT JOIN readers r ON b.reader_id = r.id ORDER BY r.id ASC;";
+                + "FROM books b RIGHT JOIN readers r ON b.reader_id = r.id ORDER BY r.id ASC, b.id ASC;";
         return jdbcTemplate.query(sql, (ResultSet resultSet) -> {
             List<Reader> readers = new ArrayList<>();
             Long previousReaderId = 0L;
