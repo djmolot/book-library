@@ -76,11 +76,15 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
 
     @Override
     public Book update(Book book) {
-        jdbcTemplate.update(
+        int result = jdbcTemplate.update(
                 "UPDATE books SET reader_id = ? WHERE id = ?;",
                 book.getReader().map(Reader::getId).orElse(null),
                 book.getId());
-        return book;
+        if(result == 1) {
+            return book;
+        } else {
+            return new Book();
+        }
     }
 
     @Override

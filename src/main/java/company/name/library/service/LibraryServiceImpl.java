@@ -85,5 +85,4 @@ public class LibraryServiceImpl implements LibraryService {
         );
         return readerRepository.getReaderByBookId(bookId);
     }
-
 }
