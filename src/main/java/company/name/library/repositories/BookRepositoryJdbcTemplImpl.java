@@ -5,6 +5,7 @@ import company.name.library.entities.Reader;
 import company.name.library.exceptions.DaoLayerException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -27,13 +28,17 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
     public Book add(Book book) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String sql = "insert into books (author, title) values (?, ?);";
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection
-                    .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, book.getAuthor());
-            ps.setString(2, book.getTitle());
-            return ps;
-        }, keyHolder);
+        try {
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection
+                        .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, book.getAuthor());
+                ps.setString(2, book.getTitle());
+                return ps;
+            }, keyHolder);
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+        }
         var generatedId = Optional.ofNullable(keyHolder.getKeys())
                 .map(keys -> keys.get("id"))
                 .map(Long.class::cast)
@@ -46,11 +51,16 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
     @Override
     public Optional<Book> getById(Long id) {
         try {
-            Book book = jdbcTemplate.queryForObject(
-                    "SELECT b.id, b.author, b.title, b.reader_id, r.name as reader_name "
-                            + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
-                    this::mapRowToBook,
-                    id);
+            Book book = null;
+            try {
+                book = jdbcTemplate.queryForObject(
+                        "SELECT b.id, b.author, b.title, b.reader_id, r.name as reader_name "
+                                + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
+                        this::mapRowToBook,
+                        id);
+            } catch (DataAccessException e) {
+                e.printStackTrace();
+            }
             return Optional.ofNullable(book);
         } catch (EmptyResultDataAccessException e) {
             log.info("Book with ID " + id + " does not exist in DB. " + e);
@@ -62,28 +72,43 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
     public boolean deleteById(Long id) {
         String sql = "DELETE FROM books WHERE id = ?";
         Object[] args = new Object[] {id};
-        return jdbcTemplate.update(sql, args) == 1;
+        try {
+            return jdbcTemplate.update(sql, args) == 1;
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
     public List<Book> getAll() {
-        return jdbcTemplate.query(
-                "SELECT b.id, b.author, b.title, b.reader_id, "
-                        + "r.name as reader_name "
-                        + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id ORDER BY b.id ASC;",
-                this::mapRowToBook);
+        try {
+            return jdbcTemplate.query(
+                    "SELECT b.id, b.author, b.title, b.reader_id, "
+                            + "r.name as reader_name "
+                            + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id ORDER BY b.id ASC;",
+                    this::mapRowToBook);
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            return List.of();
+        }
     }
 
     @Override
-    public Book update(Book book) {
-        int result = jdbcTemplate.update(
-                "UPDATE books SET reader_id = ? WHERE id = ?;",
-                book.getReader().map(Reader::getId).orElse(null),
-                book.getId());
+    public Optional<Book> update(Book book) {
+        int result = 0;
+        try {
+            result = jdbcTemplate.update(
+                    "UPDATE books SET reader_id = ? WHERE id = ?;",
+                    book.getReader().map(Reader::getId).orElse(null),
+                    book.getId());
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+        }
         if(result == 1) {
-            return book;
+            return Optional.of(book);
         } else {
-            return new Book();
+            return Optional.empty();
         }
     }
 

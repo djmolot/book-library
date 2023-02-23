@@ -1,4 +1,4 @@
-package company.name.library.controllers;
+package company.name.library.entities;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

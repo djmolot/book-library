@@ -1,8 +1,9 @@
-package company.name.library.controllers;
+package company.name.library.exceptions.handling;
 
 import java.util.List;
 import java.util.Objects;
 
+import company.name.library.entities.ErrorResponse;
 import company.name.library.exceptions.DaoLayerException;
 import company.name.library.exceptions.ServiceLayerException;
 import jakarta.validation.ConstraintViolationException;

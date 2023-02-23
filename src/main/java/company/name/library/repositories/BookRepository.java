@@ -13,7 +13,7 @@ public interface BookRepository {
 
     List<Book> getAll();
 
-    Book update(Book book);
+    Optional<Book> update(Book book);
 
     List<Book> getBooksByReaderId(Long readerId);
 

@@ -39,7 +39,7 @@ class LibraryServiceImplTest {
         Mockito.when(readerRepository.getById(1L)).thenReturn(Optional.of(expectedReaders.get(0)));
         Book bookForUpdate = book3();
         bookForUpdate.setReader(Optional.of(reader1()));
-        Mockito.when(bookRepository.update(bookForUpdate)).thenReturn(bookForUpdate);
+        Mockito.when(bookRepository.update(bookForUpdate)).thenReturn(Optional.of(bookForUpdate));
         Book actualBook = libraryService.borrowBookToReader(3L, 1L);
         Assertions.assertEquals(bookForUpdate, actualBook,
                 "actualBook should be equal to bookForUpdate");
@@ -78,7 +78,7 @@ class LibraryServiceImplTest {
         Book bookForUpdate = expectedBooks.get(1);
         Book expectedBook = book2();
         expectedBook.setReader(Optional.empty());
-        Mockito.when(bookRepository.update(bookForUpdate)).thenReturn(expectedBook);
+        Mockito.when(bookRepository.update(bookForUpdate)).thenReturn(Optional.of(expectedBook));
         Book actualBook = libraryService.returnBookToLibrary(2L);
         Assertions.assertEquals(expectedBook, actualBook,
                 "actualBook should be equal to expectedBook");

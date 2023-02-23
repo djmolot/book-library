@@ -17,6 +17,7 @@ import java.util.Optional;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 class BookRepositoryJdbcTemplImplIT {
+
     private final BookRepository bookRepository;
     private final ReaderRepository readerRepository;
     private final List<Book> expectedBooks;

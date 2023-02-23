@@ -54,7 +54,9 @@ public class LibraryServiceImpl implements LibraryService {
                 }
         );
         book.setReader(Optional.of(reader));
-        return bookRepository.update(book);
+        return bookRepository.update(book).orElseThrow(
+                () -> new ServiceLayerException("Failed to update book with ID " + bookId)
+        );
     }
 
     @Override
@@ -66,7 +68,9 @@ public class LibraryServiceImpl implements LibraryService {
             throw  new ServiceLayerException("Book with ID " + bookId + " does not borrowed by any reader.");
         }
         book.setReader(Optional.empty());
-        return bookRepository.update(book);
+        return bookRepository.update(book).orElseThrow(
+                () -> new ServiceLayerException("Failed to update book with ID " + bookId)
+        );
     }
 
     @Override
