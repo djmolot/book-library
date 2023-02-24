@@ -29,11 +29,9 @@ class ReaderControllerTest {
     private LibraryService libraryService;
     @Autowired
     private MockMvc mockMvc;
-    private final List<Book> expectedBooks;
     private final List<Reader> expectedReaders;
 
     ReaderControllerTest() {
-        this.expectedBooks = expectedBooks();
         this.expectedReaders = expectedReaders();
     }
 
@@ -132,15 +130,6 @@ class ReaderControllerTest {
         return book2;
     }
 
-    private Book book3() {
-        Book book3 = new Book();
-        book3.setId(3L);
-        book3.setTitle("Data Structures And Algorithms Made Easy In JAVA");
-        book3.setAuthor("Narasimha Karumanchi");
-        book3.setReader(Optional.empty());
-        return book3;
-    }
-
     private Reader reader1() {
         Reader reader1 = new Reader();
         reader1.setId(1L);
@@ -160,16 +149,6 @@ class ReaderControllerTest {
         reader3.setId(3L);
         reader3.setName("Ruben Nazaret");
         return reader3;
-    }
-
-    private List<Book> expectedBooks() {
-        Book book1 = book1();
-        book1.setReader(Optional.of(reader2()));
-        Book book2 = book2();
-        book2.setReader(Optional.of(reader2()));
-        Book book3 = book3();
-        book3.setReader(Optional.empty());
-        return List.of(book1, book2, book3);
     }
 
     private List<Reader> expectedReaders() {
