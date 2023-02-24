@@ -1,21 +1,13 @@
 package company.name.library.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import company.name.library.TestDatabaseData;
 import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import company.name.library.exceptions.ServiceLayerException;
 import company.name.library.service.LibraryService;
-import io.restassured.RestAssured;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
-import io.restassured.module.mockmvc.response.MockMvcResponse;
-import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -24,19 +16,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 
 import static io.restassured.http.ContentType.JSON;
-import static org.hamcrest.Matchers.hasItems;
 
 @Slf4j
 @SpringBootTest
@@ -46,17 +31,16 @@ class BookControllerTest {
     private LibraryService libraryService;
     @Autowired
     private MockMvc mockMvc;
-    private final List<Book> expectedBooks;
-    private final List<Reader> expectedReaders;
 
-    BookControllerTest() {
-        this.expectedBooks = expectedBooks();
-        this.expectedReaders = expectedReaders();
-    }
+    private final TestDatabaseData testDatabaseData = new TestDatabaseData();
+    private List<Book> expectedBooks;
+    private List<Reader> expectedReaders;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         RestAssuredMockMvc.mockMvc(mockMvc);
+        expectedBooks = testDatabaseData.getTestBooks();
+        expectedReaders = testDatabaseData.getTestReaders();
     }
 
     @Test
@@ -67,15 +51,15 @@ class BookControllerTest {
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("size()", Matchers.equalTo(3))
-                .body("[0].id", Matchers.equalTo(book1().getId().intValue()))
-                .body("[0].title", Matchers.equalTo(book1().getTitle()))
-                .body("[0].author", Matchers.equalTo(book1().getAuthor()))
-                .body("[1].id", Matchers.equalTo(book2().getId().intValue()))
-                .body("[1].title", Matchers.equalTo(book2().getTitle()))
-                .body("[1].author", Matchers.equalTo(book2().getAuthor()))
-                .body("[2].id", Matchers.equalTo(book3().getId().intValue()))
-                .body("[2].title", Matchers.equalTo(book3().getTitle()))
-                .body("[2].author", Matchers.equalTo(book3().getAuthor()));
+                .body("[0].id", Matchers.equalTo(expectedBooks.get(0).getId().intValue()))
+                .body("[0].title", Matchers.equalTo(expectedBooks.get(0).getTitle()))
+                .body("[0].author", Matchers.equalTo(expectedBooks.get(0).getAuthor()))
+                .body("[1].id", Matchers.equalTo(expectedBooks.get(1).getId().intValue()))
+                .body("[1].title", Matchers.equalTo(expectedBooks.get(1).getTitle()))
+                .body("[1].author", Matchers.equalTo(expectedBooks.get(1).getAuthor()))
+                .body("[2].id", Matchers.equalTo(expectedBooks.get(2).getId().intValue()))
+                .body("[2].title", Matchers.equalTo(expectedBooks.get(2).getTitle()))
+                .body("[2].author", Matchers.equalTo(expectedBooks.get(2).getAuthor()));
     }
 
     @Test
@@ -90,8 +74,8 @@ class BookControllerTest {
 
     @Test
     void addNewBook_should_add_valid_book() {
-        Book bookToPass = newBook();
-        Book bookToReturn = newBook();
+        Book bookToPass = testDatabaseData.newBook();
+        Book bookToReturn = testDatabaseData.newBook();
         bookToReturn.setId(4L);
         Mockito.when(libraryService.addNewBook(bookToPass)).thenReturn(bookToReturn);
         RestAssuredMockMvc.given()
@@ -148,7 +132,7 @@ class BookControllerTest {
 
     @Test
     void returnBookToLibrary_should_set_field_reader_to_null() {
-        Book bookToReturn = book1();
+        Book bookToReturn = testDatabaseData.book1();
         Mockito.when(libraryService.returnBookToLibrary(1L)).thenReturn(bookToReturn);
         RestAssuredMockMvc.when()
                 .delete("/api/v1/library/books/1/readers")
@@ -189,80 +173,6 @@ class BookControllerTest {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("message", Matchers.equalTo("Service layer Error"))
                 .body("details[0]", Matchers.equalTo("Book with ID 777 does not exist in DB."));
-    }
-
-    private Book newBook() {
-        Book newBook = new Book();
-        newBook.setAuthor("Rebecca Serle");
-        newBook.setTitle("One Italian Summer");
-        newBook.setReader(Optional.empty());
-        return newBook;
-    }
-
-    private Book book1() {
-        Book book1 = new Book();
-        book1.setId(1L);
-        book1.setTitle("Java. The Complete Reference. Twelfth Edition");
-        book1.setAuthor("Herbert Schildt");
-        book1.setReader(Optional.empty());
-        return book1;
-    }
-
-    private Book book2() {
-        Book book2 = new Book();
-        book2.setId(2L);
-        book2.setTitle("Java. An Introduction to Problem Solving & Programming");
-        book2.setAuthor("Walter Savitch");
-        book2.setReader(Optional.empty());
-        return book2;
-    }
-
-    private Book book3() {
-        Book book3 = new Book();
-        book3.setId(3L);
-        book3.setTitle("Data Structures And Algorithms Made Easy In JAVA");
-        book3.setAuthor("Narasimha Karumanchi");
-        book3.setReader(Optional.empty());
-        return book3;
-    }
-
-    private Reader reader1() {
-        Reader reader1 = new Reader();
-        reader1.setId(1L);
-        reader1.setName("Zhirayr Hovik");
-        return reader1;
-    }
-
-    private Reader reader2() {
-        Reader reader2 = new Reader();
-        reader2.setId(2L);
-        reader2.setName("Voski Daniel");
-        return reader2;
-    }
-
-    private Reader reader3() {
-        Reader reader3 = new Reader();
-        reader3.setId(3L);
-        reader3.setName("Ruben Nazaret");
-        return reader3;
-    }
-
-    private List<Book> expectedBooks() {
-        Book book1 = book1();
-        book1.setReader(Optional.of(reader2()));
-        Book book2 = book2();
-        book2.setReader(Optional.of(reader2()));
-        Book book3 = book3();
-        book3.setReader(Optional.empty());
-        return List.of(book1, book2, book3);
-    }
-
-    private List<Reader> expectedReaders() {
-        Reader reader1 = reader1();
-        Reader reader2 = reader2();
-        reader2.setBooks(List.of(book1(), book2()));
-        Reader reader3 = reader3();
-        return List.of(reader1, reader2, reader3);
     }
 
     private Book bookWithInvalidTitle() {

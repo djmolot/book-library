@@ -1,5 +1,6 @@
 package company.name.library.controllers;
 
+import company.name.library.TestDatabaseData;
 import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import company.name.library.service.LibraryService;
@@ -29,15 +30,14 @@ class ReaderControllerTest {
     private LibraryService libraryService;
     @Autowired
     private MockMvc mockMvc;
-    private final List<Reader> expectedReaders;
 
-    ReaderControllerTest() {
-        this.expectedReaders = expectedReaders();
-    }
+    private final TestDatabaseData testDatabaseData = new TestDatabaseData();
+    private List<Reader> expectedReaders;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         RestAssuredMockMvc.mockMvc(mockMvc);
+        expectedReaders = testDatabaseData.getTestReaders();
     }
 
     @Test
@@ -48,12 +48,12 @@ class ReaderControllerTest {
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("size()", Matchers.equalTo(3))
-                .body("[0].id", Matchers.equalTo(reader1().getId().intValue()))
-                .body("[0].name", Matchers.equalTo(reader1().getName()))
-                .body("[1].id", Matchers.equalTo(reader2().getId().intValue()))
-                .body("[1].name", Matchers.equalTo(reader2().getName()))
-                .body("[2].id", Matchers.equalTo(reader3().getId().intValue()))
-                .body("[2].name", Matchers.equalTo(reader3().getName()));
+                .body("[0].id", Matchers.equalTo(expectedReaders.get(0).getId().intValue()))
+                .body("[0].name", Matchers.equalTo(expectedReaders.get(0).getName()))
+                .body("[1].id", Matchers.equalTo(expectedReaders.get(1).getId().intValue()))
+                .body("[1].name", Matchers.equalTo(expectedReaders.get(1).getName()))
+                .body("[2].id", Matchers.equalTo(expectedReaders.get(2).getId().intValue()))
+                .body("[2].name", Matchers.equalTo(expectedReaders.get(2).getName()));
     }
 
     @Test
@@ -68,8 +68,8 @@ class ReaderControllerTest {
 
     @Test
     void registerNewReader_should_add_valid_reader() {
-        Reader readerToPass = newReader();
-        Reader readerToReturn = newReader();
+        Reader readerToPass = testDatabaseData.newReader();
+        Reader readerToReturn = testDatabaseData.newReader();
         readerToReturn.setId(4L);
         Mockito.when(libraryService.registerNewReader(readerToPass)).thenReturn(readerToReturn);
         RestAssuredMockMvc.given()
@@ -79,8 +79,8 @@ class ReaderControllerTest {
                 .post("/api/v1/library/readers")
                 .then()
                 .statusCode(HttpStatus.CREATED.value())
-                .body("id", Matchers.equalTo(4))
-                .body("name", Matchers.equalTo(readerToPass.getName()));
+                .body("id", Matchers.equalTo(readerToReturn.getId().intValue()))
+                .body("name", Matchers.equalTo(readerToReturn.getName()));
     }
 
     @Test
@@ -97,73 +97,20 @@ class ReaderControllerTest {
 
         @Test
     void showAllBooksBorrowedByReader_should_return_list_of_books() {
-        List<Book> expectedBooks = expectedReaders.get(1).getBooks();
-        Mockito.when(libraryService.getAllBooksOfReader(2L)).thenReturn(expectedBooks);
+        List<Book> booksOfReader2 = expectedReaders.get(1).getBooks();
+        Mockito.when(libraryService.getAllBooksOfReader(2L)).thenReturn(booksOfReader2);
         RestAssuredMockMvc.when()
                 .get("/api/v1/library/readers/2/books")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("size()", Matchers.equalTo(2))
-                .body("[0].id", Matchers.equalTo(book1().getId().intValue()))
-                .body("[0].title", Matchers.equalTo(book1().getTitle()))
-                .body("[0].author", Matchers.equalTo(book1().getAuthor()))
-                .body("[1].id", Matchers.equalTo(book2().getId().intValue()))
-                .body("[1].title", Matchers.equalTo(book2().getTitle()))
-                .body("[1].author", Matchers.equalTo(book2().getAuthor()));
+                .body("[0].id", Matchers.equalTo(booksOfReader2.get(0).getId().intValue()))
+                .body("[0].title", Matchers.equalTo(booksOfReader2.get(0).getTitle()))
+                .body("[0].author", Matchers.equalTo(booksOfReader2.get(0).getAuthor()))
+                .body("[1].id", Matchers.equalTo(booksOfReader2.get(1).getId().intValue()))
+                .body("[1].title", Matchers.equalTo(booksOfReader2.get(1).getTitle()))
+                .body("[1].author", Matchers.equalTo(booksOfReader2.get(1).getAuthor()));
         }
-
-    private Book book1() {
-        Book book1 = new Book();
-        book1.setId(1L);
-        book1.setTitle("Java. The Complete Reference. Twelfth Edition");
-        book1.setAuthor("Herbert Schildt");
-        book1.setReader(Optional.empty());
-        return book1;
-    }
-
-    private Book book2() {
-        Book book2 = new Book();
-        book2.setId(2L);
-        book2.setTitle("Java. An Introduction to Problem Solving & Programming");
-        book2.setAuthor("Walter Savitch");
-        book2.setReader(Optional.empty());
-        return book2;
-    }
-
-    private Reader reader1() {
-        Reader reader1 = new Reader();
-        reader1.setId(1L);
-        reader1.setName("Zhirayr Hovik");
-        return reader1;
-    }
-
-    private Reader reader2() {
-        Reader reader2 = new Reader();
-        reader2.setId(2L);
-        reader2.setName("Voski Daniel");
-        return reader2;
-    }
-
-    private Reader reader3() {
-        Reader reader3 = new Reader();
-        reader3.setId(3L);
-        reader3.setName("Ruben Nazaret");
-        return reader3;
-    }
-
-    private List<Reader> expectedReaders() {
-        Reader reader1 = reader1();
-        Reader reader2 = reader2();
-        reader2.setBooks(List.of(book1(), book2()));
-        Reader reader3 = reader3();
-        return List.of(reader1, reader2, reader3);
-    }
-
-    private Reader newReader() {
-        Reader newReader = new Reader();
-        newReader.setName("Addy Morra");
-        return newReader;
-    }
 
     private Reader readerWithInvalidName() {
         Reader reader = new Reader();
