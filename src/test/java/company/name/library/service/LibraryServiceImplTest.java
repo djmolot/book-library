@@ -1,5 +1,6 @@
 package company.name.library.service;
 
+import company.name.library.TestDatabaseData;
 import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import company.name.library.exceptions.ServiceLayerException;
@@ -7,6 +8,7 @@ import company.name.library.repositories.BookRepository;
 import company.name.library.repositories.ReaderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -25,20 +27,23 @@ class LibraryServiceImplTest {
     private BookRepository bookRepository;
     @Mock
     private ReaderRepository readerRepository;
-    private final List<Book> expectedBooks;
-    private final List<Reader> expectedReaders;
 
-    LibraryServiceImplTest() {
-        this.expectedBooks = expectedBooks();
-        this.expectedReaders = expectedReaders();
+    private final TestDatabaseData testDatabaseData = new TestDatabaseData();
+    private List<Book> expectedBooks;
+    private List<Reader> expectedReaders;
+
+    @BeforeEach
+    public void setUp() {
+        expectedBooks = testDatabaseData.getTestBooks();
+        expectedReaders = testDatabaseData.getTestReaders();
     }
 
     @Test
     void borrowBookToReader_should_borrow_book_to_reader() {
         Mockito.when(bookRepository.getById(3L)).thenReturn(Optional.of(expectedBooks.get(2)));
         Mockito.when(readerRepository.getById(1L)).thenReturn(Optional.of(expectedReaders.get(0)));
-        Book bookForUpdate = book3();
-        bookForUpdate.setReader(Optional.of(reader1()));
+        Book bookForUpdate = testDatabaseData.book3();
+        bookForUpdate.setReader(Optional.of(testDatabaseData.reader1()));
         Mockito.when(bookRepository.update(bookForUpdate)).thenReturn(Optional.of(bookForUpdate));
         Book actualBook = libraryService.borrowBookToReader(3L, 1L);
         Assertions.assertEquals(bookForUpdate, actualBook,
@@ -76,7 +81,7 @@ class LibraryServiceImplTest {
     void returnBookToLibrary_should_set_empty_optional_to_reader_field() {
         Mockito.when(bookRepository.getById(2L)).thenReturn(Optional.of(expectedBooks.get(1)));
         Book bookForUpdate = expectedBooks.get(1);
-        Book expectedBook = book2();
+        Book expectedBook = testDatabaseData.book2();
         expectedBook.setReader(Optional.empty());
         Mockito.when(bookRepository.update(bookForUpdate)).thenReturn(Optional.of(expectedBook));
         Book actualBook = libraryService.returnBookToLibrary(2L);
@@ -134,69 +139,6 @@ class LibraryServiceImplTest {
         Assertions.assertThrows(ServiceLayerException.class,
                 () -> libraryService.getReaderOfBookWithId(777L),
                 "metod should throw exception when book does not exist in DB");
-    }
-
-    private Book book1() {
-        Book book1 = new Book();
-        book1.setId(1L);
-        book1.setTitle("Java. The Complete Reference. Twelfth Edition");
-        book1.setAuthor("Herbert Schildt");
-        return book1;
-    }
-
-    private Book book2() {
-        Book book2 = new Book();
-        book2.setId(2L);
-        book2.setTitle("Java. An Introduction to Problem Solving & Programming");
-        book2.setAuthor("Walter Savitch");
-        return book2;
-    }
-
-    private Book book3() {
-        Book book3 = new Book();
-        book3.setId(3L);
-        book3.setTitle("Data Structures And Algorithms Made Easy In JAVA");
-        book3.setAuthor("Narasimha Karumanchi");
-        return book3;
-    }
-
-    private Reader reader1() {
-        Reader reader1 = new Reader();
-        reader1.setId(1L);
-        reader1.setName("Zhirayr Hovik");
-        return reader1;
-    }
-
-    private Reader reader2() {
-        Reader reader2 = new Reader();
-        reader2.setId(2L);
-        reader2.setName("Voski Daniel");
-        return reader2;
-    }
-
-    private Reader reader3() {
-        Reader reader3 = new Reader();
-        reader3.setId(3L);
-        reader3.setName("Ruben Nazaret");
-        return reader3;
-    }
-
-    private List<Book> expectedBooks() {
-        Book book1 = book1();
-        book1.setReader(Optional.of(reader2()));
-        Book book2 = book2();
-        book2.setReader(Optional.of(reader2()));
-        Book book3 = book3();
-        book3.setReader(Optional.empty());
-        return List.of(book1, book2, book3);
-    }
-
-    private List<Reader> expectedReaders() {
-        Reader reader1 = reader1();
-        Reader reader2 = reader2();
-        reader2.setBooks(List.of(book1(), book2()));
-        Reader reader3 = reader3();
-        return List.of(reader1, reader2, reader3);
     }
 
 }

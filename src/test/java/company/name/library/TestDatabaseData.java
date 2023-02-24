@@ -54,21 +54,21 @@ public class TestDatabaseData {
         return book3;
     }
 
-    private Reader reader1() {
+    public Reader reader1() {
         Reader reader1 = new Reader();
         reader1.setId(1L);
         reader1.setName("Zhirayr Hovik");
         return reader1;
     }
 
-    private Reader reader2() {
+    public Reader reader2() {
         Reader reader2 = new Reader();
         reader2.setId(2L);
         reader2.setName("Voski Daniel");
         return reader2;
     }
 
-    private Reader reader3() {
+    public Reader reader3() {
         Reader reader3 = new Reader();
         reader3.setId(3L);
         reader3.setName("Ruben Nazaret");
