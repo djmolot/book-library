@@ -1,9 +1,11 @@
 package company.name.library.repositories;
 
+import company.name.library.TestDatabaseData;
 import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,20 +22,26 @@ class BookRepositoryJdbcTemplImplIT {
 
     private final BookRepository bookRepository;
     private final ReaderRepository readerRepository;
-    private final List<Book> expectedBooks;
-    private final List<Reader> expectedReaders;
+
+    private final TestDatabaseData testDatabaseData = new TestDatabaseData();
+    private List<Book> expectedBooks;
+    private List<Reader> expectedReaders;
 
     @Autowired
     BookRepositoryJdbcTemplImplIT(BookRepository bookRepository, ReaderRepository readerRepository) {
         this.bookRepository = bookRepository;
         this.readerRepository = readerRepository;
-        this.expectedReaders = expectedReaders();
-        this.expectedBooks = expectedBooks();
+    }
+
+    @BeforeEach
+    public void setUp() {
+        expectedBooks = testDatabaseData.getTestBooks();
+        expectedReaders = testDatabaseData.getTestReaders();
     }
 
     @Test
     void add_should_return_added_book() {
-        Book expectedBook = newBook();
+        Book expectedBook = testDatabaseData.newBook();
         Book actualBook = bookRepository.add(expectedBook);
         Assertions.assertNotNull(actualBook.getId(),"ID of added Book should not be Null.");
         Assertions.assertEquals(expectedBook, actualBook, "ActualBook should be equal to ExpectedBook");
@@ -41,7 +49,7 @@ class BookRepositoryJdbcTemplImplIT {
 
     @Test
     void getById_should_return_existing_book() {
-        Book expectedBook2 = expectedBooks().get(1);
+        Book expectedBook2 = expectedBooks.get(1);
         Book actualBook2 = bookRepository.getById(2L).orElse(null);
         Assertions.assertNotNull(actualBook2,"Method should not return empty Optional.");
         Assertions.assertEquals(expectedBook2, actualBook2, "ActualBook should be equal to ExpectedBook");
@@ -145,74 +153,4 @@ class BookRepositoryJdbcTemplImplIT {
         Assertions.assertTrue(booksOfReader.isEmpty());
     }
 
-    private Book book1() {
-        Book book1 = new Book();
-        book1.setId(1L);
-        book1.setTitle("Java. The Complete Reference. Twelfth Edition");
-        book1.setAuthor("Herbert Schildt");
-        return book1;
-    }
-
-    private Book book2() {
-        Book book2 = new Book();
-        book2.setId(2L);
-        book2.setTitle("Java. An Introduction to Problem Solving & Programming");
-        book2.setAuthor("Walter Savitch");
-        return book2;
-    }
-
-    private Book book3() {
-        Book book3 = new Book();
-        book3.setId(3L);
-        book3.setTitle("Data Structures And Algorithms Made Easy In JAVA");
-        book3.setAuthor("Narasimha Karumanchi");
-        return book3;
-    }
-
-    private Reader reader1() {
-        Reader reader1 = new Reader();
-        reader1.setId(1L);
-        reader1.setName("Zhirayr Hovik");
-        return reader1;
-    }
-
-    private Reader reader2() {
-        Reader reader2 = new Reader();
-        reader2.setId(2L);
-        reader2.setName("Voski Daniel");
-        return reader2;
-    }
-
-    private Reader reader3() {
-        Reader reader3 = new Reader();
-        reader3.setId(3L);
-        reader3.setName("Ruben Nazaret");
-        return reader3;
-    }
-
-    private List<Book> expectedBooks() {
-        Book book1 = book1();
-        book1.setReader(Optional.of(reader2()));
-        Book book2 = book2();
-        book2.setReader(Optional.of(reader2()));
-        Book book3 = book3();
-        book3.setReader(Optional.empty());
-        return List.of(book1, book2, book3);
-    }
-
-    private List<Reader> expectedReaders() {
-        Reader reader1 = reader1();
-        Reader reader2 = reader2();
-        reader2.setBooks(List.of(book1(), book2()));
-        Reader reader3 = reader3();
-        return List.of(reader1, reader2, reader3);
-    }
-
-    private Book newBook() {
-        Book newBook = new Book();
-        newBook.setAuthor("Rebecca Serle");
-        newBook.setTitle("One Italian Summer");
-        newBook.setReader(Optional.empty());
-        return newBook;
-    }
 }

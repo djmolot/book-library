@@ -21,9 +21,11 @@ public class TestDatabaseData {
 
     public List<Reader> getTestReaders() {
         Reader reader1 = reader1();
+        reader1.setBooks(List.of());
         Reader reader2 = reader2();
         reader2.setBooks(List.of(book1(), book2()));
         Reader reader3 = reader3();
+        reader3.setBooks(List.of());
         return List.of(reader1, reader2, reader3);
     }
 
@@ -32,7 +34,6 @@ public class TestDatabaseData {
         book1.setId(1L);
         book1.setTitle("Java. The Complete Reference. Twelfth Edition");
         book1.setAuthor("Herbert Schildt");
-        book1.setReader(Optional.empty());
         return book1;
     }
 
@@ -41,7 +42,6 @@ public class TestDatabaseData {
         book2.setId(2L);
         book2.setTitle("Java. An Introduction to Problem Solving & Programming");
         book2.setAuthor("Walter Savitch");
-        book2.setReader(Optional.empty());
         return book2;
     }
 
@@ -50,7 +50,6 @@ public class TestDatabaseData {
         book3.setId(3L);
         book3.setTitle("Data Structures And Algorithms Made Easy In JAVA");
         book3.setAuthor("Narasimha Karumanchi");
-        book3.setReader(Optional.empty());
         return book3;
     }
 
@@ -58,6 +57,7 @@ public class TestDatabaseData {
         Reader reader1 = new Reader();
         reader1.setId(1L);
         reader1.setName("Zhirayr Hovik");
+        reader1.setBooks(List.of());
         return reader1;
     }
 
@@ -65,6 +65,7 @@ public class TestDatabaseData {
         Reader reader2 = new Reader();
         reader2.setId(2L);
         reader2.setName("Voski Daniel");
+        reader2.setBooks(List.of());
         return reader2;
     }
 
@@ -72,6 +73,7 @@ public class TestDatabaseData {
         Reader reader3 = new Reader();
         reader3.setId(3L);
         reader3.setName("Ruben Nazaret");
+        reader3.setBooks(List.of());
         return reader3;
     }
 

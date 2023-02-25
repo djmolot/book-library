@@ -126,6 +126,7 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
             var reader = new Reader();
             reader.setId(resultSet.getLong("reader_id"));
             reader.setName(resultSet.getString("reader_name"));
+            reader.setBooks(List.of());
             book.setReader(Optional.of(reader));
         } else {
             book.setReader(Optional.empty());

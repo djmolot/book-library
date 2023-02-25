@@ -144,6 +144,7 @@ public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
         Reader reader = new Reader();
         reader.setId(resultSet.getLong("id"));
         reader.setName(resultSet.getString("name"));
+        reader.setBooks(List.of());
         return reader;
     }
 
