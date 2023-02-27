@@ -57,7 +57,6 @@ public class TestDatabaseData {
         Reader reader1 = new Reader();
         reader1.setId(1L);
         reader1.setName("Zhirayr Hovik");
-        reader1.setBooks(List.of());
         return reader1;
     }
 
@@ -65,7 +64,6 @@ public class TestDatabaseData {
         Reader reader2 = new Reader();
         reader2.setId(2L);
         reader2.setName("Voski Daniel");
-        reader2.setBooks(List.of());
         return reader2;
     }
 
@@ -73,7 +71,6 @@ public class TestDatabaseData {
         Reader reader3 = new Reader();
         reader3.setId(3L);
         reader3.setName("Ruben Nazaret");
-        reader3.setBooks(List.of());
         return reader3;
     }
 

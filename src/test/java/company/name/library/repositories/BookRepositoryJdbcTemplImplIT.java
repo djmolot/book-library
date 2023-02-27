@@ -19,18 +19,14 @@ import java.util.Optional;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 class BookRepositoryJdbcTemplImplIT {
-
     private final BookRepository bookRepository;
-    private final ReaderRepository readerRepository;
-
     private final TestDatabaseData testDatabaseData = new TestDatabaseData();
     private List<Book> expectedBooks;
     private List<Reader> expectedReaders;
 
     @Autowired
-    BookRepositoryJdbcTemplImplIT(BookRepository bookRepository, ReaderRepository readerRepository) {
+    BookRepositoryJdbcTemplImplIT(BookRepository bookRepository) {
         this.bookRepository = bookRepository;
-        this.readerRepository = readerRepository;
     }
 
     @BeforeEach
@@ -63,73 +59,26 @@ class BookRepositoryJdbcTemplImplIT {
     }
 
     @Test
-    void deleteById_should_delete_existing_book() {
-        boolean deleteById = bookRepository.deleteById(2L);
-        Assertions.assertTrue(deleteById,"Method should return TRUE.");
-        var books = bookRepository.getAll();
-        Assertions.assertEquals(2, books.size(),
-                "books.size should be equal to 2 after deleting a Book.");
-    }
-
-    @Test
-    void deleteById_should_return_false_if_Book_with_this_Id_does_not_exist_in_DB() {
-        boolean deleteById = bookRepository.deleteById(555L);
-        Assertions.assertFalse(deleteById,
-                "deleteById() should return false if Book with this Id does not exist in DB. ");
-    }
-
-    @Test
     public void getAll_should_return_list_equal_to_expected() {
         List<Book> actualBooks = bookRepository.getAll();
         Assertions.assertEquals(expectedBooks, actualBooks, "actualBooks should be equal to expectedBooks");
     }
 
     @Test
-    void update_should_change_reader_id_value_new() {
+    void update_should_change_reader_id_value() {
         Book expectedBook3 = expectedBooks.get(2);
         Reader expectedReader1 = expectedReaders.get(0) ;
         expectedBook3.setReader(Optional.of(expectedReader1));
-        bookRepository.update(expectedBook3);
-        Book actualBook3 = bookRepository.getById(3L).orElse(null);
+        Book actualBook3 = bookRepository.update(expectedBook3);
         Assertions.assertNotNull(actualBook3,"actualBook3 should not be NULL.");
         Assertions.assertEquals(expectedBook3, actualBook3,
                 "actualBook3 should be equal to expectedBook3");
 
         expectedBook3.setReader(Optional.empty());
-        bookRepository.update(expectedBook3);
-        actualBook3 = bookRepository.getById(3L).orElse(null);
+        actualBook3 = bookRepository.update(expectedBook3);
         Assertions.assertNotNull(actualBook3);
         Assertions.assertEquals(expectedBook3, actualBook3,
                 "actualBook3 should be equal to expectedBook3");
-    }
-
-    @Test
-    void update_should_change_reader_id_value() {
-        Book book2 = bookRepository.getById(2L).orElse(null);
-        Assertions.assertNotNull(book2,
-                "Book with ID=2L should exist in DB.");
-        Reader reader3 = readerRepository.getById(3L).orElse(null);
-        Assertions.assertNotNull(reader3,
-                "Reader with ID=3L should exist in DB.");
-        book2.setReader(Optional.of(reader3));
-        bookRepository.update(book2);
-        var readerId = bookRepository.getById(book2.getId())
-                .flatMap(Book::getReader)
-                .map(Reader::getId)
-                .orElse(null);
-        Assertions.assertNotNull(readerId,
-                "Reader of updated Book should not be NULL.");
-        Assertions.assertEquals(3L, readerId,
-                "reader_id of updated Book should be equal to 3L.");
-
-        book2.setReader(Optional.empty());
-        bookRepository.update(book2);
-        readerId = bookRepository.getById(book2.getId())
-                .flatMap(Book::getReader)
-                .map(Reader::getId)
-                .orElse(null);
-        Assertions.assertNull(readerId,
-                "reader_id of updated Book should be NULL.");
     }
 
     @Test

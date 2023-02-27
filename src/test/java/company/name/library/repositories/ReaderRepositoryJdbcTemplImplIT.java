@@ -42,14 +42,14 @@ class ReaderRepositoryJdbcTemplImplIT {
 
     @Test
     void getById_should_return_existing_reader() {
-        Reader expectedReader2 = expectedReaders.get(1);
+        Reader expectedReader2 = testDatabaseData.reader2();//reader2 without books
         Reader actualReader2 = readerRepository.getById(2L).orElse(null);
         Assertions.assertNotNull(actualReader2,"Method should not return empty Optional.");
         Assertions.assertEquals(expectedReader2, actualReader2, "ActualReader should be equal to ExpectedReader");
     }
 
     @Test
-    void getById_should_return_empty_Optional_if_Reader_with_this_Id_does_not_exist_in_DB() {
+    void getById_should_return_empty_optional_if_reader_with_this_id_does_not_exist_in_DB() {
         Optional<Reader> readerOpt = readerRepository.getById(777L);
         Assertions.assertTrue(readerOpt.isEmpty(),
                 "getById() should return empty Optional if Reader with this Id does not exist in DB.");
