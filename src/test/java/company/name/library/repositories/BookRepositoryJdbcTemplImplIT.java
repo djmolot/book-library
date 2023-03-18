@@ -1,17 +1,18 @@
 package company.name.library.repositories;
 
-import company.name.library.TestDatabaseData;
+import company.name.library.TestDataProducer;
 import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -19,87 +20,113 @@ import java.util.Optional;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 class BookRepositoryJdbcTemplImplIT {
-    private final BookRepository bookRepository;
-    private final TestDatabaseData testDatabaseData = new TestDatabaseData();
-    private List<Book> expectedBooks;
-    private List<Reader> expectedReaders;
-
     @Autowired
-    BookRepositoryJdbcTemplImplIT(BookRepository bookRepository) {
-        this.bookRepository = bookRepository;
-    }
-
-    @BeforeEach
-    public void setUp() {
-        expectedBooks = testDatabaseData.getTestBooks();
-        expectedReaders = testDatabaseData.getTestReaders();
-    }
+    private BookRepository bookRepository;
 
     @Test
-    void add_should_return_added_book() {
-        Book expectedBook = testDatabaseData.newBook();
-        Book actualBook = bookRepository.add(expectedBook);
-        Assertions.assertNotNull(actualBook.getId(),"ID of added Book should not be Null.");
-        Assertions.assertEquals(expectedBook, actualBook, "ActualBook should be equal to ExpectedBook");
+    void add_should_return_added_book_with_reader_empty_optional() {
+        var newBook = TestDataProducer.newBook();
+        var expectedTitle = newBook.getTitle();
+        var expectedAuthor = newBook.getAuthor();
+        Assertions.assertNull(newBook.getId(),
+                "Id of original book must be null");
+        Assertions.assertTrue(newBook.getReader().isEmpty(),
+                "Optional of reader in original book must be empty");
+
+        var savedBook = bookRepository.add(newBook);
+        Assertions.assertNotNull(savedBook.getId(),
+                "Id of saved book must not be null");
+        Assertions.assertEquals(expectedTitle, savedBook.getTitle(),
+                "Title of saved book must be equal to expected");
+        Assertions.assertEquals(expectedAuthor, savedBook.getAuthor(),
+                "Author of saved book must be equal to expected");
+        Assertions.assertTrue(savedBook.getReader().isEmpty(),
+                "Optional of reader in saved book must be empty");
     }
 
     @Test
     void getById_should_return_existing_book() {
-        Book expectedBook2 = expectedBooks.get(1);
-        Book actualBook2 = bookRepository.getById(2L).orElse(null);
+        Map<Long, Book> allBooksMap = TestDataProducer.newAllBooksMap();
+        Long bookId = 2L;
+        Book expectedBook2 = allBooksMap.get(bookId);
+        Book actualBook2 = bookRepository.getById(bookId).orElse(null);
         Assertions.assertNotNull(actualBook2,"Method should not return empty Optional.");
-        Assertions.assertEquals(expectedBook2, actualBook2, "ActualBook should be equal to ExpectedBook");
+        Assertions.assertEquals(expectedBook2, actualBook2,
+                "ActualBook should be equal to ExpectedBook");
     }
 
     @Test
-    void getById_should_return_empty_Optional_if_Book_with_this_Id_does_not_exist_in_DB() {
-        Optional<Book> bookOpt = bookRepository.getById(555L);
-        Assertions.assertTrue(bookOpt.isEmpty(),
+    void getById_should_return_empty_Optional_if_book_with_this_id_does_not_exist_in_DB() {
+        Long bookId = 555L;
+        Optional<Book> bookOptional = bookRepository.getById(bookId);
+        Assertions.assertTrue(bookOptional.isEmpty(),
                 "getById() should return empty Optional if Book with this Id does not exist in DB.");
     }
 
     @Test
     public void getAll_should_return_list_equal_to_expected() {
+        List<Book> expectedBooks = TestDataProducer.newAllBooksList();
         List<Book> actualBooks = bookRepository.getAll();
-        Assertions.assertEquals(expectedBooks, actualBooks, "actualBooks should be equal to expectedBooks");
+        Assertions.assertEquals(expectedBooks, actualBooks,
+                "actualBooks should be equal to expectedBooks");
     }
 
     @Test
     void update_should_change_reader_id_value() {
-        Book expectedBook3 = expectedBooks.get(2);
-        Reader expectedReader1 = expectedReaders.get(0) ;
-        expectedBook3.setReader(Optional.of(expectedReader1));
-        Book actualBook3 = bookRepository.update(expectedBook3);
-        Assertions.assertNotNull(actualBook3,"actualBook3 should not be NULL.");
-        Assertions.assertEquals(expectedBook3, actualBook3,
-                "actualBook3 should be equal to expectedBook3");
+        Map<Long, Book> allBooksMap = TestDataProducer.newAllBooksMap();
+        Map<Long, Reader> allReadersMap = TestDataProducer.newAllReadersMap();
+        Long bookId = 3L;
+        Long readerId = 1L;
+        Book originalBook3 = allBooksMap.get(bookId);
+        Reader originalReader1 = allReadersMap.get(readerId);
+        originalBook3.setReader(Optional.of(originalReader1));
+        var expectedId = originalBook3.getId();
+        var expectedTitle = originalBook3.getTitle();
+        var expectedAuthor = originalBook3.getAuthor();
+        var expectedReader = originalBook3.getReader();
+        Book updatedBook3 = bookRepository.update(originalBook3);
 
-        expectedBook3.setReader(Optional.empty());
-        actualBook3 = bookRepository.update(expectedBook3);
-        Assertions.assertNotNull(actualBook3);
-        Assertions.assertEquals(expectedBook3, actualBook3,
-                "actualBook3 should be equal to expectedBook3");
+        Assertions.assertNotNull(updatedBook3,"updatedBook3 should not be null");
+        Assertions.assertEquals(expectedId, updatedBook3.getId(),
+                "Id of updated book must be equal to expected");
+        Assertions.assertEquals(expectedTitle, updatedBook3.getTitle(),
+                "Title of updated book must be equal to expected");
+        Assertions.assertEquals(expectedAuthor, updatedBook3.getAuthor(),
+                "Author of updated book must be equal to expected");
+        Assertions.assertEquals(expectedReader, updatedBook3.getReader(),
+                "Reader of updated book must be equal to expected");
+
+        originalBook3.setReader(Optional.empty());
+        updatedBook3 = bookRepository.update(originalBook3);
+        Assertions.assertNotNull(updatedBook3,"updatedBook3 should not be null");
+        Assertions.assertEquals(expectedId, updatedBook3.getId(),
+                "Id of updated book must be equal to expected");
+        Assertions.assertEquals(expectedTitle, updatedBook3.getTitle(),
+                "Title of updated book must be equal to expected");
+        Assertions.assertEquals(expectedAuthor, updatedBook3.getAuthor(),
+                "Author of updated book must be equal to expected");
+        Assertions.assertTrue(updatedBook3.getReader().isEmpty(),
+                "ReaderOptional in updated book must be empty");
     }
 
     @Test
     void getBooksByReaderId_should_return_list_of_Books() {
-        List<Book> expectedBooksOfReader2 = expectedReaders.get(1).getBooks();
-        List<Book> actualBooksOfReader2 = bookRepository.getBooksByReaderId(2L);
+        Map<Long, Reader> allReadersMap = TestDataProducer.newAllReadersMap();
+        Long readerId = 2L;
+        List<Book> expectedBooksOfReader2 = allReadersMap.get(readerId).getBooks();
+        Assertions.assertNotNull(expectedBooksOfReader2);
+        Assertions.assertEquals(2, expectedBooksOfReader2.size());
+        List<Book> actualBooksOfReader2 = bookRepository.getBooksByReaderId(readerId);
         Assertions.assertEquals(expectedBooksOfReader2, actualBooksOfReader2,
-                "Reader with ID=2L should have 3 borrowed Books.");
+                "actualBooksOfReader2 should be equal to expectedBooksOfReader2");
     }
 
     @Test
-    void getBooksByReaderId_should_return_empty_list() {
-        List<Book> booksOfReader1 = bookRepository.getBooksByReaderId(1L);
-        Assertions.assertEquals(0, booksOfReader1.size(),
+    void getBooksByReaderId_should_return_empty_list_if_Reader_has_not_borrowed_any_book() {
+        Long readerId = 1L;
+        List<Book> booksOfReader1 = bookRepository.getBooksByReaderId(readerId);
+        Assertions.assertTrue(booksOfReader1.isEmpty(),
                 "Reader with ID=1L should not have borrowed Books.");
-    }
-
-    @Test
-    void getBooksByReaderId_should_return_empty_list_if_Reader_with_this_ID_does_not_exist_in_DB() {
-        List<Book> booksOfReader = bookRepository.getBooksByReaderId(555L);
-        Assertions.assertTrue(booksOfReader.isEmpty());
     }
 
 }

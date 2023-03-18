@@ -1,10 +1,9 @@
 package company.name.library.repositories;
 
-import company.name.library.TestDatabaseData;
+import company.name.library.TestDataProducer;
 import company.name.library.entities.Reader;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,62 +17,75 @@ import java.util.Optional;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
 class ReaderRepositoryJdbcTemplImplIT {
-    private final ReaderRepository readerRepository;
-    private final TestDatabaseData testDatabaseData = new TestDatabaseData();
-    private List<Reader> expectedReaders;
-
     @Autowired
-    ReaderRepositoryJdbcTemplImplIT(ReaderRepository readerRepository) {
-        this.readerRepository = readerRepository;
-    }
+    private ReaderRepository readerRepository;
 
-    @BeforeEach
-    public void setUp() {
-        expectedReaders = testDatabaseData.getTestReaders();
+    @Test
+    void add_should_return_added_reader_with_empty_books_list() {
+        Reader newReader = TestDataProducer.newReader();
+        String expectedName = newReader.getName();
+        Assertions.assertNull(newReader.getId(),
+                "Id of new reader must be null");
+        Assertions.assertTrue(newReader.getBooks().isEmpty(),
+                "Books of new reader must be empty list");
+
+        Reader savedReader = readerRepository.add(newReader);
+        Assertions.assertNotNull(savedReader.getId(),
+                "ID of saved reader should not be null.");
+        Assertions.assertEquals(expectedName, savedReader.getName(),
+                "Name of saved reader should be equal to expectedName");
+        Assertions.assertTrue(savedReader.getBooks().isEmpty(),
+                "Books of saved reader must be empty list");
     }
 
     @Test
-    void add_should_return_added_reader() {
-        Reader expectedReader = testDatabaseData.newReader();
-        Reader actualReader = readerRepository.add(expectedReader);
-        Assertions.assertNotNull(expectedReader.getId(),"ID of added Reader should not be Null.");
-        Assertions.assertEquals(expectedReader, actualReader, "ActualReader should be equal to ExpectedReader");
-    }
-
-    @Test
-    void getById_should_return_existing_reader() {
-        Reader expectedReader2 = testDatabaseData.reader2();//reader2 without books
-        Reader actualReader2 = readerRepository.getById(2L).orElse(null);
+    void getById_should_return_existing_reader_with_books_that_was_not_initialized() {
+        Long readerId = 2L;
+        Reader expectedReader2 = TestDataProducer.newReader2();
+        Assertions.assertNull(expectedReader2.getBooks(),
+                "field books of expectedReader2 should be not initialized");
+        Reader actualReader2 = readerRepository.getById(readerId).orElse(null);
         Assertions.assertNotNull(actualReader2,"Method should not return empty Optional.");
-        Assertions.assertEquals(expectedReader2, actualReader2, "ActualReader should be equal to ExpectedReader");
+        Assertions.assertEquals(expectedReader2, actualReader2,
+                "actualReader2 should be equal to expectedReader2");
     }
 
     @Test
     void getById_should_return_empty_optional_if_reader_with_this_id_does_not_exist_in_DB() {
-        Optional<Reader> readerOpt = readerRepository.getById(777L);
-        Assertions.assertTrue(readerOpt.isEmpty(),
-                "getById() should return empty Optional if Reader with this Id does not exist in DB.");
+        Long readerId = 777L;
+        Optional<Reader> readerOptional = readerRepository.getById(readerId);
+        Assertions.assertTrue(readerOptional.isEmpty(),
+                "getById() should return empty Optional if Reader with this Id does not exist in DB");
     }
 
     @Test
     void getAll_should_return_list_equal_to_expected() {
+        List<Reader> expectedReaders = TestDataProducer.newAllReadersList();
         List<Reader> actualReaders = readerRepository.getAll();
-        Assertions.assertEquals(expectedReaders, actualReaders, "actualReaders should be equal to expectedReaders");
+        Assertions.assertNotNull(actualReaders,
+                "actualReaders should not be null");
+        Assertions.assertEquals(expectedReaders, actualReaders,
+                "actualReaders should be equal to expectedReaders");
     }
 
     @Test
-    void getReaderByBookId_should_return_reader() {
-        Reader expectedReader2 = testDatabaseData.reader2();
-        Reader actualReader2 = readerRepository.getReaderByBookId(1L).orElse(null);
+    void getReaderByBookId_should_return_reader_witn_not_initialized_books_field() {
+        Long bookId = 1L;
+        Reader expectedReader2 = TestDataProducer.newReader2();
+        Assertions.assertNull(expectedReader2.getBooks(),
+                "field books of expectedReader2 should be not initialized");
+        Reader actualReader2 = readerRepository.getReaderByBookId(bookId).orElse(null);
         Assertions.assertNotNull(actualReader2, "actualReader should not be null");
         Assertions.assertEquals(expectedReader2, actualReader2,
-                "actualReader should be equal to expectedReader");
+                "actualReader2 should be equal to expectedReader2");
     }
 
     @Test
-    void getReaderByBookId_should_return_empty_optional() {
-        Optional<Reader> readerOptional = readerRepository.getReaderByBookId(3L);
-        Assertions.assertTrue(readerOptional.isEmpty(), "readerOptional should be empty");
+    void getReaderByBookId_should_return_empty_optional_for_book_wich_is_not_borrowed() {
+        Long bookId = 3L;
+        Optional<Reader> readerOptional = readerRepository.getReaderByBookId(bookId);
+        Assertions.assertTrue(readerOptional.isEmpty(),
+                "readerOptional of book3 should be empty");
     }
 
 }

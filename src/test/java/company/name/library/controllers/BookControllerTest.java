@@ -1,6 +1,6 @@
 package company.name.library.controllers;
 
-import company.name.library.TestDatabaseData;
+import company.name.library.TestDataProducer;
 import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import company.name.library.exceptions.ServiceLayerException;
@@ -8,8 +8,13 @@ import company.name.library.service.LibraryService;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,9 +24,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static io.restassured.http.ContentType.JSON;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 @Slf4j
 @SpringBootTest
@@ -32,34 +40,48 @@ class BookControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private final TestDatabaseData testDatabaseData = new TestDatabaseData();
-    private List<Book> expectedBooks;
-    private List<Reader> expectedReaders;
-
     @BeforeEach
     public void setUp() {
         RestAssuredMockMvc.mockMvc(mockMvc);
-        expectedBooks = testDatabaseData.getTestBooks();
-        expectedReaders = testDatabaseData.getTestReaders();
     }
 
     @Test
     void showAllBooks_should_return_list_of_books() {
+        List<Book> expectedBooks = TestDataProducer.newAllBooksList();
+        int expectedBooksSize = expectedBooks.size();
+        Assertions.assertEquals(3, expectedBooksSize,
+                "expectedBooksSize should be equal to 3");
+        Reader readerOfBook1 = expectedBooks.get(0).getReader().orElse(null);
+        Assertions.assertNotNull(readerOfBook1,
+                "Reader of book1 must be present");
+        Reader readerOfBook2 = expectedBooks.get(1).getReader().orElse(null);
+        Assertions.assertNotNull(readerOfBook2,
+                "Reader of book2 must be present");
+        Reader readerOfBook3 = expectedBooks.get(2).getReader().orElse(null);
+        Assertions.assertNull(readerOfBook3,
+                "Reader of book3 must be null");
         Mockito.when(libraryService.getAllBooks()).thenReturn(expectedBooks);
         RestAssuredMockMvc.when()
                 .get("/api/v1/library/books")
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("size()", Matchers.equalTo(3))
+                .body("size()", Matchers.equalTo(expectedBooksSize))
                 .body("[0].id", Matchers.equalTo(expectedBooks.get(0).getId().intValue()))
                 .body("[0].title", Matchers.equalTo(expectedBooks.get(0).getTitle()))
                 .body("[0].author", Matchers.equalTo(expectedBooks.get(0).getAuthor()))
+                .body("[0].reader", Matchers.notNullValue())
+                .body("[0].reader.id", Matchers.equalTo(readerOfBook1.getId().intValue()))
+                .body("[0].reader.name", Matchers.equalTo(readerOfBook1.getName()))
                 .body("[1].id", Matchers.equalTo(expectedBooks.get(1).getId().intValue()))
                 .body("[1].title", Matchers.equalTo(expectedBooks.get(1).getTitle()))
                 .body("[1].author", Matchers.equalTo(expectedBooks.get(1).getAuthor()))
+                .body("[1].reader", Matchers.notNullValue())
+                .body("[1].reader.id", Matchers.equalTo(readerOfBook2.getId().intValue()))
+                .body("[1].reader.name", Matchers.equalTo(readerOfBook2.getName()))
                 .body("[2].id", Matchers.equalTo(expectedBooks.get(2).getId().intValue()))
                 .body("[2].title", Matchers.equalTo(expectedBooks.get(2).getTitle()))
-                .body("[2].author", Matchers.equalTo(expectedBooks.get(2).getAuthor()));
+                .body("[2].author", Matchers.equalTo(expectedBooks.get(2).getAuthor()))
+                .body("[2].reader", Matchers.nullValue());
     }
 
     @Test
@@ -74,121 +96,121 @@ class BookControllerTest {
 
     @Test
     void addNewBook_should_add_valid_book() {
-        Book bookToPass = testDatabaseData.newBook();
-        Book bookToReturn = testDatabaseData.newBook();
-        bookToReturn.setId(4L);
-        Mockito.when(libraryService.addNewBook(bookToPass)).thenReturn(bookToReturn);
+        Book newBook = TestDataProducer.newBook();
+        String expectedTitle = newBook.getTitle();
+        String expectedAuthor = newBook.getAuthor();
+        Book savedBook = TestDataProducer.newBook();
+        Long bookId = 4L;
+        savedBook.setId(bookId);
+        Mockito.when(libraryService.addNewBook(newBook)).thenReturn(savedBook);
         RestAssuredMockMvc.given()
                 .contentType(JSON)
-                .body(bookToPass)
+                .body(newBook)
                 .when()
                 .post("/api/v1/library/books")
                 .then()
                 .statusCode(HttpStatus.CREATED.value())
-                .body("id", Matchers.equalTo(4))
-                .body("title", Matchers.equalTo("One Italian Summer"))
-                .body("author", Matchers.equalTo("Rebecca Serle"));
+                .body("id", Matchers.equalTo(bookId.intValue()))
+                .body("title", Matchers.equalTo(expectedTitle))
+                .body("author", Matchers.equalTo(expectedAuthor))
+                .body("reader", Matchers.nullValue());
     }
 
-    @Test
-    void addNewBook_should_fail_with_invalid_book_title() {
-        Book bookToPass = bookWithInvalidTitle();
+    @ParameterizedTest(name = "case #{index}: invalid book [{0}]")
+    @MethodSource("addNewBook_not_ok_argumentsProvider")
+    @DisplayName("Should fail to add new book when title or author is invalid")
+    void addNewBook_not_ok(Book book, String expectedMessage) {
         RestAssuredMockMvc.given()
                 .contentType(JSON)
-                .body(bookToPass)
+                .body(book)
                 .when()
                 .post("/api/v1/library/books")
                 .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("message", Matchers.equalTo(expectedMessage));
     }
-
-    @Test
-    void addNewBook_should_fail_with_invalid_book_author() {
-        Book bookToPass = bookWithInvalidAuthor();
-        RestAssuredMockMvc.given()
-                .contentType(JSON)
-                .body(bookToPass)
-                .when()
-                .post("/api/v1/library/books")
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
+    static Stream<Arguments> addNewBook_not_ok_argumentsProvider() {
+        return Stream.of(
+                arguments(TestDataProducer.bookWithInvalidTitle(), "ArgumentValidation Error"),
+                arguments(TestDataProducer.bookWithInvalidAuthor(), "ArgumentValidation Error")
+        );
     }
 
     @Test
     void borrowBookToReader_should_borrow_free_book_to_valid_reader() {
-        Book expectedBook = expectedBooks.get(2);
-        Reader expectedReader = expectedReaders.get(0);
+        Map<Long, Book> allBooksMap = TestDataProducer.newAllBooksMap();
+        Map<Long, Reader> allReadersMap = TestDataProducer.newAllReadersMap();
+        Long bookId = 3L;
+        Long readerId = 1L;
+        Book expectedBook = allBooksMap.get(bookId);
+        Reader expectedReader = allReadersMap.get(readerId);
         expectedBook.setReader(Optional.of(expectedReader));
-        Mockito.when(libraryService.borrowBookToReader(3L, 1L)).thenReturn(expectedBook);
-        RestAssuredMockMvc.post("/api/v1/library/books/3/readers/1")
+        Mockito.when(libraryService.borrowBookToReader(bookId, readerId))
+                .thenReturn(expectedBook);
+        RestAssuredMockMvc.post("/api/v1/library/books/{bookId}/readers/{readerId}", bookId, readerId)
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("id", Matchers.equalTo(3))//expectedBook.getId()
+                .body("id", Matchers.equalTo(bookId.intValue()))
                 .body("title", Matchers.equalTo(expectedBook.getTitle()))
                 .body("author", Matchers.equalTo(expectedBook.getAuthor()))
-                .body("reader.id", Matchers.equalTo(1))//expectedReader.getId()
+                .body("reader.id", Matchers.equalTo(readerId.intValue()))
                 .body("reader.name", Matchers.equalTo(expectedReader.getName()));
     }
 
     @Test
     void returnBookToLibrary_should_set_field_reader_to_null() {
-        Book bookToReturn = testDatabaseData.book1();
-        Mockito.when(libraryService.returnBookToLibrary(1L)).thenReturn(bookToReturn);
+        Map<Long, Book> allBooksMap = TestDataProducer.newAllBooksMap();
+        Long bookId = 1L;
+        Book book1 = allBooksMap.get(bookId);
+        String expectedTitle = book1.getTitle();
+        String expectedAuthor = book1.getAuthor();
+        book1.setReader(Optional.empty());
+        Mockito.when(libraryService.returnBookToLibrary(bookId)).thenReturn(book1);
         RestAssuredMockMvc.when()
-                .delete("/api/v1/library/books/1/readers")
+                .delete("/api/v1/library/books/{bookId}/readers", bookId)
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("id", Matchers.equalTo(1))
-                .body("title", Matchers.equalTo("Java. The Complete Reference. Twelfth Edition"))
-                .body("author", Matchers.equalTo("Herbert Schildt"))
+                .body("id", Matchers.equalTo(bookId.intValue()))
+                .body("title", Matchers.equalTo(expectedTitle))
+                .body("author", Matchers.equalTo(expectedAuthor))
                 .body("reader", Matchers.equalTo(null));
     }
 
     @Test
     void showReaderOfBook_should_return_reader() {
-        Reader expectedReader = expectedReaders.get(1);//reader2
-        Mockito.when(libraryService.getReaderOfBookWithId(1L)).thenReturn(Optional.of(expectedReader));
-        RestAssuredMockMvc.get("/api/v1/library/books/1/readers")
+        Map<Long, Reader> allReadersMap = TestDataProducer.newAllReadersMap();
+        Long bookId = 1L;
+        Long readerId = 2L;
+        Reader expectedReader = allReadersMap.get(readerId);
+        Mockito.when(libraryService.getReaderOfBookWithId(bookId)).thenReturn(Optional.of(expectedReader));
+        RestAssuredMockMvc.get("/api/v1/library/books/{bookId}/readers", bookId)
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("id", Matchers.equalTo(expectedReader.getId().intValue()))
+                .body("id", Matchers.equalTo(readerId.intValue()))
                 .body("name", Matchers.equalTo(expectedReader.getName()));
     }
 
     @Test
     void showReaderOfBook_should_return_empty_optional() {
-        Mockito.when(libraryService.getReaderOfBookWithId(3L)).thenReturn(Optional.empty());
-        RestAssuredMockMvc.get("/api/v1/library/books/3/readers")
+        Long bookId = 3L;
+        Mockito.when(libraryService.getReaderOfBookWithId(bookId)).thenReturn(Optional.empty());
+        RestAssuredMockMvc.get("/api/v1/library/books/{bookId}/readers", bookId)
                 .then()
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .body(Matchers.equalTo(""));
     }
 
     @Test
-    void showReaderOfBook_should_throw_exception() {
-        Mockito.when(libraryService.getReaderOfBookWithId(777L))
-                .thenThrow(new ServiceLayerException("Book with ID 777 does not exist in DB."));
-        RestAssuredMockMvc.get("/api/v1/library/books/777/readers")
+    void showReaderOfBook_should_throw_exception_when_book_with_passed_id_does_not_exist_in_DB() {
+        Long bookId = 777L;
+        Mockito.when(libraryService.getReaderOfBookWithId(bookId))
+                .thenThrow(new ServiceLayerException("Book with ID " + bookId + " does not exist in DB."));
+        RestAssuredMockMvc.get("/api/v1/library/books/{bookId}/readers", bookId)
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("message", Matchers.equalTo("Service layer Error"))
-                .body("details[0]", Matchers.equalTo("Book with ID 777 does not exist in DB."));
-    }
-
-    private Book bookWithInvalidTitle() {
-        Book book = new Book();
-        book.setTitle("J4va");
-        book.setAuthor("Herbert Schildt");
-        book.setReader(Optional.empty());
-        return book;
-    }
-
-    private Book bookWithInvalidAuthor() {
-        Book book = new Book();
-        book.setTitle("Java. The Complete Reference. Twelfth Edition");
-        book.setAuthor("He");
-        book.setReader(Optional.empty());
-        return book;
+                .body("details[0]", Matchers.equalTo(
+                        "Book with ID " + bookId + " does not exist in DB."));
     }
 
 }
