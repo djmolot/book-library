@@ -46,7 +46,7 @@ class BookControllerTest {
     }
 
     @Test
-    void showAllBooks_should_return_list_of_books() {
+    void showAllBooksShouldReturnListOfBooks() {
         List<Book> expectedBooks = TestDataProducer.newAllBooksList();
         int expectedBooksSize = expectedBooks.size();
         Assertions.assertEquals(3, expectedBooksSize,
@@ -85,7 +85,7 @@ class BookControllerTest {
     }
 
     @Test
-    void showAllBooks_should_return_empty_list_when_table_books_is_empty() {
+    void showAllBooksShouldReturnEmptyListWhenTableBooksIsEmpty() {
         Mockito.when(libraryService.getAllBooks()).thenReturn(List.of());
         RestAssuredMockMvc.when()
                 .get("/api/v1/library/books")
@@ -95,7 +95,7 @@ class BookControllerTest {
     }
 
     @Test
-    void addNewBook_should_add_valid_book() {
+    void addNewBookShouldAddValidBook() {
         Book newBook = TestDataProducer.newBook();
         String expectedTitle = newBook.getTitle();
         String expectedAuthor = newBook.getAuthor();
@@ -116,10 +116,10 @@ class BookControllerTest {
                 .body("reader", Matchers.nullValue());
     }
 
-    @ParameterizedTest(name = "case #{index}: invalid book [{0}]")
-    @MethodSource("addNewBook_not_ok_argumentsProvider")
-    @DisplayName("Should fail to add new book when title or author is invalid")
-    void addNewBook_not_ok(Book book, String expectedMessage) {
+    @ParameterizedTest(name = "case #{index}: {0}")
+    @MethodSource("addNewBookNotOkArgumentsProvider")
+    @DisplayName("addNewBookShouldFailToAddNewBookWhen")
+    void addNewBookNotOk(String caseName, Book book, String expectedMessage, String expectedDetails) {
         RestAssuredMockMvc.given()
                 .contentType(JSON)
                 .body(book)
@@ -127,17 +127,20 @@ class BookControllerTest {
                 .post("/api/v1/library/books")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("message", Matchers.equalTo(expectedMessage));
+                .body("message", Matchers.equalTo(expectedMessage))
+                .body("details[0]", Matchers.equalTo(expectedDetails));
     }
-    static Stream<Arguments> addNewBook_not_ok_argumentsProvider() {
+    static Stream<Arguments> addNewBookNotOkArgumentsProvider() {
         return Stream.of(
-                arguments(TestDataProducer.bookWithInvalidTitle(), "ArgumentValidation Error"),
-                arguments(TestDataProducer.bookWithInvalidAuthor(), "ArgumentValidation Error")
+                arguments("bookTitleIsInvalid", TestDataProducer.bookWithInvalidTitle(),
+                        "ArgumentValidation Error", "Title must be between 10 and 255 characters"),
+                arguments("bookAuthorIsInvalid", TestDataProducer.bookWithInvalidAuthor(),
+                        "ArgumentValidation Error", "Author must be between 3 and 50 characters")
         );
     }
 
     @Test
-    void borrowBookToReader_should_borrow_free_book_to_valid_reader() {
+    void borrowBookToReaderShouldBorrowFreeBookToValidReader() {
         Map<Long, Book> allBooksMap = TestDataProducer.newAllBooksMap();
         Map<Long, Reader> allReadersMap = TestDataProducer.newAllReadersMap();
         Long bookId = 3L;
@@ -158,7 +161,7 @@ class BookControllerTest {
     }
 
     @Test
-    void returnBookToLibrary_should_set_field_reader_to_null() {
+    void returnBookToLibraryShouldSetFieldReaderToNull() {
         Map<Long, Book> allBooksMap = TestDataProducer.newAllBooksMap();
         Long bookId = 1L;
         Book book1 = allBooksMap.get(bookId);
@@ -177,7 +180,7 @@ class BookControllerTest {
     }
 
     @Test
-    void showReaderOfBook_should_return_reader() {
+    void showReaderOfBookShouldReturnReader() {
         Map<Long, Reader> allReadersMap = TestDataProducer.newAllReadersMap();
         Long bookId = 1L;
         Long readerId = 2L;
@@ -191,7 +194,7 @@ class BookControllerTest {
     }
 
     @Test
-    void showReaderOfBook_should_return_empty_optional() {
+    void showReaderOfBookShouldReturnEmptyOptional() {
         Long bookId = 3L;
         Mockito.when(libraryService.getReaderOfBookWithId(bookId)).thenReturn(Optional.empty());
         RestAssuredMockMvc.get("/api/v1/library/books/{bookId}/readers", bookId)
@@ -201,7 +204,7 @@ class BookControllerTest {
     }
 
     @Test
-    void showReaderOfBook_should_throw_exception_when_book_with_passed_id_does_not_exist_in_DB() {
+    void showReaderOfBookShouldThrowExceptionWhenBookWithPassedIdDoesNotExistInDb() {
         Long bookId = 777L;
         Mockito.when(libraryService.getReaderOfBookWithId(bookId))
                 .thenThrow(new ServiceLayerException("Book with ID " + bookId + " does not exist in DB."));

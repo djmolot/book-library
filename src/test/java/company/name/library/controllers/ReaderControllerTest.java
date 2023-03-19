@@ -38,7 +38,7 @@ class ReaderControllerTest {
     }
 
     @Test
-    void showAllReaders_should_return_list_of_all_readers_with_their_books() {
+    void showAllReadersShouldReturnListOfAllReadersWithTheirBooks() {
         List<Reader> expectedReaders = TestDataProducer.newAllReadersList();
         Assertions.assertEquals(3, expectedReaders.size());
         int expectedSize = expectedReaders.size();
@@ -74,7 +74,7 @@ class ReaderControllerTest {
     }
 
     @Test
-    void showAllReaders_should_return_empty_list_when_table_readers_is_empty() {
+    void showAllReadersShouldReturnEmptyListWhenTableReadersIsEmpty() {
         Mockito.when(libraryService.getAllReaders()).thenReturn(List.of());
         RestAssuredMockMvc.when()
                 .get("/api/v1/library/readers")
@@ -84,7 +84,7 @@ class ReaderControllerTest {
     }
 
     @Test
-    void registerNewReader_should_add_valid_reader_with_empty_books_list() {
+    void registerNewReaderShouldAddValidReaderWithEmptyBooksList() {
         Reader newReader = TestDataProducer.newReader();
         String expectedName = newReader.getName();
         Reader savedReader = TestDataProducer.newReader();
@@ -104,7 +104,7 @@ class ReaderControllerTest {
     }
 
     @Test
-    void registerNewReader_should_fail_with_invalid_reader_name() {
+    void registerNewReaderShouldFailWithInvalidReaderName() {
         Reader newReader = TestDataProducer.readerWithInvalidName();
         String readerName = newReader.getName();
         Assertions.assertTrue(readerName.length() < 3,
@@ -121,7 +121,7 @@ class ReaderControllerTest {
     }
 
     @Test
-    void showAllBooksBorrowedByReader_should_return_list_of_books_with_reader_null() {
+    void showAllBooksBorrowedByReaderShouldReturnListOfBooksWithReaderNull() {
         Map<Long, Reader> allReadersMap = TestDataProducer.newAllReadersMap();
         Long readerId = 2L;
         List<Book> booksOfReader2 = allReadersMap.get(readerId).getBooks();

@@ -21,7 +21,7 @@ class ReaderRepositoryJdbcTemplImplIT {
     private ReaderRepository readerRepository;
 
     @Test
-    void add_should_return_added_reader_with_empty_books_list() {
+    void addShouldReturnAddedReaderWithEmptyBooksList() {
         Reader newReader = TestDataProducer.newReader();
         String expectedName = newReader.getName();
         Assertions.assertNull(newReader.getId(),
@@ -39,7 +39,7 @@ class ReaderRepositoryJdbcTemplImplIT {
     }
 
     @Test
-    void getById_should_return_existing_reader_with_books_that_was_not_initialized() {
+    void getByIdShouldReturnExistingReaderWithBooksThatWasNotInitialized() {
         Long readerId = 2L;
         Reader expectedReader2 = TestDataProducer.newReader2();
         Assertions.assertNull(expectedReader2.getBooks(),
@@ -51,7 +51,7 @@ class ReaderRepositoryJdbcTemplImplIT {
     }
 
     @Test
-    void getById_should_return_empty_optional_if_reader_with_this_id_does_not_exist_in_DB() {
+    void getByIdShouldReturnEmptyOptionalIfReaderWithThisIdDoesNotExistInDb() {
         Long readerId = 777L;
         Optional<Reader> readerOptional = readerRepository.getById(readerId);
         Assertions.assertTrue(readerOptional.isEmpty(),
@@ -59,7 +59,7 @@ class ReaderRepositoryJdbcTemplImplIT {
     }
 
     @Test
-    void getAll_should_return_list_equal_to_expected() {
+    void getAllShouldReturnListEqualToExpected() {
         List<Reader> expectedReaders = TestDataProducer.newAllReadersList();
         List<Reader> actualReaders = readerRepository.getAll();
         Assertions.assertNotNull(actualReaders,
@@ -69,7 +69,7 @@ class ReaderRepositoryJdbcTemplImplIT {
     }
 
     @Test
-    void getReaderByBookId_should_return_reader_witn_not_initialized_books_field() {
+    void getReaderByBookIdShouldReturnReaderWitnNotInitializedBooksField() {
         Long bookId = 1L;
         Reader expectedReader2 = TestDataProducer.newReader2();
         Assertions.assertNull(expectedReader2.getBooks(),
@@ -81,7 +81,7 @@ class ReaderRepositoryJdbcTemplImplIT {
     }
 
     @Test
-    void getReaderByBookId_should_return_empty_optional_for_book_wich_is_not_borrowed() {
+    void getReaderByBookIdShouldReturnEmptyOptionalForBookWichIsNotBorrowed() {
         Long bookId = 3L;
         Optional<Reader> readerOptional = readerRepository.getReaderByBookId(bookId);
         Assertions.assertTrue(readerOptional.isEmpty(),

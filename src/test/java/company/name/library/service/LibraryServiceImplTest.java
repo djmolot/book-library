@@ -17,7 +17,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +29,8 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 @Slf4j
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class LibraryServiceImplTest {
     @InjectMocks
     private LibraryServiceImpl libraryService;
@@ -37,7 +40,7 @@ class LibraryServiceImplTest {
     private ReaderRepository readerRepository;
 
     @Test
-    void borrowBookToReader_should_add_reader_to_book() {
+    void borrowBookToReaderShouldAddReaderToBook() {
         Long bookId = 3L;
         Long readerId = 1L;
         Book book3 = TestDataProducer.newBook3();
@@ -66,10 +69,11 @@ class LibraryServiceImplTest {
                 "Name of actual reader should be equal to reader1.getName()");
     }
 
-    @ParameterizedTest(name = "case #{index}: [{0}]")
-    @MethodSource("borrowBookToReader_not_ok_argumentsProvider")
-    @DisplayName("borrowBookToReader_should_throw_exception_when")
-    void borrowBookToReader_not_ok(String methodName, Long bookId, Long readerId, String expMessage) {
+    @ParameterizedTest(name = "case #{index}: {0}")
+    @MethodSource("borrowBookToReaderNotOkArgumentsProvider")
+    @DisplayName("borrowBookToReaderShouldThrowExceptionWhen")
+    @SuppressWarnings("unused")
+    void borrowBookToReaderNotOk(String caseName, Long bookId, Long readerId, String expMessage) {
         Map<Long, Book> allBooksMap = TestDataProducer.newAllBooksMap();
         Map<Long, Reader> allReadersMap = TestDataProducer.newAllReadersMap();
         Book book = allBooksMap.get(bookId);
@@ -83,19 +87,19 @@ class LibraryServiceImplTest {
                 "borrowBookToReader should throw ServiceLayerException");
         Assertions.assertEquals(expMessage, exception.getMessage(),"Exception message is wrong");
     }
-    static Stream<Arguments> borrowBookToReader_not_ok_argumentsProvider() {
+    static Stream<Arguments> borrowBookToReaderNotOkArgumentsProvider() {
         return Stream.of(
-                arguments("reader_does_not_exist_in_DB", 3L, 555L,
+                arguments("readerDoesNotExistInDb", 3L, 555L,
                         "Reader with ID 555 does not exist in DB."),
-                arguments("book_does_not_exist_in_DB", 777L, 1L,
+                arguments("bookDoesNotExistInDb", 777L, 1L,
                         "Book with ID 777 does not exist in DB."),
-                arguments("book_is_already_borrowed", 2L, 1L,
+                arguments("bookIsAlreadyBorrowed", 2L, 1L,
                         "Book with ID 2 has already borrowed by reader Reader(id=2, name=Voski Daniel, books=null).")
         );
     }
 
     @Test
-    void returnBookToLibrary_should_set_empty_optional_to_field_reader_of_book() {
+    void returnBookToLibraryShouldSetEmptyOptionalToFieldReaderOfBook() {
         Map<Long, Book> allBooksMap = TestDataProducer.newAllBooksMap();
         Long bookId = 2L;
         Book book2 = allBooksMap.get(bookId);
@@ -116,10 +120,10 @@ class LibraryServiceImplTest {
                 "actualBook reader should be empty optional");
     }
 
-    @ParameterizedTest(name = "case #{index}: [{0}]")
-    @MethodSource("returnBookToLibrary_not_ok_argumentsProvider")
-    @DisplayName("returnBookToLibrary_should_throw_exception_when")
-    void returnBookToLibrary_not_ok(String methodName, Long bookId, String expMessage) {
+    @ParameterizedTest(name = "case #{index}: {0}")
+    @MethodSource("returnBookToLibraryNotOkArgumentsProvider")
+    @DisplayName("returnBookToLibraryShouldThrowExceptionWhen")
+    void returnBookToLibraryNotOk(String caseName, Long bookId, String expMessage) {
         Map<Long, Book> allBooksMap = TestDataProducer.newAllBooksMap();
         Book book = allBooksMap.get(bookId);
         Optional<Book> bookOptional = book != null ? Optional.of(book) : Optional.empty();
@@ -129,17 +133,17 @@ class LibraryServiceImplTest {
                 "returnBookToLibrary should throw ServiceLayerException");
         Assertions.assertEquals(expMessage, exception.getMessage(),"Exception message is wrong");
     }
-    static Stream<Arguments> returnBookToLibrary_not_ok_argumentsProvider() {
+    static Stream<Arguments> returnBookToLibraryNotOkArgumentsProvider() {
         return Stream.of(
-                arguments("book_does_not_exist_in_DB", 777L,
+                arguments("bookDoesNotExistInDb", 777L,
                         "Book with ID 777 does not exist in DB."),
-                arguments("book_is_not_borrowed", 3L,
+                arguments("bookIsNotBorrowed", 3L,
                         "Book with ID 3 does not borrowed by any reader.")
         );
     }
 
     @Test
-    void getAllBooksOfReader_should_return_list_which_was_returned_by_bookRepository() {
+    void getAllBooksOfReaderShouldReturnListWhichWasReturnedByBookRepository() {
         Map<Long, Reader> allReadersMap = TestDataProducer.newAllReadersMap();
         Long readerId = 2L;
         Reader reader2 = allReadersMap.get(readerId);
@@ -156,7 +160,7 @@ class LibraryServiceImplTest {
     }
 
     @Test
-    void getAllBooksOfReader_should_throw_exception_when_reader_does_not_exist_in_DB() {
+    void getAllBooksOfReaderShouldThrowExceptionWhenReaderDoesNotExistInDb() {
         Long readerId = 555L;
         String expMessage = "Reader with ID 555 does not exist in DB.";
         Mockito.when(readerRepository.getById(readerId)).thenReturn(Optional.empty());
@@ -168,7 +172,7 @@ class LibraryServiceImplTest {
     }
 
     @Test
-    void getReaderOfBookWithId_should_return_reader_wich_was_returned_by_readerRepository() {
+    void getReaderOfBookWithIdShouldReturnReaderWichWasReturnedByReaderRepository() {
         Map<Long, Book> allBooksMap = TestDataProducer.newAllBooksMap();
         Long bookId = 2L;
         Book book2 = allBooksMap.get(bookId);
@@ -187,7 +191,7 @@ class LibraryServiceImplTest {
     }
 
     @Test
-    void getReaderOfBookWithId_should_throw_exception_when_book_does_not_exist_in_DB() {
+    void getReaderOfBookWithIdShouldThrowExceptionWhenBookDoesNotExistInDb() {
         Long bookId = 777L;
         String expMessage = "Book with ID 777 does not exist in DB.";
         Mockito.when(bookRepository.getById(bookId)).thenReturn(Optional.empty());

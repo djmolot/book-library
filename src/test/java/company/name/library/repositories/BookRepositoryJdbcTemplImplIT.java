@@ -24,7 +24,7 @@ class BookRepositoryJdbcTemplImplIT {
     private BookRepository bookRepository;
 
     @Test
-    void add_should_return_added_book_with_reader_empty_optional() {
+    void addShouldReturnAddedBookWithReaderEmptyOptional() {
         var newBook = TestDataProducer.newBook();
         var expectedTitle = newBook.getTitle();
         var expectedAuthor = newBook.getAuthor();
@@ -45,7 +45,7 @@ class BookRepositoryJdbcTemplImplIT {
     }
 
     @Test
-    void getById_should_return_existing_book() {
+    void getByIdShouldReturnExistingBook() {
         Map<Long, Book> allBooksMap = TestDataProducer.newAllBooksMap();
         Long bookId = 2L;
         Book expectedBook2 = allBooksMap.get(bookId);
@@ -56,7 +56,7 @@ class BookRepositoryJdbcTemplImplIT {
     }
 
     @Test
-    void getById_should_return_empty_Optional_if_book_with_this_id_does_not_exist_in_DB() {
+    void getByIdShouldReturnEmptyOptionalIfBookWithThisIdDoesNotExistInDb() {
         Long bookId = 555L;
         Optional<Book> bookOptional = bookRepository.getById(bookId);
         Assertions.assertTrue(bookOptional.isEmpty(),
@@ -64,7 +64,7 @@ class BookRepositoryJdbcTemplImplIT {
     }
 
     @Test
-    public void getAll_should_return_list_equal_to_expected() {
+    public void getAllShouldReturnListEqualToExpected() {
         List<Book> expectedBooks = TestDataProducer.newAllBooksList();
         List<Book> actualBooks = bookRepository.getAll();
         Assertions.assertEquals(expectedBooks, actualBooks,
@@ -72,7 +72,7 @@ class BookRepositoryJdbcTemplImplIT {
     }
 
     @Test
-    void update_should_change_reader_id_value() {
+    void updateShouldChangeReaderIdValue() {
         Map<Long, Book> allBooksMap = TestDataProducer.newAllBooksMap();
         Map<Long, Reader> allReadersMap = TestDataProducer.newAllReadersMap();
         Long bookId = 3L;
@@ -110,7 +110,7 @@ class BookRepositoryJdbcTemplImplIT {
     }
 
     @Test
-    void getBooksByReaderId_should_return_list_of_Books() {
+    void getBooksByReaderIdShouldReturnListOfBooks() {
         Map<Long, Reader> allReadersMap = TestDataProducer.newAllReadersMap();
         Long readerId = 2L;
         List<Book> expectedBooksOfReader2 = allReadersMap.get(readerId).getBooks();
@@ -122,7 +122,7 @@ class BookRepositoryJdbcTemplImplIT {
     }
 
     @Test
-    void getBooksByReaderId_should_return_empty_list_if_Reader_has_not_borrowed_any_book() {
+    void getBooksByReaderIdShouldReturnEmptyListIfReaderHasNotBorrowedAnyBook() {
         Long readerId = 1L;
         List<Book> booksOfReader1 = bookRepository.getBooksByReaderId(readerId);
         Assertions.assertTrue(booksOfReader1.isEmpty(),
