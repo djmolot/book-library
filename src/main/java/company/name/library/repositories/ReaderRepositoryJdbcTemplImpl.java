@@ -59,7 +59,7 @@ public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
             return Optional.ofNullable(reader);
         } catch (EmptyResultDataAccessException e) {
             log.error("Reader with ID " + id + " does not exist in DB. " + e);
-            throw new DaoLayerException("Reader with ID " + id + " does not exist in DB. " + e);
+            return Optional.empty();
         } catch (DataAccessException e) {
             log.error("Error during getting reader by ID from DB. " + e);
             throw new DaoLayerException("Error during getting reader by ID from DB. " + e);
@@ -122,7 +122,7 @@ public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
     }
 
     private Reader mapRowToReaderWithoutBooks(ResultSet resultSet, int rowNum)
-        throws SQLException {
+            throws SQLException {
         Reader reader = new Reader();
         reader.setId(resultSet.getLong("id"));
         reader.setName(resultSet.getString("name"));

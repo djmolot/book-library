@@ -72,8 +72,7 @@ public class LibraryServiceImpl implements LibraryService {
     @Override
     public List<Book> getAllBooksOfReader(Long readerId) {
         readerRepository.getById(readerId).orElseThrow(
-                () -> new ServiceLayerException("Reader with ID " + readerId
-                        + " does not exist in DB.")
+                () -> new ServiceLayerException("Reader with ID " + readerId + " does not exist in DB.")
         );
         return bookRepository.getBooksByReaderId(readerId);
     }
@@ -85,5 +84,4 @@ public class LibraryServiceImpl implements LibraryService {
         );
         return readerRepository.getReaderByBookId(bookId);
     }
-
 }
