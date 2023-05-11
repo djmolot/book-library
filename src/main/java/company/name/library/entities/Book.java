@@ -1,26 +1,30 @@
 package company.name.library.entities;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-
 import java.util.Optional;
 
 @Data
 public class Book {
 
+    @Schema(description = "Long id", example = "1")
     private Long id;
 
+    @Schema(description = "String author", example = "Herbert Schildt")
     @NotNull(message = "Please provide an author")
     @Size(min = 3, max = 50, message
             = "Author must be between 3 and 50 characters")
     private String author;
 
+    @Schema(description = "String title", example = "Java. The Complete Reference. Twelfth Edition")
     @NotNull(message = "Please provide a title")
     @Size(min = 10, max = 255, message
             = "Title must be between 10 and 255 characters")
     private String title;
 
-    //@OneToOne
+    @Schema(description = "Reader reader", example = "{\"id\":2,\"name\":\"Voski Daniel\",\"books\":null}")
     private Optional<Reader> reader;
+
 }

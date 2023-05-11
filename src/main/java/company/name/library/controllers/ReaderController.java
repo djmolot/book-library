@@ -37,7 +37,14 @@ public class ReaderController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Readers was returned successfully",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = List.class)) })
+                            schema = @Schema(example =
+                                    "[{\"id\":1," +
+                                            "\"name\":\"Zhirayr Hovik\"," +
+                                            "\"books\":[]}," +
+                                            "{\"id\":2," +
+                                            "\"name\":\"Voski Daniel\"," +
+                                            "\"books\":[]}]"))
+            })
     })
     @GetMapping
     public ResponseEntity<List<Reader>> showAllReaders() {
@@ -56,8 +63,8 @@ public class ReaderController {
     })
     @PostMapping
     public ResponseEntity<Reader> registerNewReader(
-            @Valid @RequestBody @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Reader object that needs to be added to the library") Reader reader) {
+            @Valid @RequestBody @Schema(description = "Reader object that needs to be added to the library",
+                    example = "{\"name\": \"Voski Daniel\"}") Reader reader) {
         Reader readerFromDB = libraryService.registerNewReader(reader);
         return ResponseEntity.status(HttpStatus.CREATED).body(readerFromDB);
     }
@@ -66,7 +73,15 @@ public class ReaderController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found books of the reader",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = List.class)) }),
+                            schema = @Schema(example =
+                                    "[{\"id\":1," +
+                                            "\"title\":\"Java. The Complete Reference. Twelfth Edition\"," +
+                                            "\"author\":\"Herbert Schildt\"," +
+                                            "\"reader\":null}," +
+                                            "{\"id\":2,\"title\":\"Java. An Introduction to Problem Solving & Programming\"," +
+                                            "\"author\":\"Walter Savitch\"," +
+                                            "\"reader\":null}]"))
+            }),
             @ApiResponse(responseCode = "400", description = "Invalid parameter supplied to method",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class)) })
