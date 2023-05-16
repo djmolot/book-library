@@ -78,7 +78,7 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
                     this::mapRowToBook);
         } catch (DataAccessException e) {
             log.error("Error during getting all books from DB. " + e);
-            throw new DaoLayerException("Error during getting all books from DB. " + e);
+            throw new DaoLayerException("Error during getting all books from DB. " + e.getLocalizedMessage());
         }
     }
 
@@ -107,7 +107,7 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
         } catch (DataAccessException e) {
             log.error("Error during get books of reader with ID {} from DB.", readerId);
             throw new DaoLayerException("Error during get books of reader with ID "
-                    + readerId + "from DB. " + e.getLocalizedMessage());
+                    + readerId + " from DB. " + e.getLocalizedMessage());
         }
     }
 
