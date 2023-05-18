@@ -116,8 +116,8 @@ class ReaderControllerTest {
                 .post("/api/v1/library/readers")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("message", Matchers.equalTo("ArgumentValidation Error"))
-                .body("details[0]", Matchers.equalTo("Reader name must be between 3 and 50 characters"));
+                .body("errorMessage", Matchers.equalTo("ArgumentValidation Error"))
+                .body("errors[0].constraint", Matchers.equalTo("Reader name must be between 3 and 50 characters"));
     }
 
     @Test
