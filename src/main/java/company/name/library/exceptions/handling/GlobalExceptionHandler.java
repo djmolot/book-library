@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
 import company.name.library.entities.ApiError;
 import company.name.library.entities.ErrorResponse;
 import company.name.library.exceptions.DaoLayerException;
@@ -13,10 +11,8 @@ import company.name.library.exceptions.ServiceLayerException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -58,10 +54,8 @@ public class GlobalExceptionHandler {
                 errors.add(new ApiError(
                         fieldError.getField(), fieldError.getRejectedValue(), fieldError.getDefaultMessage()));
             }
-        } else {
-            if (ex.getClass() == DaoLayerException.class) {
-                errors.add(new ApiError(null, null, null));
-            }
+        } else if (ex.getClass() == ServiceLayerException.class) {
+            errors.add(new ApiError(null, null, ex.getMessage()));
         }
         String localDT = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
         ErrorResponse errorResponse = new ErrorResponse(localDT, errorMessage, errors);
