@@ -12,7 +12,6 @@ Having consistent error message structure for all APIs,
 help the API consumers to write more robust code.
  */
 
-@RequiredArgsConstructor
 @Getter
 public class ErrorResponse {
 
@@ -25,4 +24,15 @@ public class ErrorResponse {
     //Specific errors in API request processing
     private final List<ApiError> errors;
 
+    public ErrorResponse(String dateTime, String errorMessage) {
+        this.dateTime = dateTime;
+        this.errorMessage = errorMessage;
+        this.errors = null;
+    }
+
+    public ErrorResponse (String dateTime, String errorMessage, List<ApiError> errors) {
+        this.dateTime = dateTime;
+        this.errorMessage = errorMessage;
+        this.errors = errors;
+    }
 }

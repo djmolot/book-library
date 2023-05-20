@@ -211,8 +211,7 @@ class BookControllerTest {
         RestAssuredMockMvc.get("/api/v1/library/books/{bookId}/readers", bookId)
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("errorMessage", Matchers.equalTo("Service layer Error"))
-                .body("errors[0].constraint", Matchers.equalTo("Book with ID "
+                .body("errorMessage", Matchers.equalTo("Service layer Error. Book with ID "
                         + bookId + " does not exist in DB."));
     }
 

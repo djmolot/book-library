@@ -47,18 +47,21 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<Object> composeResponse(Exception ex, String errorMessage, HttpStatus status) {
-        List<ApiError> errors = new ArrayList<>();
+        ErrorResponse errorResponse = null;
+        String localDT = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
         if (ex instanceof BindException bindEx) {
+            List<ApiError> errors = new ArrayList<>();
             List<FieldError> fieldErrors = bindEx.getBindingResult().getFieldErrors();
             for (FieldError fieldError : fieldErrors) {
                 errors.add(new ApiError(
                         fieldError.getField(), fieldError.getRejectedValue(), fieldError.getDefaultMessage()));
+                errorResponse = new ErrorResponse(localDT, errorMessage, errors);
             }
-        } else if (ex.getClass() == ServiceLayerException.class) {
-            errors.add(new ApiError(null, null, ex.getMessage()));
+        } else {
+            errorMessage += ". ";
+            errorMessage += ex.getMessage();
+            errorResponse = new ErrorResponse(localDT, errorMessage);
         }
-        String localDT = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
-        ErrorResponse errorResponse = new ErrorResponse(localDT, errorMessage, errors);
         return ResponseEntity.status(status).body(errorResponse);
     }
 
