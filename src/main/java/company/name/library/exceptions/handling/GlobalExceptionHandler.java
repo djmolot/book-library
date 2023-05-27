@@ -1,8 +1,10 @@
 package company.name.library.exceptions.handling;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
-
+import java.util.stream.Collectors;
+import company.name.library.entities.ApiError;
 import company.name.library.entities.ErrorResponse;
 import company.name.library.exceptions.DaoLayerException;
 import company.name.library.exceptions.ServiceLayerException;
@@ -10,7 +12,6 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,7 +36,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DaoLayerException.class)
     public final ResponseEntity<Object> handleDaoLayerException(DaoLayerException ex) {
-        return composeResponse(ex, "DAO layer Error", HttpStatus.BAD_REQUEST);
+        return composeResponse(ex, "Unknown error was detected. Please contact the support service.",
+                HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ServiceLayerException.class)
@@ -44,17 +46,22 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<Object> composeResponse(Exception ex, String errorMessage, HttpStatus status) {
-        List<String> details;
-        if (ex instanceof BindException bindEx) {
-            details = bindEx.getBindingResult().getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .filter(Objects::nonNull)
-                    .toList();
+        ErrorResponse errorResponse;
+        String localDT = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+
+        if (ex.getClass() == DaoLayerException.class) {
+            errorResponse = new ErrorResponse(localDT, errorMessage);
+        } else if (ex instanceof BindException bindEx) {
+            List<ApiError> errors = bindEx.getBindingResult().getFieldErrors().stream()
+                    .map(fieldError -> new ApiError(fieldError.getField(),
+                            fieldError.getRejectedValue(), fieldError.getDefaultMessage()))
+                    .collect(Collectors.toList());
+            errorResponse = new ErrorResponse(localDT, errorMessage, errors);
         } else {
-            details = List.of(ex.getLocalizedMessage());
+            errorMessage += ". " + ex.getMessage();
+            errorResponse = new ErrorResponse(localDT, errorMessage);
         }
-        ErrorResponse error = new ErrorResponse(errorMessage, details);
-        return ResponseEntity.status(status).body(error);
+        return ResponseEntity.status(status).body(errorResponse);
     }
 
 }

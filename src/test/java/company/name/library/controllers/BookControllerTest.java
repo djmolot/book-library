@@ -127,8 +127,8 @@ class BookControllerTest {
                 .post("/api/v1/library/books")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("message", Matchers.equalTo(expectedMessage))
-                .body("details[0]", Matchers.equalTo(expectedDetails));
+                .body("errorMessage", Matchers.equalTo(expectedMessage))
+                .body("errors[0].constraint", Matchers.equalTo(expectedDetails));
     }
     static Stream<Arguments> addNewBookNotOkArgumentsProvider() {
         return Stream.of(
@@ -211,9 +211,8 @@ class BookControllerTest {
         RestAssuredMockMvc.get("/api/v1/library/books/{bookId}/readers", bookId)
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("message", Matchers.equalTo("Service layer Error"))
-                .body("details[0]", Matchers.equalTo(
-                        "Book with ID " + bookId + " does not exist in DB."));
+                .body("errorMessage", Matchers.equalTo("Service layer Error. Book with ID "
+                        + bookId + " does not exist in DB."));
     }
 
 }
