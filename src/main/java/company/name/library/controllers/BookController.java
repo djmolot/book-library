@@ -7,6 +7,7 @@ import company.name.library.service.LibraryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -40,11 +41,12 @@ public class BookController {
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(example =
                                     "[{\"id\":1," +
-                                            "\"title\":\"Java. The Complete Reference. Twelfth Edition\"," +
                                             "\"author\":\"Herbert Schildt\"," +
+                                            "\"title\":\"Java. The Complete Reference. Twelfth Edition\"," +
                                             "\"reader\":null}," +
-                                            "{\"id\":2,\"title\":\"Java. An Introduction to Problem Solving & Programming\"," +
+                                            "{\"id\":2," +
                                             "\"author\":\"Walter Savitch\"," +
+                                    "\"title\":\"Java. An Introduction to Problem Solving & Programming\"," +
                                             "\"reader\":null}]"))
                     }
             )
@@ -60,9 +62,9 @@ public class BookController {
             @ApiResponse(responseCode = "201", description = "Book was added to the library",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"id\":1," +
-                                            "\"title\":\"Java. The Complete Reference. Twelfth Edition\"," +
-                                            "\"author\":\"Herbert Schildt\"," +
-                                            "\"reader\":null}"))
+                                    "\"author\":\"Herbert Schildt\"," +
+                                    "\"title\":\"Java. The Complete Reference. Twelfth Edition\"," +
+                                    "\"reader\":null}"))
             }),
             @ApiResponse(responseCode = "400", description = "Invalid book supplied",
                     content = { @Content(mediaType = "application/json",
@@ -70,7 +72,7 @@ public class BookController {
     })
     @PostMapping
     public ResponseEntity<Book> addNewBook(@RequestBody @Schema(description = "New book object",
-            example = "{\"author\": \"Herbert Schildt\",\"title\": \"Java. The Complete Reference. Twelfth Edition\"}") Book book) {
+            example = "{\"author\": \"Herbert Schildt\",\"title\": \"Java. The Complete Reference. Twelfth Edition\"}") @Valid Book book) {
         Book bookFromDB = libraryService.addNewBook(book);
         return ResponseEntity.status(HttpStatus.CREATED).body(bookFromDB);
     }
@@ -82,7 +84,10 @@ public class BookController {
                             schema = @Schema(implementation = Book.class)) }),
             @ApiResponse(responseCode = "400", description = "Invalid parameters supplied to method",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class)) })
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"dateTime\": \"28.05.2023 16:42:41\"," +
+                                    " \"errorMessage\": \"Service layer Error. Book with ID 5 has already" +
+                                    " borrowed by reader Reader(id=3, name=Some Reader, books=null).\"}")) })
     })
     @PostMapping("/{bookId}/readers/{readerId}")
     public ResponseEntity<Book> borrowBookToReader(
@@ -101,11 +106,12 @@ public class BookController {
                             schema = @Schema(example = "{\"id\":1," +
                                     "\"title\":\"Java. The Complete Reference. Twelfth Edition\"," +
                                     "\"author\":\"Herbert Schildt\"," +
-                                    "\"reader\":null}"))
-            }),
-            @ApiResponse(responseCode = "400", description = "Invalid parameter supplied to method",
+                                    "\"reader\":null}")) }),
+            @ApiResponse(responseCode = "400", description = "Invalid parameters supplied to method",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class)) })
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"dateTime\": \"28.05.2023 16:42:41\"," +
+                                    " \"errorMessage\": \"Service layer Error. Book with ID 5 does not borrowed by any reader.\"}")) })
     })
     @DeleteMapping("/{bookId}/readers")
     public ResponseEntity<Book> returnBookToLibrary(
@@ -115,25 +121,27 @@ public class BookController {
         return ResponseEntity.ok(book);
     }
 
-    @Operation(summary = "Get reader of book with id")
+    @Operation(summary = "Get reader of book with {id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found the reader of book",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"id\": 2,\"name\": \"Voski Daniel\",\"books\": null}")) }),
-            @ApiResponse(responseCode = "400", description = "Invalid parameter supplied to method",
+            @ApiResponse(responseCode = "400", description = "Invalid parameters supplied to method",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class)) }),
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"dateTime\": \"28.05.2023 17:12:42\"," +
+                                    " \"errorMessage\": \"Service layer Error. Book with ID 777 does not exist in DB.\"}")) }),
             @ApiResponse(responseCode = "404", description = "Book is not borrowed by any reader",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class)) })
+                            schema = @Schema(example = "{}")) })
     })
     @GetMapping("/{bookId}/readers")
     public ResponseEntity<Reader> showReaderOfBook(
             @Parameter(description = "id of book to find it's reader")
             @PathVariable("bookId") @Positive Long bookId) {
-        return libraryService.getReaderOfBookWithId(bookId)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return libraryService.getReaderOfBookWithId(bookId) //Optional<Reader>
+                .map(ResponseEntity::ok) //Optional<ResponseEntity<Reader> with code 200> or empty Optional
+                .orElseGet(() -> ResponseEntity.notFound().build()); //ResponseEntity<Reader> with code 200
+                                                                    //or ResponseEntity with no body with code 404
     }
-
 }

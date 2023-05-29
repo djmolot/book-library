@@ -7,6 +7,7 @@ import company.name.library.service.LibraryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -59,7 +60,16 @@ public class ReaderController {
                             schema = @Schema(implementation = Reader.class)) }),
             @ApiResponse(responseCode = "400", description = "Invalid reader supplied",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class)) })
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"dateTime\": \"28.05.2023 19:27:24\"," +
+                                    " \"errorMessage\": \"ArgumentValidation Error\"," +
+                                    " \"errors\": [" +
+                                    "   {" +
+                                    "     \"fieldName\": \"name\"," +
+                                    "     \"invalidValue\": \"Vo\"," +
+                                    "     \"constraint\": \"Reader name must be between 3 and 50 characters\"" +
+                                    "   }" +
+                                    " ]}")) })
     })
     @PostMapping
     public ResponseEntity<Reader> registerNewReader(
@@ -84,7 +94,9 @@ public class ReaderController {
             }),
             @ApiResponse(responseCode = "400", description = "Invalid parameter supplied to method",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class)) })
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"dateTime\": \"28.05.2023 19:46:14\"," +
+                                    " \"errorMessage\": \"Service layer Error. Reader with ID 555 does not exist in DB.\"}")) })
     })
     @GetMapping("/{readerId}/books")
     public ResponseEntity<List<Book>> showAllBooksBorrowedByReader(

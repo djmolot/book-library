@@ -1,6 +1,7 @@
 package company.name.library.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import java.util.List;
 
@@ -14,13 +15,13 @@ help the API consumers to write more robust code.
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResponse {
 
-    // "10-01-2023 17:13:41"
+    @Schema(description = "date and time when the error occurred", example = "10.01.2023 17:13:41")
     private final String dateTime;
 
-    //General error message about nature of error
+    @Schema(description = "General error message about nature of error", example = "ArgumentValidation Error")
     private final String errorMessage;
 
-    //Specific errors in API request processing
+    @Schema(description = "Specific errors in API request processing")
     private final List<ApiError> errors;
 
     public ErrorResponse(String dateTime, String errorMessage) {
