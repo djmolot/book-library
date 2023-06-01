@@ -25,7 +25,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -104,14 +108,14 @@ public class BookController {
             @ApiResponse(responseCode = "200", description = "Book was returned to the library",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(example = "{\"id\":1," +
-                                    "\"title\":\"Java. The Complete Reference. Twelfth Edition\"," +
                                     "\"author\":\"Herbert Schildt\"," +
+                                    "\"title\":\"Java. The Complete Reference. Twelfth Edition\"," +
                                     "\"reader\":null}")) }),
             @ApiResponse(responseCode = "400", description = "Invalid parameters supplied to method",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
                             examples = @ExampleObject(value = "{\"dateTime\": \"28.05.2023 16:42:41\"," +
-                                    " \"errorMessage\": \"Service layer Error. Book with ID 5 does not borrowed by any reader.\"}")) })
+                                    " \"errorMessage\": \"Service layer Error. Book with ID 5 is not borrowed by any reader.\"}")) })
     })
     @DeleteMapping("/{bookId}/readers")
     public ResponseEntity<Book> returnBookToLibrary(
@@ -133,15 +137,29 @@ public class BookController {
                                     " \"errorMessage\": \"Service layer Error. Book with ID 777 does not exist in DB.\"}")) }),
             @ApiResponse(responseCode = "404", description = "Book is not borrowed by any reader",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{}")) })
+                            schema = @Schema(example = "{}"),
+                            examples = @ExampleObject(value = "{\"dateTime\": \"28.05.2023 17:12:42\"," +
+                                    "\"errorMessage\": \"Book with id 5 is not borrowed by any reader.\"}")) })
     })
     @GetMapping("/{bookId}/readers")
-    public ResponseEntity<Reader> showReaderOfBook(
+    public ResponseEntity<Object> showReaderOfBook(
             @Parameter(description = "id of book to find it's reader")
             @PathVariable("bookId") @Positive Long bookId) {
+        Optional<Reader> reader = libraryService.getReaderOfBookWithId(bookId);
+
+        if (reader.isPresent()) {
+            return ResponseEntity.ok(reader.get());
+        } else {
+            String errorMessage = "Book with id " + bookId + " is not borrowed by any reader.";
+            String localDT = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+            ErrorResponse errorResponse = new ErrorResponse(localDT, errorMessage);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
+        /*
         return libraryService.getReaderOfBookWithId(bookId) //Optional<Reader>
                 .map(ResponseEntity::ok) //Optional<ResponseEntity<Reader> with code 200> or empty Optional
                 .orElseGet(() -> ResponseEntity.notFound().build()); //ResponseEntity<Reader> with code 200
                                                                     //or ResponseEntity with no body with code 404
+        */
     }
 }

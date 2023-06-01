@@ -84,12 +84,14 @@ public class ReaderController {
             @ApiResponse(responseCode = "200", description = "Found books of the reader",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(example =
-                                    "[{\"id\":1," +
-                                            "\"title\":\"Java. The Complete Reference. Twelfth Edition\"," +
+                                    "[{" +
+                                            "\"id\":1," +
                                             "\"author\":\"Herbert Schildt\"," +
+                                            "\"title\":\"Java. The Complete Reference. Twelfth Edition\"," +
                                             "\"reader\":null}," +
-                                            "{\"id\":2,\"title\":\"Java. An Introduction to Problem Solving & Programming\"," +
+                                            "{\"id\":2," +
                                             "\"author\":\"Walter Savitch\"," +
+                                            "\"title\":\"Java. An Introduction to Problem Solving & Programming\"," +
                                             "\"reader\":null}]"))
             }),
             @ApiResponse(responseCode = "400", description = "Invalid parameter supplied to method",
