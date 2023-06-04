@@ -8,3 +8,9 @@ spring:
 #      - schema.sql
 #    data:
 #      - data.sql
+server:
+  servlet:
+    context-path: '/book-library'
+springdoc:
+  swagger-ui:
+    path: '/'
