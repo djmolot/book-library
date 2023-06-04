@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
+import static company.name.library.controllers.ApiDocExamples.*;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/readers")
@@ -38,14 +40,8 @@ public class ReaderController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Readers was returned successfully",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(example =
-                                    "[{\"id\":1," +
-                                            "\"name\":\"Zhirayr Hovik\"," +
-                                            "\"books\":[]}," +
-                                            "{\"id\":2," +
-                                            "\"name\":\"Voski Daniel\"," +
-                                            "\"books\":[]}]"))
-            })
+                            schema = @Schema(example = READERS_LIST)) }
+            )
     })
     @GetMapping
     public ResponseEntity<List<Reader>> showAllReaders() {
@@ -61,15 +57,7 @@ public class ReaderController {
             @ApiResponse(responseCode = "400", description = "Invalid reader supplied",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(value = "{\"dateTime\": \"28.05.2023 19:27:24\"," +
-                                    " \"errorMessage\": \"ArgumentValidation Error\"," +
-                                    " \"errors\": [" +
-                                    "   {" +
-                                    "     \"fieldName\": \"name\"," +
-                                    "     \"invalidValue\": \"Vo\"," +
-                                    "     \"constraint\": \"Reader name must be between 3 and 50 characters\"" +
-                                    "   }" +
-                                    " ]}")) })
+                            examples = @ExampleObject(value = READER_NAME_INVALID)) })
     })
     @PostMapping
     public ResponseEntity<Reader> registerNewReader(
@@ -83,22 +71,12 @@ public class ReaderController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found books of the reader",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(example =
-                                    "[{" +
-                                            "\"id\":1," +
-                                            "\"author\":\"Herbert Schildt\"," +
-                                            "\"title\":\"Java. The Complete Reference. Twelfth Edition\"," +
-                                            "\"reader\":null}," +
-                                            "{\"id\":2," +
-                                            "\"author\":\"Walter Savitch\"," +
-                                            "\"title\":\"Java. An Introduction to Problem Solving & Programming\"," +
-                                            "\"reader\":null}]"))
+                            schema = @Schema(example = BOOKS_LIST))
             }),
             @ApiResponse(responseCode = "400", description = "Invalid parameter supplied to method",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(value = "{\"dateTime\": \"28.05.2023 19:46:14\"," +
-                                    " \"errorMessage\": \"Service layer Error. Reader with ID 555 does not exist in DB.\"}")) })
+                            examples = @ExampleObject(value = READER_DOES_NOT_EXIST)) })
     })
     @GetMapping("/{readerId}/books")
     public ResponseEntity<List<Book>> showAllBooksBorrowedByReader(
