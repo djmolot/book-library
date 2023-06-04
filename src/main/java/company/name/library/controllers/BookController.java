@@ -145,10 +145,9 @@ public class BookController {
     public ResponseEntity<Object> showReaderOfBook(
             @Parameter(description = "id of book to find it's reader")
             @PathVariable("bookId") @Positive Long bookId) {
-        Optional<Reader> reader = libraryService.getReaderOfBookWithId(bookId);
-
-        if (reader.isPresent()) {
-            return ResponseEntity.ok(reader.get());
+        Optional<Reader> readerOptional = libraryService.getReaderOfBookWithId(bookId);
+        if (readerOptional.isPresent()) {
+            return ResponseEntity.ok(readerOptional.get());
         } else {
             String errorMessage = "Book with id " + bookId + " is not borrowed by any reader.";
             String localDT = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
