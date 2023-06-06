@@ -50,7 +50,7 @@ class ReaderControllerTest {
         Assertions.assertEquals(0, expectedBooks3.size());
         Mockito.when(libraryService.getAllReaders()).thenReturn(expectedReaders);
         RestAssuredMockMvc.when()
-                .get("/api/v1/library/readers")
+                .get("/api/v1/readers")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("size()", Matchers.equalTo(expectedSize))
@@ -77,7 +77,7 @@ class ReaderControllerTest {
     void showAllReadersShouldReturnEmptyListWhenTableReadersIsEmpty() {
         Mockito.when(libraryService.getAllReaders()).thenReturn(List.of());
         RestAssuredMockMvc.when()
-                .get("/api/v1/library/readers")
+                .get("/api/v1/readers")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("size()", Matchers.equalTo(0));
@@ -95,7 +95,7 @@ class ReaderControllerTest {
                 .contentType(JSON)
                 .body(newReader)
                 .when()
-                .post("/api/v1/library/readers")
+                .post("/api/v1/readers")
                 .then()
                 .statusCode(HttpStatus.CREATED.value())
                 .body("id", Matchers.equalTo(readerId.intValue()))
@@ -113,7 +113,7 @@ class ReaderControllerTest {
                 .contentType(JSON)
                 .body(newReader)
                 .when()
-                .post("/api/v1/library/readers")
+                .post("/api/v1/readers")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("errorMessage", Matchers.equalTo("ArgumentValidation Error"))
@@ -130,7 +130,7 @@ class ReaderControllerTest {
                 "size of list of reader2 books should be equal to 2");
         Mockito.when(libraryService.getAllBooksOfReader(readerId)).thenReturn(booksOfReader2);
         RestAssuredMockMvc.when()
-                .get("/api/v1/library/readers/{readerId}/books", readerId)
+                .get("/api/v1/readers/{readerId}/books", readerId)
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("size()", Matchers.equalTo(expectedSize))

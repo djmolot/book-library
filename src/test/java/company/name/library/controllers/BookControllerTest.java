@@ -62,7 +62,7 @@ class BookControllerTest {
                 "Reader of book3 must be null");
         Mockito.when(libraryService.getAllBooks()).thenReturn(expectedBooks);
         RestAssuredMockMvc.when()
-                .get("/api/v1/library/books")
+                .get("/api/v1/books")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("size()", Matchers.equalTo(expectedBooksSize))
@@ -88,7 +88,7 @@ class BookControllerTest {
     void showAllBooksShouldReturnEmptyListWhenTableBooksIsEmpty() {
         Mockito.when(libraryService.getAllBooks()).thenReturn(List.of());
         RestAssuredMockMvc.when()
-                .get("/api/v1/library/books")
+                .get("/api/v1/books")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("size()", Matchers.equalTo(0));
@@ -107,7 +107,7 @@ class BookControllerTest {
                 .contentType(JSON)
                 .body(newBook)
                 .when()
-                .post("/api/v1/library/books")
+                .post("/api/v1/books")
                 .then()
                 .statusCode(HttpStatus.CREATED.value())
                 .body("id", Matchers.equalTo(bookId.intValue()))
@@ -124,7 +124,7 @@ class BookControllerTest {
                 .contentType(JSON)
                 .body(book)
                 .when()
-                .post("/api/v1/library/books")
+                .post("/api/v1/books")
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("errorMessage", Matchers.equalTo(expectedMessage))
@@ -150,7 +150,7 @@ class BookControllerTest {
         expectedBook.setReader(Optional.of(expectedReader));
         Mockito.when(libraryService.borrowBookToReader(bookId, readerId))
                 .thenReturn(expectedBook);
-        RestAssuredMockMvc.post("/api/v1/library/books/{bookId}/readers/{readerId}", bookId, readerId)
+        RestAssuredMockMvc.post("/api/v1/books/{bookId}/readers/{readerId}", bookId, readerId)
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("id", Matchers.equalTo(bookId.intValue()))
@@ -170,7 +170,7 @@ class BookControllerTest {
         book1.setReader(Optional.empty());
         Mockito.when(libraryService.returnBookToLibrary(bookId)).thenReturn(book1);
         RestAssuredMockMvc.when()
-                .delete("/api/v1/library/books/{bookId}/readers", bookId)
+                .delete("/api/v1/books/{bookId}/readers", bookId)
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("id", Matchers.equalTo(bookId.intValue()))
@@ -186,7 +186,7 @@ class BookControllerTest {
         Long readerId = 2L;
         Reader expectedReader = allReadersMap.get(readerId);
         Mockito.when(libraryService.getReaderOfBookWithId(bookId)).thenReturn(Optional.of(expectedReader));
-        RestAssuredMockMvc.get("/api/v1/library/books/{bookId}/readers", bookId)
+        RestAssuredMockMvc.get("/api/v1/books/{bookId}/readers", bookId)
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("id", Matchers.equalTo(readerId.intValue()))
@@ -208,7 +208,7 @@ class BookControllerTest {
         Long bookId = 777L;
         Mockito.when(libraryService.getReaderOfBookWithId(bookId))
                 .thenThrow(new ServiceLayerException("Book with ID " + bookId + " does not exist in DB."));
-        RestAssuredMockMvc.get("/api/v1/library/books/{bookId}/readers", bookId)
+        RestAssuredMockMvc.get("/api/v1/books/{bookId}/readers", bookId)
                 .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("errorMessage", Matchers.equalTo("Service layer Error. Book with ID "
