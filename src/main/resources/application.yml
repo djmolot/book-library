@@ -20,3 +20,12 @@ management:
     web:
       exposure:
         include: health, info
+  info:
+    env:
+      enabled: true
+info:
+  app:
+    name: book-library
+    description: The service for tracking borrowed books and book readers
+  java:
+    version: ${java.version}
