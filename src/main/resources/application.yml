@@ -32,3 +32,9 @@ info:
 logging:
   level:
     org.zalando.logbook: TRACE
+logbook:
+  write:
+    strategy: custom
+    custom:
+      format: splunk
+      writer: default
