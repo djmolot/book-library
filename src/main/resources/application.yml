@@ -29,3 +29,6 @@ info:
     description: The service for tracking borrowed books and book readers
   java:
     version: ${java.version}
+logging:
+  level:
+    org.zalando.logbook: TRACE

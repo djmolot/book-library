@@ -13,9 +13,12 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>library</name>
 	<description>Library Spring Boot project</description>
+
 	<properties>
 		<java.version>17</java.version>
+		<logbook.version>3.0.0</logbook.version>
 	</properties>
+
 	<dependencies>
 
 		<dependency>
@@ -91,6 +94,12 @@
 			<groupId>pl.project13.maven</groupId>
 			<artifactId>git-commit-id-plugin</artifactId>
 			<version>4.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.zalando</groupId>
+			<artifactId>logbook-spring-boot-starter</artifactId>
+			<version>${logbook.version}</version>
 		</dependency>
 
 	</dependencies>
