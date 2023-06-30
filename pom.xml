@@ -102,6 +102,12 @@
 			<version>${logbook.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+			<version>9.16.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
