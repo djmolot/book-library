@@ -24,7 +24,7 @@ public class WelcomeController {
                     schema = @Schema(example = WELCOME_OBJECT)) }
             )
     })
-    @GetMapping("/api/v1/library/welcome")
+    @GetMapping("/api/v1/welcome")
     public LinkedHashMap<String, String> sayWelcome() {
         LinkedHashMap<String, String> response = new LinkedHashMap<>();
         response.put("message", "Welcome to the library!");
