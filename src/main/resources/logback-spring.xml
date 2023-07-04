@@ -39,6 +39,8 @@
         <appender-ref ref="Console" />
     </logger>
 
+    <logger name="net.bull.javamelody" level="OFF"/>
+
     <!-- LOG everything at INFO level -->
     <root level="INFO">
         <appender-ref ref="RollingFile" />
