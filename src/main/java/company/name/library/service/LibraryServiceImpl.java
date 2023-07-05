@@ -6,9 +6,9 @@ import company.name.library.exceptions.ServiceLayerException;
 import company.name.library.repositories.BookRepository;
 import company.name.library.repositories.ReaderRepository;
 import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -54,6 +54,7 @@ public class LibraryServiceImpl implements LibraryService {
                 }
         );
         book.setReader(Optional.of(reader));
+        book.setBorrowDate(Optional.of(LocalDate.now()));
         return bookRepository.update(book);
     }
 
@@ -66,6 +67,7 @@ public class LibraryServiceImpl implements LibraryService {
             throw  new ServiceLayerException("Book with ID " + bookId + " is not borrowed by any reader.");
         }
         book.setReader(Optional.empty());
+        book.setBorrowDate(Optional.empty());
         return bookRepository.update(book);
     }
 
