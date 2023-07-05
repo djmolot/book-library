@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
+import java.util.Date;
 import java.util.Optional;
 
 @Data
@@ -26,5 +28,8 @@ public class Book {
 
     @Schema(description = "Reader reader", example = "{\"id\":2,\"name\":\"Voski Daniel\",\"books\":null}")
     private Optional<Reader> reader;
+
+    @Schema(description = "Date borrow date", example = "2023-07-05")
+    private Date borrowDate;
 
 }
