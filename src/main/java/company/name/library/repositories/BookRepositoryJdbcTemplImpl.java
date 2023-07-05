@@ -86,11 +86,11 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
     public Book update(Book book) {
         try {
             jdbcTemplate.update(
-                    "UPDATE books SET reader_id = ? WHERE id = ?;",
+                    "UPDATE books SET reader_id = ?, borrow_date = ? WHERE id = ?;",
                     book.getReader().map(Reader::getId).orElse(null),
+                    book.getBorrowDate().orElse(null),
                     book.getId());
-            return book;
-        } catch (DataAccessException e) {
+            return book;        } catch (DataAccessException e) {
             log.error("Failed to update the book in DB: {}", book);
             throw new DaoLayerException("Failed to update the book in DB: " + book + ". "
                     + e.getLocalizedMessage());
