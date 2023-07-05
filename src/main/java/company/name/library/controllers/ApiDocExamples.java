@@ -31,7 +31,8 @@ public class ApiDocExamples {
           "id": 1,
           "author": "Herbert Schildt",
           "title": "Java. The Complete Reference. Twelfth Edition",
-          "reader": null
+          "reader": null,
+          "borrowDate": null
         }
         """;
 
