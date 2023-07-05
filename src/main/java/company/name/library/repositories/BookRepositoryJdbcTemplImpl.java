@@ -27,7 +27,7 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
     @Override
     public Book add(Book book) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String sql = "insert into books (author, title) values (?, ?);";
+        String sql = "INSERT INTO books (author, title) VALUES (?, ?);";
         try {
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection
