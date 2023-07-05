@@ -31,4 +31,7 @@ public class Book {
     @Schema(description = "Date borrow date", example = "2023-07-05")
     private Optional<LocalDate> borrowDate;
 
+    @Schema(description = "Maximum borrow time in days", example = "14")
+    private int maxBorrowTimeInDays;
+
 }
