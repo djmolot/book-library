@@ -15,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,7 +74,7 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
     public List<Book> getAll() {
         try {
             return jdbcTemplate.query(
-                    "SELECT b.id, b.author, b.title, b.reader_id, "
+                    "SELECT b.id, b.author, b.title, b.reader_id, b.borrow_date, b.max_borrow_time_in_days, "
                             + "r.name as reader_name "
                             + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id ORDER BY b.id ASC;",
                     this::mapRowToBook);
@@ -119,6 +120,8 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
             reader.setId(resultSet.getLong("reader_id"));
             reader.setName(resultSet.getString("reader_name"));
             book.setReader(Optional.of(reader));
+            LocalDate localDate = resultSet.getDate("borrow_date").toLocalDate();
+            book.setBorrowDate(Optional.of(localDate));
         } else {
             book.setReader(Optional.empty());
         }
@@ -130,6 +133,7 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
         book.setId(resultSet.getObject("id", Long.class));
         book.setTitle(resultSet.getString("title"));
         book.setAuthor(resultSet.getString("author"));
+        book.setMaxBorrowTimeInDays(resultSet.getInt("max_borrow_time_in_days"));
         return book;
     }
 
