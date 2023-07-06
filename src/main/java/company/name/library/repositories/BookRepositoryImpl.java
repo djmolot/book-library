@@ -55,8 +55,9 @@ public class BookRepositoryImpl implements BookRepository {
     public Optional<Book> getById(Long id) {
         try {
             Book book = jdbcTemplate.queryForObject(
-                    "SELECT b.id, b.author, b.title, b.reader_id, r.name as reader_name "
-                            + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
+                    "SELECT b.id, b.author, b.title, b.reader_id, b.borrow_date, b.max_borrow_time_in_days, " +
+                            "r.name as reader_name " +
+                            "FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
                     this::mapRowToBook,
                     id);
             return Optional.ofNullable(book);
