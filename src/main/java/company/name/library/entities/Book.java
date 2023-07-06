@@ -1,6 +1,8 @@
 package company.name.library.entities;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -32,6 +34,9 @@ public class Book {
     private Optional<LocalDate> borrowDate;
 
     @Schema(description = "Maximum borrow time in days", example = "14")
-    private int maxBorrowTimeInDays;
+    @NotNull(message = "Please provide a maximum borrow time in days")
+    @Min(value = 14, message = "maxBorrowTimeInDays must be at least 14 days")
+    @Max(value = 30, message = "maxBorrowTimeInDays cannot exceed 30 days")
+    private int maxBorrowTimeInDays = 14;
 
 }
