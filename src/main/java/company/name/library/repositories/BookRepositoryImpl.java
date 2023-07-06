@@ -104,7 +104,8 @@ public class BookRepositoryImpl implements BookRepository {
     public List<Book> getBooksByReaderId(Long readerId) {
         try {
             return jdbcTemplate.query(
-                    "SELECT id, author, title FROM books WHERE reader_id = ? ORDER BY id ASC;",
+                    "SELECT id, author, title, reader_id, borrow_date, max_borrow_time_in_days " +
+                            "FROM books WHERE reader_id = ? ORDER BY id ASC;",
                     this::mapRowToBookWithoutReader,
                     readerId);
         } catch (DataAccessException e) {
