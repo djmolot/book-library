@@ -16,7 +16,7 @@ import java.util.Optional;
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
-class ReaderRepositoryJdbcTemplImplIT {
+class ReaderRepositoryImplIT {
     @Autowired
     private ReaderRepository readerRepository;
 

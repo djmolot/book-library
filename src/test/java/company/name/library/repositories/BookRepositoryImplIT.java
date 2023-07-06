@@ -19,7 +19,7 @@ import java.util.Optional;
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
-class BookRepositoryJdbcTemplImplIT {
+class BookRepositoryImplIT {
     @Autowired
     private BookRepository bookRepository;
 

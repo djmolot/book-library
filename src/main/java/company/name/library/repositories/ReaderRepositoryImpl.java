@@ -22,7 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Repository
-public class ReaderRepositoryJdbcTemplImpl implements ReaderRepository {
+public class ReaderRepositoryImpl implements ReaderRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
