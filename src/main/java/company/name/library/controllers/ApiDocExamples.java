@@ -8,7 +8,7 @@ public class ApiDocExamples {
                     "id": 1,
                     "author": "Herbert Schildt",
                     "title": "Java. The Complete Reference. Twelfth Edition",
-                    "reader": null
+                    "reader": null,
                     "borrowDate": null,
                     "maxBorrowTimeInDays": 14
                 },
@@ -16,7 +16,7 @@ public class ApiDocExamples {
                     "id": 2,
                     "author": "Walter Savitch",
                     "title": "Java. An Introduction to Problem Solving & Programming",
-                    "reader": null
+                    "reader": null,
                     "borrowDate": null,
                     "maxBorrowTimeInDays": 14
                 }
