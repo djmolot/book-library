@@ -3,21 +3,25 @@ package company.name.library.controllers;
 public class ApiDocExamples {
 
     public static final String BOOKS_LIST = """
-        [
-            {
-                "id": 1,
-                "author": "Herbert Schildt",
-                "title": "Java. The Complete Reference. Twelfth Edition",
-                "reader": null
-            },
-            {
-                "id": 2,
-                "author": "Walter Savitch",
-                "title": "Java. An Introduction to Problem Solving & Programming",
-                "reader": null
-            }
-        ]
-        """;
+            [
+                {
+                    "id": 1,
+                    "author": "Herbert Schildt",
+                    "title": "Java. The Complete Reference. Twelfth Edition",
+                    "reader": null
+                    "borrowDate": null,
+                    "maxBorrowTimeInDays": 14
+                },
+                {
+                    "id": 2,
+                    "author": "Walter Savitch",
+                    "title": "Java. An Introduction to Problem Solving & Programming",
+                    "reader": null
+                    "borrowDate": null,
+                    "maxBorrowTimeInDays": 14
+                }
+            ]
+            """;
 
     public static final String BOOK_TO_ADD = """
         {
