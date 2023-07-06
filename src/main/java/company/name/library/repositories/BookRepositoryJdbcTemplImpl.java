@@ -27,13 +27,14 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
     @Override
     public Book add(Book book) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String sql = "INSERT INTO books (author, title) VALUES (?, ?);";
+        String sql = "INSERT INTO books (author, title, max_borrow_time_in_days) VALUES (?, ?, ?);";
         try {
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection
                         .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, book.getAuthor());
                 ps.setString(2, book.getTitle());
+                ps.setInt(3, book.getMaxBorrowTimeInDays());
                 return ps;
             }, keyHolder);
             var generatedId = Optional.ofNullable(keyHolder.getKeys())
