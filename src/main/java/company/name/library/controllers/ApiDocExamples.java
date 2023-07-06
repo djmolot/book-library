@@ -22,7 +22,8 @@ public class ApiDocExamples {
     public static final String BOOK_TO_ADD = """
         {
           "author": "Herbert Schildt",
-          "title": "Java. The Complete Reference. Twelfth Edition"
+          "title": "Java. The Complete Reference. Twelfth Edition",
+          "maxBorrowTimeInDays": 14
         }
         """;
 
@@ -32,7 +33,8 @@ public class ApiDocExamples {
           "author": "Herbert Schildt",
           "title": "Java. The Complete Reference. Twelfth Edition",
           "reader": null,
-          "borrowDate": null
+          "borrowDate": null,
+          "maxBorrowTimeInDays": 14
         }
         """;
 
