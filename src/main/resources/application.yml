@@ -10,6 +10,15 @@ spring:
     url: jdbc:postgresql://localhost:5433/booklibrary
     username: postgres
     password: 1234
+  flyway:
+    placeholders:
+      defaultMaxBorrowTimeInDays: ${BOOK_LIBRARY__DEFAULT_MAX_BORROW_TIME_IN_DAYS}
+  main:
+    allow-bean-definition-overriding: true
+  freemarker:
+    prefer-file-system-access: false
+  profiles:
+    active: default
 server:
   servlet:
     context-path: '/book-library'
