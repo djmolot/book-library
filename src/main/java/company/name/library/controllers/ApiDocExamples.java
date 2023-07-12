@@ -10,7 +10,8 @@ public class ApiDocExamples {
                     "title": "Java. The Complete Reference. Twelfth Edition",
                     "reader": null,
                     "borrowDate": null,
-                    "maxBorrowTimeInDays": 14
+                    "maxBorrowTimeInDays": 14,
+                     "restricted": false
                 },
                 {
                     "id": 2,
@@ -18,7 +19,8 @@ public class ApiDocExamples {
                     "title": "Java. An Introduction to Problem Solving & Programming",
                     "reader": null,
                     "borrowDate": null,
-                    "maxBorrowTimeInDays": 14
+                    "maxBorrowTimeInDays": 14,
+                    "restricted": false
                 }
             ]
             """;
@@ -27,7 +29,8 @@ public class ApiDocExamples {
         {
           "author": "Herbert Schildt",
           "title": "Java. The Complete Reference. Twelfth Edition",
-          "maxBorrowTimeInDays": 14
+          "maxBorrowTimeInDays": 14,
+          "restricted": false
         }
         """;
 
@@ -38,7 +41,8 @@ public class ApiDocExamples {
           "title": "Java. The Complete Reference. Twelfth Edition",
           "reader": null,
           "borrowDate": null,
-          "maxBorrowTimeInDays": 14
+          "maxBorrowTimeInDays": 14,
+          "restricted": false
         }
         """;
 

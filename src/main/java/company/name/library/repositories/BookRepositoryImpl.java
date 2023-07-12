@@ -28,7 +28,7 @@ public class BookRepositoryImpl implements BookRepository {
     @Override
     public Book add(Book book) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String sql = "INSERT INTO books (author, title, max_borrow_time_in_days) VALUES (?, ?, ?);";
+        String sql = "INSERT INTO books (author, title, max_borrow_time_in_days, restricted) VALUES (?, ?, ?, ?);";
         try {
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection
@@ -36,6 +36,7 @@ public class BookRepositoryImpl implements BookRepository {
                 ps.setString(1, book.getAuthor());
                 ps.setString(2, book.getTitle());
                 ps.setInt(3, book.getMaxBorrowTimeInDays());
+                ps.setBoolean(4, book.isRestricted());
                 return ps;
             }, keyHolder);
             var generatedId = Optional.ofNullable(keyHolder.getKeys())
@@ -56,7 +57,7 @@ public class BookRepositoryImpl implements BookRepository {
         try {
             Book book = jdbcTemplate.queryForObject(
                     "SELECT b.id, b.author, b.title, b.reader_id, b.borrow_date, b.max_borrow_time_in_days, " +
-                            "r.name as reader_name " +
+                            "b.restricted, r.name as reader_name " +
                             "FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
                     this::mapRowToBook,
                     id);
@@ -76,7 +77,7 @@ public class BookRepositoryImpl implements BookRepository {
         try {
             return jdbcTemplate.query(
                     "SELECT b.id, b.author, b.title, b.reader_id, b.borrow_date, b.max_borrow_time_in_days, "
-                            + "r.name as reader_name "
+                            + "b.restricted, r.name as reader_name "
                             + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id ORDER BY b.id ASC;",
                     this::mapRowToBook);
         } catch (DataAccessException e) {
@@ -93,7 +94,8 @@ public class BookRepositoryImpl implements BookRepository {
                     book.getReader().map(Reader::getId).orElse(null),
                     book.getBorrowDate().orElse(null),
                     book.getId());
-            return book;        } catch (DataAccessException e) {
+            return book;
+        } catch (DataAccessException e) {
             log.error("Failed to update the book in DB: {}", book);
             throw new DaoLayerException("Failed to update the book in DB: " + book + ". "
                     + e.getLocalizedMessage());
@@ -104,7 +106,7 @@ public class BookRepositoryImpl implements BookRepository {
     public List<Book> getBooksByReaderId(Long readerId) {
         try {
             return jdbcTemplate.query(
-                    "SELECT id, author, title, reader_id, borrow_date, max_borrow_time_in_days " +
+                    "SELECT id, author, title, reader_id, borrow_date, max_borrow_time_in_days, restricted " +
                             "FROM books WHERE reader_id = ? ORDER BY id ASC;",
                     this::mapRowToBookWithoutReader,
                     readerId);
@@ -136,6 +138,7 @@ public class BookRepositoryImpl implements BookRepository {
         book.setTitle(resultSet.getString("title"));
         book.setAuthor(resultSet.getString("author"));
         book.setMaxBorrowTimeInDays(resultSet.getInt("max_borrow_time_in_days"));
+        book.setRestricted(resultSet.getBoolean("restricted"));
         return book;
     }
 

@@ -34,9 +34,11 @@ public class Book {
     private Optional<LocalDate> borrowDate;
 
     @Schema(description = "Maximum borrow time in days", example = "14")
-    @NotNull(message = "Please provide a maximum borrow time in days")
     @Min(value = 14, message = "maxBorrowTimeInDays must be at least 14 days")
     @Max(value = 30, message = "maxBorrowTimeInDays cannot exceed 30 days")
     private int maxBorrowTimeInDays = 14;
+
+    @Schema(description = "Determines whether the book is restricted for reading", example = "false")
+    private boolean restricted;
 
 }
