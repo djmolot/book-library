@@ -53,16 +53,18 @@ public class ReaderController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Reader was added to the library",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Reader.class)) }),
+                            schema = @Schema(example = ADDED_READER))
+            }),
             @ApiResponse(responseCode = "400", description = "Invalid reader supplied",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(value = READER_NAME_INVALID)) })
+                            examples = @ExampleObject(value = READER_NAME_INVALID))
+            })
     })
     @PostMapping
     public ResponseEntity<Reader> registerNewReader(
             @Valid @RequestBody @Schema(description = "Reader object that needs to be added to the library",
-                    example = "{\"name\": \"Voski Daniel\"}") Reader reader) {
+                    example = READER_TO_ADD) Reader reader) {
         Reader readerFromDB = libraryService.registerNewReader(reader);
         return ResponseEntity.status(HttpStatus.CREATED).body(readerFromDB);
     }

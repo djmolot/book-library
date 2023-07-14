@@ -46,6 +46,20 @@ public class ApiDocExamples {
         }
         """;
 
+    public static final String BOOK_TITLE_INVALID = """
+        {
+          "dateTime": "13.07.2023 18:55:09",
+          "errorMessage": "ArgumentValidation Error",
+          "errors": [
+            {
+              "fieldName": "title",
+              "invalidValue": "Java",
+              "constraint": "Title must be between 10 and 255 characters"
+            }
+          ]
+        }
+        """;
+
     public static final String BOOK_ALREADY_BORROWED = """
         {
           "dateTime": "28.05.2023 16:42:41",
@@ -69,9 +83,10 @@ public class ApiDocExamples {
 
     public static final String READER_FOUND = """
         {
-          "id": 2,
-          "name": "Voski Daniel",
-          "books": null
+            "id": 5,
+            "name": "Voski Daniel",
+            "birthDate": "2003-05-18",
+            "books": null
         }
         """;
 
@@ -80,19 +95,53 @@ public class ApiDocExamples {
           {
             "id": 1,
             "name": "Zhirayr Hovik",
+            "birthDate": "2003-05-18",
             "books": []
           },
           {
             "id": 2,
             "name": "Voski Daniel",
+            "birthDate": "2001-10-28",
+            "books": [
+              {
+                "id": 5,
+                "author": "Herbert Schildt",
+                "title": "Java. The Complete Reference. Twelfth Edition",
+                "reader": null,
+                "borrowDate": null,
+                "maxBorrowTimeInDays": 14,
+                "restricted": false
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "name": "Ruben Nazaret",
+            "birthDate": "2000-02-20",
             "books": []
           }
         ]
         """;
 
+    public static final String READER_TO_ADD = """
+        {
+            "name": "Voski Daniel",
+            "birthDate": "2003-05-18"
+        }
+        """;
+
+    public static final String ADDED_READER = """
+        {
+            "id": 5,
+            "name": "Voski Daniel",
+            "birthDate": "2003-05-18",
+            "books": null
+        }
+        """;
+
     public static final String READER_NAME_INVALID = """
         {
-          "dateTime": "28.05.2023 19:27:24",
+          "dateTime": "13.07.2023 19:05:43",
           "errorMessage": "ArgumentValidation Error",
           "errors": [
             {

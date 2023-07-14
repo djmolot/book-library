@@ -62,11 +62,14 @@ public class BookController {
             }),
             @ApiResponse(responseCode = "400", description = "Invalid book supplied",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class)) })
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(value = BOOK_TITLE_INVALID))
+            })
     })
     @PostMapping
-    public ResponseEntity<Book> addNewBook(@RequestBody @Schema(description = "New book object",
-            example = BOOK_TO_ADD) @Valid Book book) {
+    public ResponseEntity<Book> addNewBook(
+            @Valid @RequestBody @Schema(description = "Book object that needs to be added to the library",
+            example = BOOK_TO_ADD) Book book) {
         Book bookFromDB = libraryService.addNewBook(book);
         return ResponseEntity.status(HttpStatus.CREATED).body(bookFromDB);
     }

@@ -3,7 +3,8 @@ DROP TABLE IF EXISTS readers;
 
 CREATE TABLE readers(
    id BIGSERIAL PRIMARY KEY,
-   name VARCHAR(50) NOT NULL
+   name VARCHAR(50) NOT NULL,
+   birth_date DATE
 );
 
 CREATE TABLE books(

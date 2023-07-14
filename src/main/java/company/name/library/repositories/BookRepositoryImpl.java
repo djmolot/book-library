@@ -36,7 +36,7 @@ public class BookRepositoryImpl implements BookRepository {
                 ps.setString(1, book.getAuthor());
                 ps.setString(2, book.getTitle());
                 ps.setInt(3, book.getMaxBorrowTimeInDays());
-                ps.setBoolean(4, book.isRestricted());
+                ps.setBoolean(4, book.getRestricted());
                 return ps;
             }, keyHolder);
             var generatedId = Optional.ofNullable(keyHolder.getKeys())

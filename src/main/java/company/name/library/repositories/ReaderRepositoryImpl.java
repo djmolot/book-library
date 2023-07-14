@@ -11,6 +11,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,18 +31,21 @@ public class ReaderRepositoryImpl implements ReaderRepository {
     public Reader add(Reader reader) {
         try {
             KeyHolder keyHolder = new GeneratedKeyHolder();
-            String sql = "INSERT INTO readers (name) VALUES (?);";
-            jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection
-                        .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                ps.setString(1, reader.getName());
-                return ps;
-            }, keyHolder);
+            String sql = "INSERT INTO readers (name, birth_date) VALUES (?, ?);";
+            jdbcTemplate.update(
+                    connection -> {
+                        PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                        ps.setString(1, reader.getName());
+                        ps.setObject(2, reader.getBirthDate());
+                        return ps;
+                    },
+                    keyHolder
+            );
             var generatedId = Optional.ofNullable(keyHolder.getKeys())
                     .map(keys -> keys.get("id"))
                     .map(Long.class::cast)
                     .orElseThrow(() -> new DaoLayerException(
-                            "Failed to save new reader to DB, no generated ID returned. "));
+                            "Failed to save new reader to DB, no generated ID returned."));
             reader.setId(generatedId);
             return reader;
         } catch (DataAccessException e) {
@@ -69,7 +74,7 @@ public class ReaderRepositoryImpl implements ReaderRepository {
     @Override
     public List<Reader> getAll() {
         try {
-            String sql = "SELECT r.id as reader_id, r.name, b.id as book_id, b.title, b.author "
+            String sql = "SELECT r.id as reader_id, r.name, r.birth_date, b.id as book_id, b.title, b.author "
                     + "FROM books b RIGHT JOIN readers r ON b.reader_id = r.id;";
             return jdbcTemplate.query(sql, (ResultSet resultSet) -> {
                 List<Reader> readers = new ArrayList<>();
@@ -81,6 +86,10 @@ public class ReaderRepositoryImpl implements ReaderRepository {
                         currentReader = new Reader();
                         currentReader.setId(currentReaderId);
                         currentReader.setName(resultSet.getString("name"));
+                        Date birthDate = resultSet.getDate("birth_date");
+                        if (birthDate != null) {
+                            currentReader.setBirthDate(birthDate.toLocalDate());
+                        }
                         currentReader.setBooks(new ArrayList<>());
                         readers.add(currentReader);
                         previousReaderId = currentReaderId;
@@ -107,7 +116,7 @@ public class ReaderRepositoryImpl implements ReaderRepository {
     public Optional<Reader> getReaderByBookId(Long bookId) {
         try {
             Reader reader = jdbcTemplate.queryForObject(
-                    "SELECT r.id, r.name "
+                    "SELECT r.id, r.name, r.birth_date "
                             + "FROM books b JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
                     this::mapRowToReaderWithoutBooks,
                     bookId);
@@ -126,6 +135,7 @@ public class ReaderRepositoryImpl implements ReaderRepository {
         Reader reader = new Reader();
         reader.setId(resultSet.getLong("id"));
         reader.setName(resultSet.getString("name"));
+        reader.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
         return reader;
     }
 
