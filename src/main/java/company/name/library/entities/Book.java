@@ -9,6 +9,8 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static company.name.library.controllers.ApiDocExamples.READER_FOUND;
+
 @Data
 public class Book {
 
@@ -27,7 +29,7 @@ public class Book {
             = "Title must be between 10 and 255 characters")
     private String title;
 
-    @Schema(description = "Reader reader", example = "{\"id\":2,\"name\":\"Voski Daniel\",\"books\":null}")
+    @Schema(description = "Reader reader", example = READER_FOUND)
     private Optional<Reader> reader;
 
     @Schema(description = "Date borrow date", example = "2023-07-05")
@@ -36,7 +38,7 @@ public class Book {
     @Schema(description = "Maximum borrow time in days", example = "14")
     @Min(value = 14, message = "maxBorrowTimeInDays must be at least 14 days")
     @Max(value = 30, message = "maxBorrowTimeInDays cannot exceed 30 days")
-    private int maxBorrowTimeInDays = 14;
+    private int maxBorrowTimeInDays = 21;
 
     @Schema(description = "Determines whether the book is restricted for reading", example = "false")
     @NotNull(message = "Please provide a value for field restricted")
