@@ -137,6 +137,10 @@ public class BookRepositoryImpl implements BookRepository {
         book.setId(resultSet.getObject("id", Long.class));
         book.setTitle(resultSet.getString("title"));
         book.setAuthor(resultSet.getString("author"));
+        java.sql.Date borrowDate = resultSet.getDate("borrow_date");
+        if (borrowDate != null) {
+            book.setBorrowDate(Optional.of(borrowDate.toLocalDate()));
+        }
         book.setMaxBorrowTimeInDays(resultSet.getInt("max_borrow_time_in_days"));
         book.setRestricted(resultSet.getBoolean("restricted"));
         return book;
