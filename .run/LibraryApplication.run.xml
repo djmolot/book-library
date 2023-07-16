@@ -1,0 +1,24 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="LibraryApplication" type="Application" factoryName="Application" nameIsGenerated="true">
+    <envs>
+      <env name="MAXIMUM_NUMBER_OF_BOOKS_FOR_A_READER_TO_BORROW_SIMULTANEOUSLY" value="10" />
+      <env name="MIMIMUM_AGE_OF_A_READER_FOR_BORROWING_RESTRICTED_BOOKS" value="18" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="company.name.library.LibraryApplication" />
+    <module name="book-library" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="company.name.library.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
+      <option name="credential" />
+      <option name="region" />
+      <option name="useCurrentConnection" value="false" />
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
