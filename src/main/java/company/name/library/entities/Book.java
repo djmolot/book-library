@@ -1,5 +1,6 @@
 package company.name.library.entities;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import static company.name.library.controllers.ApiDocExamples.READER_FOUND;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Book {
 
     @Schema(description = "Long id", example = "1")
