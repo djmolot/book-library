@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -16,6 +18,13 @@ import org.springframework.stereotype.Service;
 public class LibraryServiceImpl implements LibraryService {
     private final BookRepository bookRepository;
     private final ReaderRepository readerRepository;
+
+    @Value("${library.defaultMaxBorrowTimeInDays}")
+    private int defaultMaxBorrowTimeInDays;
+    @Value("${library.maxNumberOfBooksToBorrow}")
+    private int maxNumberOfBooksToBorrow;
+    @Value("${library.minAgeOfReaderForRestricted}")
+    private int minAgeOfReaderForRestricted;
 
     @Override
     public List<Book> getAllBooks() {
