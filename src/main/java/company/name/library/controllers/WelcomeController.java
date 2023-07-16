@@ -20,8 +20,6 @@ import static company.name.library.controllers.ApiDocExamples.WELCOME_OBJECT;
 @RestController
 public class WelcomeController {
 
-    @Value("${library.defaultMaxBorrowTimeInDays}")
-    private int defaultMaxBorrowTimeInDays;
     @Value("${library.maxNumberOfBooksToBorrow}")
     private int maxNumberOfBooksToBorrow;
     @Value("${library.minAgeOfReaderForRestricted}")
@@ -41,7 +39,6 @@ public class WelcomeController {
         response.put("message", "Welcome to the library!");
         response.put("currentDate", LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
         response.put("currentTime", LocalTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-        response.put("defaultMaxBorrowTimeInDays", defaultMaxBorrowTimeInDays);
         response.put("maxNumberOfBooksToBorrow", maxNumberOfBooksToBorrow);
         response.put("minAgeOfReaderForRestricted", minAgeOfReaderForRestricted);
         return response;
