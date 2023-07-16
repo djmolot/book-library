@@ -52,10 +52,13 @@ public class LibraryServiceImpl implements LibraryService {
                 () -> new ServiceLayerException("Reader with ID " + readerId
                         + " does not exist in DB.")
         );
+        List<Book> readerBooks = bookRepository.getBooksByReaderId(readerId);
+        reader.setBooks(readerBooks);
         Book book = bookRepository.getById(bookId).orElseThrow(
                 () -> new ServiceLayerException("Book with ID " + bookId
                         + " does not exist in DB.")
         );
+        validateNumberOfBorrowedBooksByReader(reader);
         book.getReader().ifPresent(
                 r -> {
                     throw new ServiceLayerException("Book with ID " + bookId
@@ -95,4 +98,15 @@ public class LibraryServiceImpl implements LibraryService {
         );
         return readerRepository.getReaderByBookId(bookId);
     }
+
+    private void validateNumberOfBorrowedBooksByReader(Reader reader) {
+        int booksBorrowed = reader.getBooks().size();
+        if(booksBorrowed < maxNumberOfBooksToBorrow) {
+            return;
+        } else {
+            throw new ServiceLayerException("Reader has already borrowed " + booksBorrowed +
+                    " books, maximum number is " + maxNumberOfBooksToBorrow);
+        }
+    }
+
 }
