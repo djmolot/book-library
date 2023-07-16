@@ -14,12 +14,6 @@ spring:
     url: jdbc:postgresql://localhost:5433/booklibrary
     username: postgres
     password: 1234
-  main:
-    allow-bean-definition-overriding: true
-  freemarker:
-    prefer-file-system-access: false
-  profiles:
-    active: default
 server:
   servlet:
     context-path: '/book-library'
