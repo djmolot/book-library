@@ -78,9 +78,9 @@ public class LibraryServiceImpl implements LibraryService {
         Book book = bookRepository.getById(bookId).orElseThrow(
                 () -> new ServiceLayerException("Book with ID " + bookId + " does not exist in DB.")
         );
-        if (book.getReader().isEmpty()) {
-            throw  new ServiceLayerException("Book with ID " + bookId + " is not borrowed by any reader.");
-        }
+        book.getReader().orElseThrow(() ->
+                new ServiceLayerException("Book with ID " + bookId + " is not borrowed by any reader.")
+        );
         book.setReader(Optional.empty());
         book.setBorrowDate(Optional.empty());
         return bookRepository.update(book);
