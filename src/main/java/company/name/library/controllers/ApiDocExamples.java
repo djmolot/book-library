@@ -85,8 +85,7 @@ public class ApiDocExamples {
         {
             "id": 5,
             "name": "Voski Daniel",
-            "birthDate": "2003-05-18",
-            "books": null
+            "birthDate": "2003-05-18"
         }
         """;
 
