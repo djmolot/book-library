@@ -116,35 +116,25 @@ public class BookController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found the reader of book",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(example = READER_FOUND)) }),
+                            schema = @Schema(example = READER_FOUND)) }
+            ),
             @ApiResponse(responseCode = "400", description = "Invalid parameters supplied to method",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
-                            examples = @ExampleObject(value = BOOK_DOES_NOT_EXIST))
-            }),
+                            examples = @ExampleObject(value = BOOK_DOES_NOT_EXIST)) }
+            ),
             @ApiResponse(responseCode = "404", description = "Book is not borrowed by any reader",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(example = "{}"),
-                            examples = @ExampleObject(value = BOOK_IS_NOT_BORROWED)) })
+                            schema = @Schema(example = "")) }
+            )
     })
     @GetMapping("/{bookId}/readers")
-    public ResponseEntity<Object> showReaderOfBook(
+    public ResponseEntity<Reader> showReaderOfBook(
             @Parameter(description = "id of book to find it's reader")
             @PathVariable("bookId") @Positive Long bookId) {
-        Optional<Reader> readerOptional = libraryService.getReaderOfBookWithId(bookId);
-        if (readerOptional.isPresent()) {
-            return ResponseEntity.ok(readerOptional.get());
-        } else {
-            String errorMessage = "Book with id " + bookId + " is not borrowed by any reader.";
-            String localDT = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
-            ErrorResponse errorResponse = new ErrorResponse(localDT, errorMessage);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-        }
-        /*
         return libraryService.getReaderOfBookWithId(bookId) //Optional<Reader>
                 .map(ResponseEntity::ok) //Optional<ResponseEntity<Reader>> with code 200 or empty Optional
-                .orElseGet(() -> ResponseEntity.notFound().build()); //ResponseEntity<Reader> with code 200
-                                                                    //or ResponseEntity with no body with code 404
-        */
+                .orElseGet( //ResponseEntity<Reader> with code 200
+                    () -> ResponseEntity.notFound().build()); //or ResponseEntity with no body with code 404
     }
 }
