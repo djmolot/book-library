@@ -62,12 +62,10 @@ public class LibraryServiceImpl implements LibraryService {
         if(book.getRestricted()) {
             validateReaderAge(reader);
         }
-        book.getReader().ifPresent(
-                r -> {
-                    throw new ServiceLayerException("Book with ID " + bookId
-                            + " has already borrowed by reader " + r + ".");
-                }
-        );
+        book.getReader().ifPresent(r -> {
+            throw new ServiceLayerException("Book with ID " + bookId + " has already borrowed by reader " + r + ".");
+        });
+        reader.setBooks(null);
         book.setReader(Optional.of(reader));
         book.setBorrowDate(Optional.of(LocalDate.now()));
         return bookRepository.update(book);
