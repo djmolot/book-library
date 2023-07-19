@@ -15,7 +15,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -128,10 +127,13 @@ public class BookRepositoryImpl implements BookRepository {
             reader.setName(resultSet.getString("reader_name"));
             reader.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
             book.setReader(Optional.of(reader));
-            LocalDate localDate = resultSet.getDate("borrow_date").toLocalDate();
-            book.setBorrowDate(Optional.of(localDate));
+            java.sql.Date borrowDate = resultSet.getDate("borrow_date");
+            if (borrowDate != null) {
+                book.setBorrowDate(Optional.of(borrowDate.toLocalDate()));
+            }
         } else {
             book.setReader(Optional.empty());
+            book.setBorrowDate(Optional.empty());
         }
         return book;
     }
