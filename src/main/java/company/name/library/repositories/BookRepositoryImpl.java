@@ -39,11 +39,7 @@ public class BookRepositoryImpl implements BookRepository {
                 ps.setBoolean(4, book.getRestricted());
                 return ps;
             }, keyHolder);
-            var generatedId = Optional.ofNullable(keyHolder.getKeys())
-                    .map(keys -> keys.get("id"))
-                    .map(Long.class::cast)
-                    .orElseThrow(() -> new DaoLayerException(
-                            "Failed to save new Book to DB, no generated ID returned. "));
+            var generatedId = getGeneratedId(keyHolder);
             book.setId(generatedId);
             return book;
         } catch (DataAccessException e) {
@@ -115,6 +111,13 @@ public class BookRepositoryImpl implements BookRepository {
             throw new DaoLayerException("Error during get books of reader with ID "
                     + readerId + " from DB. " + e.getLocalizedMessage());
         }
+    }
+
+    private Long getGeneratedId(KeyHolder keyHolder) {
+        return Optional.ofNullable(keyHolder.getKeys())
+                .map(keys -> keys.get("id"))
+                .map(Long.class::cast)
+                .orElseThrow(() -> new DaoLayerException("Failed to save new Book to DB, no generated ID returned."));
     }
 
     private Book mapRowToBook(ResultSet resultSet, int rowNum) throws SQLException {
