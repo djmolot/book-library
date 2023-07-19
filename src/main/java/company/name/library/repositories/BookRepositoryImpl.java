@@ -53,7 +53,7 @@ public class BookRepositoryImpl implements BookRepository {
         try {
             Book book = jdbcTemplate.queryForObject(
                     "SELECT b.id, b.author, b.title, b.reader_id, b.borrow_date, b.max_borrow_time_in_days, " +
-                            "b.restricted, r.name as reader_name " +
+                            "b.restricted, r.name as reader_name, r.birth_date " +
                             "FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
                     this::mapRowToBook,
                     id);
@@ -73,7 +73,7 @@ public class BookRepositoryImpl implements BookRepository {
         try {
             return jdbcTemplate.query(
                     "SELECT b.id, b.author, b.title, b.reader_id, b.borrow_date, b.max_borrow_time_in_days, "
-                            + "b.restricted, r.name as reader_name "
+                            + "b.restricted, r.name as reader_name, r.birth_date "
                             + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id ORDER BY b.id ASC;",
                     this::mapRowToBook);
         } catch (DataAccessException e) {
@@ -126,6 +126,7 @@ public class BookRepositoryImpl implements BookRepository {
             var reader = new Reader();
             reader.setId(resultSet.getLong("reader_id"));
             reader.setName(resultSet.getString("reader_name"));
+            reader.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
             book.setReader(Optional.of(reader));
             LocalDate localDate = resultSet.getDate("borrow_date").toLocalDate();
             book.setBorrowDate(Optional.of(localDate));
