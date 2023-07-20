@@ -41,12 +41,7 @@ public class ReaderRepositoryImpl implements ReaderRepository {
                     },
                     keyHolder
             );
-            var generatedId = Optional.ofNullable(keyHolder.getKeys())
-                    .map(keys -> keys.get("id"))
-                    .map(Long.class::cast)
-                    .orElseThrow(() -> new DaoLayerException(
-                            "Failed to save new reader to DB, no generated ID returned."));
-            reader.setId(generatedId);
+            reader.setId(getGeneratedId(keyHolder));
             return reader;
         } catch (DataAccessException e) {
             log.error("Error during adding reader to DB. " + e);
@@ -128,6 +123,14 @@ public class ReaderRepositoryImpl implements ReaderRepository {
             log.error("Error during getting the reader of book from DB. " + e);
             throw new DaoLayerException("Error during getting the reader of book from DB. " + e);
         }
+    }
+
+    private Long getGeneratedId(KeyHolder keyHolder) {
+        return Optional.ofNullable(keyHolder.getKeys())
+                .map(keys -> keys.get("id"))
+                .map(Long.class::cast)
+                .orElseThrow(() -> new DaoLayerException(
+                        "Failed to save new reader to DB, no generated ID returned."));
     }
 
     private Reader mapRowToReaderWithoutBooks(ResultSet resultSet, int rowNum)
