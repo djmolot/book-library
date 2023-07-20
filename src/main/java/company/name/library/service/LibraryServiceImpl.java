@@ -20,8 +20,6 @@ public class LibraryServiceImpl implements LibraryService {
     private final BookRepository bookRepository;
     private final ReaderRepository readerRepository;
 
-    @Value("${library.defaultMaxBorrowTimeInDays}")
-    private int defaultMaxBorrowTimeInDays;
     @Value("${library.maxNumberOfBooksToBorrow}")
     private int maxNumberOfBooksToBorrow;
     @Value("${library.minAgeOfReaderForRestricted}")
@@ -44,9 +42,6 @@ public class LibraryServiceImpl implements LibraryService {
 
     @Override
     public Book addNewBook(Book book) {
-        if (book.getMaxBorrowTimeInDays() == 0) {
-            book.setMaxBorrowTimeInDays(defaultMaxBorrowTimeInDays);
-        }
         return bookRepository.add(book);
     }
 
