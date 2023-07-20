@@ -52,24 +52,18 @@ public class LibraryServiceImpl implements LibraryService {
 
     @Override
     public Book borrowBookToReader(Long bookId, Long readerId) {
-        Reader reader = readerRepository.getById(readerId).orElseThrow(
-                () -> new ServiceLayerException("Reader with ID " + readerId
-                        + " does not exist in DB.")
-        );
+        Book book = getBookIfPresentOrThrow(bookId);
+        book.getReader().ifPresent(r -> {
+            throw new ServiceLayerException("Book with ID " + bookId + " has already borrowed by reader " + r + ".");
+        });
+        Reader reader = getReaderIfPresentOrThrow(readerId);
         List<Book> readerBooks = bookRepository.getBooksByReaderId(readerId);
         reader.setBooks(readerBooks);
-        Book book = bookRepository.getById(bookId).orElseThrow(
-                () -> new ServiceLayerException("Book with ID " + bookId
-                        + " does not exist in DB.")
-        );
         validateNumberOfBorrowedBooksByReader(reader);
         validateBookHoldingPeriodInBooksOfReader(reader);
         if(book.getRestricted()) {
             validateReaderAge(reader);
         }
-        book.getReader().ifPresent(r -> {
-            throw new ServiceLayerException("Book with ID " + bookId + " has already borrowed by reader " + r + ".");
-        });
         reader.setBooks(null);
         book.setReader(Optional.of(reader));
         book.setBorrowDate(Optional.of(LocalDate.now()));
@@ -78,9 +72,7 @@ public class LibraryServiceImpl implements LibraryService {
 
     @Override
     public Book returnBookToLibrary(Long bookId) {
-        Book book = bookRepository.getById(bookId).orElseThrow(
-                () -> new ServiceLayerException("Book with ID " + bookId + " does not exist in DB.")
-        );
+        Book book = getBookIfPresentOrThrow(bookId);
         book.getReader().orElseThrow(() ->
                 new ServiceLayerException("Book with ID " + bookId + " is not borrowed by any reader.")
         );
@@ -91,18 +83,28 @@ public class LibraryServiceImpl implements LibraryService {
 
     @Override
     public List<Book> getAllBooksOfReader(Long readerId) {
-        readerRepository.getById(readerId).orElseThrow(
-                () -> new ServiceLayerException("Reader with ID " + readerId + " does not exist in DB.")
-        );
+        getReaderIfPresentOrThrow(readerId);
         return bookRepository.getBooksByReaderId(readerId);
     }
 
     @Override
     public Optional<Reader> getReaderOfBookWithId(Long bookId) {
-        bookRepository.getById(bookId).orElseThrow(
-                () -> new ServiceLayerException("Book with ID " + bookId + " does not exist in DB.")
-        );
+        getBookIfPresentOrThrow(bookId);
         return readerRepository.getReaderByBookId(bookId);
+    }
+
+    private Reader getReaderIfPresentOrThrow(Long readerId) {
+        return readerRepository.getById(readerId).orElseThrow(
+                () -> new ServiceLayerException("Reader with ID " + readerId
+                        + " does not exist in DB.")
+        );
+    }
+
+    private Book getBookIfPresentOrThrow(Long bookId) {
+        return bookRepository.getById(bookId).orElseThrow(
+                () -> new ServiceLayerException("Book with ID " + bookId
+                        + " does not exist in DB.")
+        );
     }
 
     private void validateNumberOfBorrowedBooksByReader(Reader reader) {
