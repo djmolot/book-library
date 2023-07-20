@@ -38,8 +38,7 @@ public class BookRepositoryImpl implements BookRepository {
                 ps.setBoolean(4, book.getRestricted());
                 return ps;
             }, keyHolder);
-            var generatedId = getGeneratedId(keyHolder);
-            book.setId(generatedId);
+            book.setId(getGeneratedId(keyHolder));
             return book;
         } catch (DataAccessException e) {
             log.error("Error during saving book to DB. " + e);
