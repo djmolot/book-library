@@ -3,6 +3,7 @@
     <envs>
       <env name="MAXIMUM_NUMBER_OF_BOOKS_FOR_A_READER_TO_BORROW_SIMULTANEOUSLY" value="10" />
       <env name="MIMIMUM_AGE_OF_A_READER_FOR_BORROWING_RESTRICTED_BOOKS" value="18" />
+      <env name="DEFAULT_MAX_BORROW_TIME_IN_DAYS" value="21" />
     </envs>
     <option name="MAIN_CLASS_NAME" value="company.name.library.LibraryApplication" />
     <module name="book-library" />
