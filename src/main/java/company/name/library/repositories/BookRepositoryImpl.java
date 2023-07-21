@@ -49,13 +49,13 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Optional<Book> getById(Long id) {
+        String sql = """
+            SELECT b.id, b.author, b.title, b.reader_id, b.borrow_date, b.max_borrow_time_in_days, 
+            b.restricted, r.name as reader_name, r.birth_date 
+            FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;
+        """;
         try {
-            Book book = jdbcTemplate.queryForObject(
-                    "SELECT b.id, b.author, b.title, b.reader_id, b.borrow_date, b.max_borrow_time_in_days, " +
-                            "b.restricted, r.name as reader_name, r.birth_date " +
-                            "FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
-                    this::mapRowToBook,
-                    id);
+            Book book = jdbcTemplate.queryForObject(sql, this::mapRowToBook, id);
             return Optional.ofNullable(book);
         } catch (EmptyResultDataAccessException e) {
             log.info("Book with ID " + id + " does not exist in DB. " + e);
