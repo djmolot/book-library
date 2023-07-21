@@ -68,39 +68,13 @@ public class ReaderRepositoryImpl implements ReaderRepository {
 
     @Override
     public List<Reader> getAll() {
+        String sql = """
+                SELECT r.id as reader_id, r.name, r.birth_date, b.id as book_id, b.title, 
+                b.author, b.borrow_date, b.max_borrow_time_in_days, b.restricted 
+                FROM books b RIGHT JOIN readers r ON b.reader_id = r.id;
+                """;
         try {
-            String sql = "SELECT r.id as reader_id, r.name, r.birth_date, b.id as book_id, b.title, b.author "
-                    + "FROM books b RIGHT JOIN readers r ON b.reader_id = r.id;";
-            return jdbcTemplate.query(sql, (ResultSet resultSet) -> {
-                List<Reader> readers = new ArrayList<>();
-                Long previousReaderId = 0L;
-                Reader currentReader = null;
-                while (resultSet.next()) {
-                    Long currentReaderId = resultSet.getLong("reader_id");
-                    if (!currentReaderId.equals(previousReaderId)) {
-                        currentReader = new Reader();
-                        currentReader.setId(currentReaderId);
-                        currentReader.setName(resultSet.getString("name"));
-                        Date birthDate = resultSet.getDate("birth_date");
-                        if (birthDate != null) {
-                            currentReader.setBirthDate(birthDate.toLocalDate());
-                        }
-                        currentReader.setBooks(new ArrayList<>());
-                        readers.add(currentReader);
-                        previousReaderId = currentReaderId;
-                    }
-                    if (resultSet.getLong("book_id") != 0) {
-                        Book book = new Book();
-                        book.setId(resultSet.getLong("book_id"));
-                        book.setTitle(resultSet.getString("title"));
-                        book.setAuthor(resultSet.getString("author"));
-                        if (currentReader != null) {
-                            currentReader.getBooks().add(book);
-                        }
-                    }
-                }
-                return readers;
-            });
+            return jdbcTemplate.query(sql, this::mapResultSetToReaders);
         } catch (DataAccessException e) {
             log.error("Error during getting all readers from DB. " + e);
             throw new DaoLayerException("Error during getting all readers from DB. " + e);
@@ -133,13 +107,58 @@ public class ReaderRepositoryImpl implements ReaderRepository {
                         "Failed to save new reader to DB, no generated ID returned."));
     }
 
-    private Reader mapRowToReaderWithoutBooks(ResultSet resultSet, int rowNum)
-            throws SQLException {
+    private Reader mapRowToReaderWithoutBooks(ResultSet resultSet, int rowNum) throws SQLException {
         Reader reader = new Reader();
         reader.setId(resultSet.getLong("id"));
         reader.setName(resultSet.getString("name"));
         reader.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
         return reader;
+    }
+
+    private List<Reader> mapResultSetToReaders(ResultSet resultSet) throws SQLException {
+        List<Reader> readers = new ArrayList<>();
+        Long previousReaderId = 0L;
+        Reader currentReader = null;
+        while (resultSet.next()) {
+            Long currentReaderId = resultSet.getLong("reader_id");
+            if (!currentReaderId.equals(previousReaderId)) {
+                currentReader = createReaderFromResultSet(resultSet);
+                readers.add(currentReader);
+                previousReaderId = currentReaderId;
+            }
+            if (resultSet.getLong("book_id") != 0) {
+                Book book = createBookFromResultSet(resultSet);
+                if (currentReader != null) {
+                    currentReader.getBooks().add(book);
+                }
+            }
+        }
+        return readers;
+    }
+
+    private Reader createReaderFromResultSet(ResultSet resultSet) throws SQLException {
+        Reader reader = new Reader();
+        reader.setId(resultSet.getLong("reader_id"));
+        reader.setName(resultSet.getString("name"));
+        reader.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
+        reader.setBooks(new ArrayList<>());
+        return reader;
+    }
+
+    private Book createBookFromResultSet(ResultSet resultSet) throws SQLException {
+        Book book = new Book();
+        book.setId(resultSet.getLong("book_id"));
+        book.setTitle(resultSet.getString("title"));
+        book.setAuthor(resultSet.getString("author"));
+        Date borrowDate = resultSet.getDate("borrow_date");
+        if (borrowDate != null) {
+            book.setBorrowDate(Optional.of(borrowDate.toLocalDate()));
+        } else {
+            book.setBorrowDate(Optional.empty());
+        }
+        book.setMaxBorrowTimeInDays(resultSet.getInt("max_borrow_time_in_days"));
+        book.setRestricted(resultSet.getBoolean("restricted"));
+        return book;
     }
 
 }
