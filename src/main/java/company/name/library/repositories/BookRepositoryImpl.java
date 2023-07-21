@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -137,7 +138,7 @@ public class BookRepositoryImpl implements BookRepository {
         book.setId(resultSet.getObject("id", Long.class));
         book.setTitle(resultSet.getString("title"));
         book.setAuthor(resultSet.getString("author"));
-        java.sql.Date borrowDate = resultSet.getDate("borrow_date");
+        Date borrowDate = resultSet.getDate("borrow_date");
         if (borrowDate != null) {
             book.setBorrowDate(Optional.of(borrowDate.toLocalDate()));
         } else {
