@@ -69,12 +69,13 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public List<Book> getAll() {
+        String sql = """
+            SELECT b.id, b.author, b.title, b.reader_id, b.borrow_date, b.max_borrow_time_in_days, 
+            b.restricted, r.name as reader_name, r.birth_date 
+            FROM books b LEFT JOIN readers r ON b.reader_id = r.id ORDER BY b.id ASC;
+        """;
         try {
-            return jdbcTemplate.query(
-                    "SELECT b.id, b.author, b.title, b.reader_id, b.borrow_date, b.max_borrow_time_in_days, "
-                            + "b.restricted, r.name as reader_name, r.birth_date "
-                            + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id ORDER BY b.id ASC;",
-                    this::mapRowToBook);
+            return jdbcTemplate.query(sql, this::mapRowToBook);
         } catch (DataAccessException e) {
             log.error("Error during getting all books from DB. " + e);
             throw new DaoLayerException("Error during getting all books from DB. " + e.getLocalizedMessage());
