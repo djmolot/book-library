@@ -100,12 +100,12 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public List<Book> getBooksByReaderId(Long readerId) {
+        String sql = """
+            SELECT id, author, title, reader_id, borrow_date, max_borrow_time_in_days, restricted 
+            FROM books WHERE reader_id = ? ORDER BY id ASC;
+        """;
         try {
-            return jdbcTemplate.query(
-                    "SELECT id, author, title, reader_id, borrow_date, max_borrow_time_in_days, restricted " +
-                            "FROM books WHERE reader_id = ? ORDER BY id ASC;",
-                    this::mapRowToBookWithoutReader,
-                    readerId);
+            return jdbcTemplate.query(sql, this::mapRowToBookWithoutReader, readerId);
         } catch (DataAccessException e) {
             log.error("Error during get books of reader with ID {} from DB.", readerId);
             throw new DaoLayerException("Error during get books of reader with ID "
