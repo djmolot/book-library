@@ -13,7 +13,7 @@ import java.util.Optional;
 import static company.name.library.controllers.ApiDocExamples.READER_FOUND;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Book {
 
     @Schema(description = "Long id", example = "1")
