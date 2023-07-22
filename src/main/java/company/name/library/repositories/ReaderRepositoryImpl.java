@@ -63,10 +63,10 @@ public class ReaderRepositoryImpl implements ReaderRepository {
     @Override
     public List<Reader> getAll() {
         String sql = """
-                SELECT r.id as reader_id, r.name, r.birth_date, b.id as book_id, b.title, 
-                b.author, b.borrow_date, b.max_borrow_time_in_days, b.restricted 
-                FROM books b RIGHT JOIN readers r ON b.reader_id = r.id;
-                """;
+            SELECT r.id as reader_id, r.name, r.birth_date, b.id as book_id, b.title, 
+            b.author, b.borrow_date, b.max_borrow_time_in_days, b.restricted 
+            FROM books b RIGHT JOIN readers r ON b.reader_id = r.id;
+        """;
         try {
             return jdbcTemplate.query(sql, this::mapResultSetToReaders);
         } catch (DataAccessException e) {
