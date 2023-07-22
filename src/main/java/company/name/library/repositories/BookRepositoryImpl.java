@@ -123,11 +123,8 @@ public class BookRepositoryImpl implements BookRepository {
     private Book mapRowToBook(ResultSet resultSet, int rowNum) throws SQLException {
         var book = mapRowToBookWithoutReader(resultSet, rowNum);
         if (resultSet.getObject("reader_id", Long.class) != null) {
-            var reader = new Reader();
-            reader.setId(resultSet.getLong("reader_id"));
-            reader.setName(resultSet.getString("reader_name"));
-            reader.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
-            book.setReader(Optional.of(reader));
+            Reader readerOfBook = mapReaderOfBook(resultSet);
+            book.setReader(Optional.of(readerOfBook));
         } else {
             book.setReader(Optional.empty());
         }
@@ -148,6 +145,14 @@ public class BookRepositoryImpl implements BookRepository {
         book.setMaxBorrowTimeInDays(resultSet.getInt("max_borrow_time_in_days"));
         book.setRestricted(resultSet.getBoolean("restricted"));
         return book;
+    }
+
+    private Reader mapReaderOfBook(ResultSet resultSet) throws SQLException {
+        var reader = new Reader();
+        reader.setId(resultSet.getLong("reader_id"));
+        reader.setName(resultSet.getString("reader_name"));
+        reader.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
+        return reader;
     }
 
 }
