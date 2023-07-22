@@ -29,18 +29,15 @@ public class ReaderRepositoryImpl implements ReaderRepository {
 
     @Override
     public Reader add(Reader reader) {
+        String sql = "INSERT INTO readers (name, birth_date) VALUES (?, ?);";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
         try {
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-            String sql = "INSERT INTO readers (name, birth_date) VALUES (?, ?);";
-            jdbcTemplate.update(
-                    connection -> {
-                        PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                        ps.setString(1, reader.getName());
-                        ps.setObject(2, reader.getBirthDate());
-                        return ps;
-                    },
-                    keyHolder
-            );
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, reader.getName());
+                ps.setObject(2, reader.getBirthDate());
+                return ps;
+            }, keyHolder);
             reader.setId(getGeneratedId(keyHolder));
             return reader;
         } catch (DataAccessException e) {
