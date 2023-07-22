@@ -77,12 +77,12 @@ public class ReaderRepositoryImpl implements ReaderRepository {
 
     @Override
     public Optional<Reader> getReaderByBookId(Long bookId) {
+        String sql = """
+            SELECT r.id, r.name, r.birth_date FROM books b 
+            JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;
+        """;
         try {
-            Reader reader = jdbcTemplate.queryForObject(
-                    "SELECT r.id, r.name, r.birth_date "
-                            + "FROM books b JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
-                    this::mapRowToReaderWithoutBooks,
-                    bookId);
+            Reader reader = jdbcTemplate.queryForObject(sql, this::mapRowToReaderWithoutBooks, bookId);
             return Optional.ofNullable(reader);
         } catch (EmptyResultDataAccessException e) {
             log.info("Zero rows were returned during getting the reader of book from DB. " + e);
