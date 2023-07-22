@@ -86,7 +86,7 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     @Override
-    public Book update(Book book) {
+    public Book updateBorrowDetails(Book book) {
         try {
             jdbcTemplate.update(
                     "UPDATE books SET reader_id = ?, borrow_date = ? WHERE id = ?;",

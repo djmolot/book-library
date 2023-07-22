@@ -11,7 +11,7 @@ public interface BookRepository {
 
     List<Book> getAll();
 
-    Book update(Book book);
+    Book updateBorrowDetails(Book book);
 
     List<Book> getBooksByReaderId(Long readerId);
 

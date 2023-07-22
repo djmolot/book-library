@@ -84,7 +84,7 @@ class BookRepositoryImplIT {
         var expectedTitle = originalBook3.getTitle();
         var expectedAuthor = originalBook3.getAuthor();
         var expectedReader = originalBook3.getReader();
-        Book updatedBook3 = bookRepository.update(originalBook3);
+        Book updatedBook3 = bookRepository.updateBorrowDetails(originalBook3);
 
         Assertions.assertNotNull(updatedBook3,"updatedBook3 should not be null");
         Assertions.assertEquals(expectedId, updatedBook3.getId(),
@@ -97,7 +97,7 @@ class BookRepositoryImplIT {
                 "Reader of updated book must be equal to expected");
 
         originalBook3.setReader(Optional.empty());
-        updatedBook3 = bookRepository.update(originalBook3);
+        updatedBook3 = bookRepository.updateBorrowDetails(originalBook3);
         Assertions.assertNotNull(updatedBook3,"updatedBook3 should not be null");
         Assertions.assertEquals(expectedId, updatedBook3.getId(),
                 "Id of updated book must be equal to expected");

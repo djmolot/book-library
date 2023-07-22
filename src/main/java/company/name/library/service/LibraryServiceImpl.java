@@ -62,7 +62,7 @@ public class LibraryServiceImpl implements LibraryService {
         reader.setBooks(null);
         book.setReader(Optional.of(reader));
         book.setBorrowDate(Optional.of(LocalDate.now()));
-        return bookRepository.update(book);
+        return bookRepository.updateBorrowDetails(book);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class LibraryServiceImpl implements LibraryService {
         );
         book.setReader(Optional.empty());
         book.setBorrowDate(Optional.empty());
-        return bookRepository.update(book);
+        return bookRepository.updateBorrowDetails(book);
     }
 
     @Override
