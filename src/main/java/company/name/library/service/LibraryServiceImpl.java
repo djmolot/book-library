@@ -49,7 +49,8 @@ public class LibraryServiceImpl implements LibraryService {
     public Book borrowBookToReader(Long bookId, Long readerId) {
         Book book = getBookIfPresentOrThrow(bookId);
         book.getReader().ifPresent(r -> {
-            throw new ServiceLayerException("Book with ID " + bookId + " has already borrowed by reader " + r + ".");
+            throw new ServiceLayerException("Book with ID " + bookId + " has already borrowed by reader "
+                    + "id:" + r.getId() + " name:" + r.getName() + ".");
         });
         Reader reader = getReaderIfPresentOrThrow(readerId);
         List<Book> readerBooks = bookRepository.getBooksByReaderId(readerId);
