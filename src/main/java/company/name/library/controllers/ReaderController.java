@@ -73,7 +73,7 @@ public class ReaderController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found books of the reader",
                     content = { @Content(mediaType = "application/json",
-                            schema = @Schema(example = BOOKS_LIST))
+                            schema = @Schema(example = BOOKS_OF_READER))
             }),
             @ApiResponse(responseCode = "400", description = "Invalid parameter supplied to method",
                     content = { @Content(mediaType = "application/json",
