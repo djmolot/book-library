@@ -27,8 +27,11 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Book add(Book book) {
+        String sql = """
+            INSERT INTO books (author, title, max_borrow_time_in_days, restricted) 
+            VALUES (?, ?, ?, ?);
+        """;
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String sql = "INSERT INTO books (author, title, max_borrow_time_in_days, restricted) VALUES (?, ?, ?, ?);";
         try {
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection
