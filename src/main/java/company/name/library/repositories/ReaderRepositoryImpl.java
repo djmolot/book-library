@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -48,11 +47,9 @@ public class ReaderRepositoryImpl implements ReaderRepository {
 
     @Override
     public Optional<Reader> getById(Long id) {
+        String sql = "SELECT * FROM readers WHERE id = ?;";
         try {
-            Reader reader = jdbcTemplate.queryForObject(
-                    "SELECT * FROM readers WHERE id = ?;",
-                    this::mapRowToReaderWithoutBooks,
-                    id);
+            Reader reader = jdbcTemplate.queryForObject(sql, this::mapRowToReaderWithoutBooks, id);
             return Optional.ofNullable(reader);
         } catch (EmptyResultDataAccessException e) {
             log.error("Reader with ID " + id + " does not exist in DB. " + e);
