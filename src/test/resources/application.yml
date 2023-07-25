@@ -1,3 +1,6 @@
+library:
+  maxNumberOfBooksToBorrow: ${MAXIMUM_NUMBER_OF_BOOKS_FOR_A_READER_TO_BORROW_SIMULTANEOUSLY}
+  minAgeOfReaderForRestricted: ${MIMIMUM_AGE_OF_A_READER_FOR_BORROWING_RESTRICTED_BOOKS}
 spring:
   datasource:
     generate-unique-name: false
