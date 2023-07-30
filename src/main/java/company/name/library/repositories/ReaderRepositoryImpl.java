@@ -93,6 +93,12 @@ public class ReaderRepositoryImpl implements ReaderRepository {
         }
     }
 
+    @Override
+    public void deleteAllReaders() {
+        String sql = "DELETE FROM readers";
+        jdbcTemplate.update(sql);
+    }
+
     private Long getGeneratedId(KeyHolder keyHolder) {
         return Optional.ofNullable(keyHolder.getKeys())
                 .map(keys -> keys.get("id"))
