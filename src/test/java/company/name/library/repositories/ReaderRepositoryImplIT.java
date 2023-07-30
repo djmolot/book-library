@@ -1,9 +1,12 @@
 package company.name.library.repositories;
 
 import company.name.library.TestDataProducer;
+import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +18,41 @@ import java.util.Optional;
 @Slf4j
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Transactional
+@Transactional //@ActiveProfiles("test")
 class ReaderRepositoryImplIT {
     @Autowired
     private ReaderRepository readerRepository;
+
+    @Autowired
+    private BookRepository bookRepository;
+
+    @BeforeEach
+    void setUp() {
+        Book book1 = TestDataProducer.newBook1();
+        bookRepository.add(book1);
+        Book book2 = TestDataProducer.newBook2();
+        bookRepository.add(book2);
+        Book book3 = TestDataProducer.newBook3();
+        bookRepository.add(book3);
+
+        Reader reader1 = TestDataProducer.newReader1();
+        readerRepository.add(reader1);
+        Reader reader2 = TestDataProducer.newReader2();
+        readerRepository.add(reader2);
+        Reader reader3 = TestDataProducer.newReader3();
+        readerRepository.add(reader3);
+
+        book1.setReader(Optional.of(reader2));
+        bookRepository.updateBorrowDetails(book1);
+        book2.setReader(Optional.of(reader2));
+        bookRepository.updateBorrowDetails(book2);
+    }
+
+    @AfterEach
+    void tearDown() {
+        bookRepository.deleteAllBooks();
+        readerRepository.deleteAllReaders();
+    }
 
     @Test
     void addShouldReturnAddedReaderWithEmptyBooksList() {
