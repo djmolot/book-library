@@ -116,6 +116,12 @@ public class BookRepositoryImpl implements BookRepository {
         }
     }
 
+    @Override
+    public void deleteAllBooks() {
+        String sql = "DELETE FROM books";
+        jdbcTemplate.update(sql);
+    }
+
     private Long getGeneratedId(KeyHolder keyHolder) {
         return Optional.ofNullable(keyHolder.getKeys())
                 .map(keys -> keys.get("id"))
