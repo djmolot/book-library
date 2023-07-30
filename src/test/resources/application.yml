@@ -3,7 +3,7 @@ library:
   minAgeOfReaderForRestricted: ${MIMIMUM_AGE_OF_A_READER_FOR_BORROWING_RESTRICTED_BOOKS}
 spring:
   datasource:
-    url: jdbc:h2:mem:library;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    url: jdbc:h2:~/test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
     username: sa
     password:
     driver-class-name: org.h2.Driver
