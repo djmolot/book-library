@@ -3,6 +3,8 @@ package company.name.library;
 import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,6 +89,10 @@ public class TestDataProducer {
         book1.setId(1L);
         book1.setTitle("Java. The Complete Reference. Twelfth Edition");
         book1.setAuthor("Herbert Schildt");
+        book1.setReader(Optional.empty());
+        book1.setBorrowDate(Optional.empty());
+        book1.setMaxBorrowTimeInDays(21);
+        book1.setRestricted(false);
         return book1;
     }
 
@@ -95,6 +101,10 @@ public class TestDataProducer {
         book2.setId(2L);
         book2.setTitle("Java. An Introduction to Problem Solving & Programming");
         book2.setAuthor("Walter Savitch");
+        book2.setReader(Optional.empty());
+        book2.setBorrowDate(Optional.empty());
+        book2.setMaxBorrowTimeInDays(21);
+        book2.setRestricted(false);
         return book2;
     }
 
@@ -103,6 +113,10 @@ public class TestDataProducer {
         book3.setId(3L);
         book3.setTitle("Data Structures And Algorithms Made Easy In JAVA");
         book3.setAuthor("Narasimha Karumanchi");
+        book3.setReader(Optional.empty());
+        book3.setBorrowDate(Optional.empty());
+        book3.setMaxBorrowTimeInDays(21);
+        book3.setRestricted(false);
         return book3;
     }
 
@@ -110,6 +124,8 @@ public class TestDataProducer {
         Reader reader1 = new Reader();
         reader1.setId(1L);
         reader1.setName("Zhirayr Hovik");
+        LocalDate localDate = LocalDate.parse("2001-10-27", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        reader1.setBirthDate(localDate);
         return reader1;
     }
 
@@ -117,6 +133,8 @@ public class TestDataProducer {
         Reader reader2 = new Reader();
         reader2.setId(2L);
         reader2.setName("Voski Daniel");
+        LocalDate localDate = LocalDate.parse("2003-05-18", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        reader2.setBirthDate(localDate);
         return reader2;
     }
 
@@ -124,6 +142,8 @@ public class TestDataProducer {
         Reader reader3 = new Reader();
         reader3.setId(3L);
         reader3.setName("Ruben Nazaret");
+        LocalDate localDate = LocalDate.parse("2002-07-15", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        reader3.setBirthDate(localDate);
         return reader3;
     }
 
