@@ -13,5 +13,5 @@ public interface ReaderRepository {
 
     Optional<Reader> getReaderByBookId(Long bookId);
 
-    void deleteAllReaders();
+    void deleteAllAndRestartIdSequence();
 }

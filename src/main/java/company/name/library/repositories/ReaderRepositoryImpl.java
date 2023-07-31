@@ -94,9 +94,9 @@ public class ReaderRepositoryImpl implements ReaderRepository {
     }
 
     @Override
-    public void deleteAllReaders() {
-        String sql = "DELETE FROM readers";
-        jdbcTemplate.update(sql);
+    public void deleteAllAndRestartIdSequence() {
+        jdbcTemplate.update("DELETE FROM readers");
+        jdbcTemplate.update("ALTER SEQUENCE readers_id_seq RESTART WITH 1");
     }
 
     private Long getGeneratedId(KeyHolder keyHolder) {
