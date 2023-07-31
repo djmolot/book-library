@@ -139,7 +139,7 @@ class BookRepositoryImplIT {
     }
 
     @Test
-    void getBooksByReaderIdShouldReturnListOfBooks() {
+    void getBooksByReaderIdShouldReturnListEqualToExpected() {
         Map<Long, Reader> allReadersMap = TestDataProducer.newAllReadersMap();
         Long readerId = 2L;
         List<Book> expectedBooksOfReader2 = allReadersMap.get(readerId).getBooks();
