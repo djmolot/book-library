@@ -74,6 +74,9 @@ public class TestDataProducer {
         newBook.setAuthor("Rebecca Serle");
         newBook.setTitle("One Italian Summer");
         newBook.setReader(Optional.empty());
+        newBook.setBorrowDate(Optional.empty());
+        newBook.setMaxBorrowTimeInDays(21);
+        newBook.setRestricted(false);
         return newBook;
     }
 
