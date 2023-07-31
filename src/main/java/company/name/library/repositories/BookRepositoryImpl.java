@@ -117,9 +117,9 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     @Override
-    public void deleteAllBooks() {
-        String sql = "DELETE FROM books";
-        jdbcTemplate.update(sql);
+    public void deleteAllAndRestartIdSequence() {
+        jdbcTemplate.update("DELETE FROM books");
+        jdbcTemplate.update("ALTER SEQUENCE books_id_seq RESTART WITH 1");
     }
 
     private Long getGeneratedId(KeyHolder keyHolder) {
