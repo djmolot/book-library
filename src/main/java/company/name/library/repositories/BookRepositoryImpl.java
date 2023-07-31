@@ -149,6 +149,7 @@ public class BookRepositoryImpl implements BookRepository {
         if (borrowDate != null) {
             book.setBorrowDate(Optional.of(borrowDate.toLocalDate()));
         } else {
+            book.setReader(Optional.empty());
             book.setBorrowDate(Optional.empty());
         }
         book.setMaxBorrowTimeInDays(resultSet.getInt("max_borrow_time_in_days"));
