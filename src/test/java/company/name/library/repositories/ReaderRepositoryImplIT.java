@@ -4,7 +4,6 @@ import company.name.library.TestDataProducer;
 import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +27,9 @@ class ReaderRepositoryImplIT {
 
     @BeforeEach
     void setUp() {
+        readerRepository.deleteAllAndRestartIdSequence();
+        bookRepository.deleteAllAndRestartIdSequence();
+
         Book book1 = TestDataProducer.newBook1();
         bookRepository.add(book1);
         Book book2 = TestDataProducer.newBook2();
@@ -46,12 +48,6 @@ class ReaderRepositoryImplIT {
         bookRepository.updateBorrowDetails(book1);
         book2.setReader(Optional.of(reader2));
         bookRepository.updateBorrowDetails(book2);
-    }
-
-    @AfterEach
-    void tearDown() {
-        bookRepository.deleteAllBooks();
-        readerRepository.deleteAllReaders();
     }
 
     @Test
