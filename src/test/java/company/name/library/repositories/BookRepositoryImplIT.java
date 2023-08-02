@@ -54,13 +54,11 @@ class BookRepositoryImplIT {
 
     @Test
     void addShouldReturnAddedBookWithReaderEmptyOptional() {
-        var newBook = TestDataProducer.newBook();
+        var newBook = TestDataProducer.newBookForRepository();
         var expectedTitle = newBook.getTitle();
         var expectedAuthor = newBook.getAuthor();
         Assertions.assertNull(newBook.getId(),
                 "Id of original book must be null");
-        Assertions.assertTrue(newBook.getReader().isEmpty(),
-                "Optional of reader in original book must be empty");
 
         var savedBook = bookRepository.add(newBook);
         Assertions.assertNotNull(savedBook.getId(),
@@ -71,6 +69,8 @@ class BookRepositoryImplIT {
                 "Author of saved book must be equal to expected");
         Assertions.assertTrue(savedBook.getReader().isEmpty(),
                 "Optional of reader in saved book must be empty");
+        Assertions.assertTrue(savedBook.getBorrowDate().isEmpty(),
+                "Optional of borrowDate in saved book must be empty");
     }
 
     @Test
