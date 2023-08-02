@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,8 +48,11 @@ class BookRepositoryImplIT {
         readerRepository.add(reader3);
 
         book1.setReader(Optional.of(reader2));
+        book1.setBorrowDate(Optional.of(LocalDate.now()));
         bookRepository.updateBorrowDetails(book1);
+
         book2.setReader(Optional.of(reader2));
+        book2.setBorrowDate(Optional.of(LocalDate.now()));
         bookRepository.updateBorrowDetails(book2);
     }
 
