@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
+import java.util.Optional;
 
 import static company.name.library.controllers.ApiDocExamples.*;
 
@@ -63,10 +65,12 @@ public class BookController {
                             examples = @ExampleObject(value = BOOK_TITLE_INVALID))
             })
     })
-    @PostMapping
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Book> addNewBook(
             @Valid @RequestBody @Schema(description = "Book object that needs to be added to the library",
             example = BOOK_TO_ADD) Book book) {
+        book.setReader(Optional.empty());
+        book.setBorrowDate(Optional.empty());
         Book bookFromDB = libraryService.addNewBook(book);
         return ResponseEntity.status(HttpStatus.CREATED).body(bookFromDB);
     }
