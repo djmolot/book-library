@@ -192,8 +192,9 @@ public class TestDataProducer {
     public static Reader readerWithInvalidName() {
         Reader reader = new Reader();
         reader.setName("Ad");
+        LocalDate localDate = LocalDate.parse("2004-11-22", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        reader.setBirthDate(localDate);
         return reader;
     }
-
 
 }
