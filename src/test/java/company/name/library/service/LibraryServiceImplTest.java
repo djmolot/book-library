@@ -32,8 +32,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.verify;
 
 @Slf4j
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@SpringBootTest
 class LibraryServiceImplTest {
     @InjectMocks
     private LibraryServiceImpl libraryService;
