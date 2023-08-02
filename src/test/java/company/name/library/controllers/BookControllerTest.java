@@ -1,5 +1,7 @@
 package company.name.library.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import company.name.library.TestDataProducer;
 import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
@@ -15,34 +17,42 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static io.restassured.http.ContentType.JSON;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 @Slf4j
-@SpringBootTest
 @AutoConfigureMockMvc
+@WebMvcTest(BookController.class)
 class BookControllerTest {
-    @MockBean
-    private LibraryService libraryService;
+    private ObjectMapper objectMapper;
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private LibraryService libraryService;
 
     @BeforeEach
     public void setUp() {
         RestAssuredMockMvc.mockMvc(mockMvc);
+        objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
     }
 
     @Test
@@ -95,25 +105,28 @@ class BookControllerTest {
     }
 
     @Test
-    void addNewBookShouldAddValidBook() {
-        Book newBook = TestDataProducer.newBook();
-        String expectedTitle = newBook.getTitle();
-        String expectedAuthor = newBook.getAuthor();
-        Book savedBook = TestDataProducer.newBook();
-        Long bookId = 4L;
-        savedBook.setId(bookId);
-        Mockito.when(libraryService.addNewBook(newBook)).thenReturn(savedBook);
-        RestAssuredMockMvc.given()
-                .contentType(JSON)
-                .body(newBook)
-                .when()
-                .post("/api/v1/books")
-                .then()
-                .statusCode(HttpStatus.CREATED.value())
-                .body("id", Matchers.equalTo(bookId.intValue()))
-                .body("title", Matchers.equalTo(expectedTitle))
-                .body("author", Matchers.equalTo(expectedAuthor))
-                .body("reader", Matchers.nullValue());
+    void addNewBookShouldAddValidBook() throws Exception {
+        Book newBook = TestDataProducer.newBookForController();
+        ArgumentCaptor<Book> bookCaptor = ArgumentCaptor.forClass(Book.class);
+        mockMvc.perform(post("/api/v1/books")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newBook)))
+                .andExpect(status().isCreated());
+
+        verify(libraryService).addNewBook(bookCaptor.capture());
+        Book capturedBook = bookCaptor.getValue();
+        Assertions.assertEquals(newBook.getTitle(), capturedBook.getTitle(),
+                "Title of capturedBook should be equal to expected");
+        Assertions.assertEquals(newBook.getAuthor(), capturedBook.getAuthor(),
+                "Author of capturedBook should be equal to expected");
+        Assertions.assertEquals(newBook.getMaxBorrowTimeInDays(), capturedBook.getMaxBorrowTimeInDays(),
+                "MaxBorrowTimeInDays of capturedBook should be equal to expected");
+        Assertions.assertEquals(newBook.getRestricted(), capturedBook.getRestricted(),
+                "Restricted of capturedBook should be equal to expected");
+        Assertions.assertTrue(capturedBook.getReader().isEmpty(),
+                "Reader of capturedBook should be empty optional");
+        Assertions.assertTrue(capturedBook.getBorrowDate().isEmpty(),
+                "BorrowDate of capturedBook should be empty optional");
     }
 
     @ParameterizedTest(name = "case #{index}: {0}")
