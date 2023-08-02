@@ -163,7 +163,8 @@ public class TestDataProducer {
         Book book = new Book();
         book.setTitle("Java");
         book.setAuthor("Herbert Schildt");
-        book.setReader(Optional.empty());
+        book.setMaxBorrowTimeInDays(21);
+        book.setRestricted(false);
         return book;
     }
 
@@ -171,7 +172,8 @@ public class TestDataProducer {
         Book book = new Book();
         book.setTitle("Java. The Complete Reference. Twelfth Edition");
         book.setAuthor("He");
-        book.setReader(Optional.empty());
+        book.setMaxBorrowTimeInDays(21);
+        book.setRestricted(false);
         return book;
     }
 
