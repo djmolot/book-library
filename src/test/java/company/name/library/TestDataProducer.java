@@ -69,7 +69,16 @@ public class TestDataProducer {
         return allReaders;
     }
 
-    public static Book newBook() {
+    public static Book newBookForController() {
+        Book newBook = new Book();
+        newBook.setAuthor("Rebecca Serle");
+        newBook.setTitle("One Italian Summer");
+        newBook.setMaxBorrowTimeInDays(21);
+        newBook.setRestricted(false);
+        return newBook;
+    }
+
+    public static Book newBookForRepository() {
         Book newBook = new Book();
         newBook.setAuthor("Rebecca Serle");
         newBook.setTitle("One Italian Summer");
