@@ -205,7 +205,6 @@ class LibraryServiceImplTest {
                 () -> libraryService.getAllBooksOfReader(readerId),
                 "getAllBooksOfReader should throw exception when reader does not exist in DB");
         Assertions.assertEquals(expMessage, exception.getMessage(),"Exception message is wrong");
-
     }
 
     @Test
@@ -236,7 +235,6 @@ class LibraryServiceImplTest {
                 () -> libraryService.getReaderOfBookWithId(bookId),
                 "getReaderOfBookWithId should throw exception when book does not exist in DB");
         Assertions.assertEquals(expMessage, exception.getMessage(),"Exception message is wrong");
-
     }
 
 }
