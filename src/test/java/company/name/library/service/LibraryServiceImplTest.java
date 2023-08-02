@@ -17,10 +17,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
-
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.util.ReflectionUtils;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,6 +38,25 @@ class LibraryServiceImplTest {
     private BookRepository bookRepository;
     @Mock
     private ReaderRepository readerRepository;
+
+    @Value("${library.maxNumberOfBooksToBorrow}")
+    private int maxNumberOfBooksToBorrow;
+    @Value("${library.minAgeOfReaderForRestricted}")
+    private int minAgeOfReaderForRestricted;
+
+
+    @BeforeEach
+    void setUp() {
+        Field maxNumberOfBooksField = ReflectionUtils
+                .findField(LibraryServiceImpl.class, "maxNumberOfBooksToBorrow");
+        maxNumberOfBooksField.setAccessible(true);
+        ReflectionUtils.setField(maxNumberOfBooksField, libraryService, maxNumberOfBooksToBorrow);
+
+        Field minAgeOfReaderField = ReflectionUtils
+                .findField(LibraryServiceImpl.class, "minAgeOfReaderForRestricted");
+        minAgeOfReaderField.setAccessible(true);
+        ReflectionUtils.setField(minAgeOfReaderField, libraryService, minAgeOfReaderForRestricted);
+    }
 
     @Test
     void borrowBookToReaderShouldAddReaderToBook() {
