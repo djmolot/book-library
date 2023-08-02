@@ -93,6 +93,8 @@ public class TestDataProducer {
         Reader newReader = new Reader();
         newReader.setName("Addy Morra");
         newReader.setBooks(new ArrayList<>());
+        LocalDate localDate = LocalDate.parse("2000-04-11", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        newReader.setBirthDate(localDate);
         return newReader;
     }
 
