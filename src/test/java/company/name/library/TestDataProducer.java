@@ -17,8 +17,10 @@ public class TestDataProducer {
         Map<Long, Book> allBooks = new HashMap<>();
         Book book1 = newBook1();
         book1.setReader(Optional.of(newReader2()));
+        book1.setBorrowDate(Optional.of(LocalDate.now()));
         Book book2 = newBook2();
         book2.setReader(Optional.of(newReader2()));
+        book2.setBorrowDate(Optional.of(LocalDate.now()));
         Book book3 = newBook3();
         book3.setReader(Optional.empty());
         allBooks.put(book1.getId(), book1);
