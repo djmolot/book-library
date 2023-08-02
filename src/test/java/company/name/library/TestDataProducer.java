@@ -34,7 +34,13 @@ public class TestDataProducer {
         Reader reader1 = newReader1();
         reader1.setBooks(List.of());
         Reader reader2 = newReader2();
-        reader2.setBooks(List.of(newBook1(), newBook2()));
+        Book book1 = newBook1();
+        book1.setReader(null);
+        book1.setBorrowDate(Optional.of(LocalDate.now()));
+        Book book2 = newBook2();
+        book2.setReader(null);
+        book2.setBorrowDate(Optional.of(LocalDate.now()));
+        reader2.setBooks(List.of(book1, book2));
         Reader reader3 = newReader3();
         reader3.setBooks(List.of());
         allReaders.put(reader1.getId(), reader1);
