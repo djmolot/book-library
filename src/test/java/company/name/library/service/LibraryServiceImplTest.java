@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -27,6 +29,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.Mockito.verify;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -38,6 +41,8 @@ class LibraryServiceImplTest {
     private BookRepository bookRepository;
     @Mock
     private ReaderRepository readerRepository;
+    @Captor
+    private ArgumentCaptor<Book> bookCaptor;
 
     @Value("${library.maxNumberOfBooksToBorrow}")
     private int maxNumberOfBooksToBorrow;
@@ -63,29 +68,43 @@ class LibraryServiceImplTest {
         Long bookId = 3L;
         Long readerId = 1L;
         Book book3 = TestDataProducer.newBook3();
-        book3.setReader(Optional.empty());
+        Assertions.assertTrue(book3.getReader().isEmpty(), "Reader of book3 must be empty optional");
         Reader reader1 = TestDataProducer.newReader1();
+        Assertions.assertNull(reader1.getBooks(),"reader1.books must be null");
+
         Mockito.when(bookRepository.getById(bookId)).thenReturn(Optional.of(book3));
         Mockito.when(readerRepository.getById(readerId)).thenReturn(Optional.of(reader1));
-        Book bookForUpdate = TestDataProducer.newBook3();
-        bookForUpdate.setReader(Optional.of(TestDataProducer.newReader1()));
-        Mockito.when(bookRepository.updateBorrowDetails(bookForUpdate)).thenReturn(bookForUpdate);
+        Mockito.when(bookRepository.getBooksByReaderId(readerId)).thenReturn(List.of());
 
-        Book actualBook = libraryService.borrowBookToReader(bookId, readerId);
-        Assertions.assertNotNull(actualBook, "Actual book should not be null");
-        Assertions.assertEquals(bookId, actualBook.getId(),
-                "actualBook id should be equal to bookId");
-        Assertions.assertEquals(book3.getTitle(), actualBook.getTitle(),
-                "actualBook title should be equal to expectedTitle");
-        Assertions.assertEquals(book3.getAuthor(), actualBook.getAuthor(),
-                "actualBook author should be equal to expectedAuthor");
+        libraryService.borrowBookToReader(bookId, readerId);
 
-        Reader actualReader = actualBook.getReader().orElse(null);
-        Assertions.assertNotNull(actualReader, "actualReader should not be null");
-        Assertions.assertEquals(reader1.getId(), actualReader.getId(),
-                "Id of actual reader should be equal to reader1.getId()");
-        Assertions.assertEquals(reader1.getName(), actualReader.getName(),
-                "Name of actual reader should be equal to reader1.getName()");
+        verify(bookRepository).getById(bookId);
+        verify(readerRepository).getById(readerId);
+        verify(bookRepository).getBooksByReaderId(readerId);
+
+        verify(bookRepository).updateBorrowDetails(bookCaptor.capture());
+        Book capturedBook = bookCaptor.getValue();
+        Assertions.assertNotNull(capturedBook,
+                "capturedBook should not be null");
+        Assertions.assertEquals(bookId, capturedBook.getId(),
+                "capturedBook id should be equal to bookId");
+        Assertions.assertEquals(book3.getTitle(), capturedBook.getTitle(),
+                "capturedBook title should be equal to expected title");
+        Assertions.assertEquals(book3.getAuthor(), capturedBook.getAuthor(),
+                "capturedBook author should be equal to expected author");
+        Assertions.assertTrue(capturedBook.getBorrowDate().isPresent(),
+                "capturedBook borrowDate should be set");
+
+        Reader capturedReader = capturedBook.getReader().orElse(null);
+        Assertions.assertNotNull(capturedReader, "capturedReader should not be null");
+        Assertions.assertEquals(readerId, capturedReader.getId(),
+                "id of capturedReader should be equal to expected");
+        Assertions.assertEquals(reader1.getName(), capturedReader.getName(),
+                "name of capturedReader should be equal to expected");
+        Assertions.assertEquals(reader1.getBirthDate(), capturedReader.getBirthDate(),
+                "birthDate of capturedReader should be equal to expected");
+        Assertions.assertNull(capturedReader.getBooks(),
+                "books of capturedReader should be null");
     }
 
     @ParameterizedTest(name = "case #{index}: {0}")
