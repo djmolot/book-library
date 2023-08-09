@@ -131,7 +131,9 @@ class LibraryServiceImplTest {
                 arguments("bookDoesNotExistInDb", 777L, 1L,
                         "Book with ID 777 does not exist in DB."),
                 arguments("bookIsAlreadyBorrowed", 2L, 1L,
-                        "Book with ID 2 has already borrowed by reader id:2 name:Voski Daniel.")
+                        "Book with ID 2 has already borrowed by reader id:2 name:Voski Daniel."),
+                arguments("bookIsRestrictedAndReaderIsNotOldEnough", 3L, 3L,
+                        "Reader id:3 Ruben Nazaret age:15 is not old enough to borrow restricted books")
         );
     }
 

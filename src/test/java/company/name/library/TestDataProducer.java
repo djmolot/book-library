@@ -140,7 +140,7 @@ public class TestDataProducer {
         book3.setReader(Optional.empty());
         book3.setBorrowDate(Optional.empty());
         book3.setMaxBorrowTimeInDays(21);
-        book3.setRestricted(false);
+        book3.setRestricted(true);
         return book3;
     }
 
@@ -166,7 +166,7 @@ public class TestDataProducer {
         Reader reader3 = new Reader();
         reader3.setId(3L);
         reader3.setName("Ruben Nazaret");
-        LocalDate localDate = LocalDate.parse("2002-07-15", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDate localDate = LocalDate.now().minusYears(15);
         reader3.setBirthDate(localDate);
         return reader3;
     }
