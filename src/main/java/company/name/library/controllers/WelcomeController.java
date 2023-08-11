@@ -38,7 +38,7 @@ public class WelcomeController {
         LinkedHashMap<String, Object> response = new LinkedHashMap<>();
         response.put("message", "Welcome to the library!");
         response.put("currentDate", LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
-        response.put("currentTime", LocalTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+        response.put("currentTime", LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         response.put("maxNumberOfBooksToBorrow", maxNumberOfBooksToBorrow);
         response.put("minAgeOfReaderForRestricted", minAgeOfReaderForRestricted);
         return response;
