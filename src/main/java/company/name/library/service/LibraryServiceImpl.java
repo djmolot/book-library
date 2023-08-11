@@ -115,15 +115,13 @@ public class LibraryServiceImpl implements LibraryService {
 
     private void validateBookHoldingPeriodInBooksOfReader(Reader reader) {
         List<Book> booksOfReader = reader.getBooks();
-        LocalDate now = LocalDate.now();
         booksOfReader.forEach(book -> {
             book.getBorrowDate().ifPresent(borrowDate -> {
-                long holdingPeriod = ChronoUnit.DAYS.between(borrowDate, now);
-                int maxBorrowTimeInDays = book.getMaxBorrowTimeInDays();
-                if (holdingPeriod > maxBorrowTimeInDays) {
+                long holdingPeriod = ChronoUnit.DAYS.between(borrowDate, LocalDate.now());
+                if (holdingPeriod > book.getMaxBorrowTimeInDays()) {
                     throw new ServiceLayerException("Book id:" + book.getId() + " \"" + book.getTitle()
                             + "\" holding period " + holdingPeriod +
-                            " exceeds maximum borrow time in days " + maxBorrowTimeInDays);
+                            " exceeds maximum borrow time in days " + book.getMaxBorrowTimeInDays());
                 }
             });
         });
