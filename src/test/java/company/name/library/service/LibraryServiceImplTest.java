@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -135,6 +137,59 @@ class LibraryServiceImplTest {
                 arguments("bookIsRestrictedAndReaderIsNotOldEnough", 3L, 3L,
                         "Reader id:3 Ruben Nazaret age:15 is not old enough to borrow restricted books")
         );
+    }
+
+    @Test
+    void borrowBookToReaderShouldThrowExceptionWhenMaxNumOfBooksToBorrowReached() {
+        Long bookId = 1L;
+        Book book = TestDataProducer.newBook1();
+        Long readerId = 1L;
+        Reader reader = TestDataProducer.newReader1();
+        List<Book> readersBooks = new ArrayList<>();
+        for (int i = 1; i <= maxNumberOfBooksToBorrow ; i++) {
+            Book readersBook = TestDataProducer.newBook2();
+            readersBook.setReader(Optional.of(reader));
+            readersBook.setBorrowDate(Optional.of(LocalDate.now()));
+            readersBooks.add(readersBook);
+        }
+        Mockito.when(bookRepository.getById(bookId)).thenReturn(Optional.of(book));
+        Mockito.when(readerRepository.getById(readerId)).thenReturn(Optional.of(reader));
+        Mockito.when(bookRepository.getBooksByReaderId(readerId)).thenReturn(readersBooks);
+        Exception exception = Assertions.assertThrows(ServiceLayerException.class,
+                () -> libraryService.borrowBookToReader(bookId, readerId),
+                "borrowBookToReader should throw ServiceLayerException");
+        String expMessage = "Reader has already borrowed " + maxNumberOfBooksToBorrow + " books, maximum number is " + maxNumberOfBooksToBorrow;
+        Assertions.assertEquals(expMessage, exception.getMessage(),"Exception message is wrong");
+    }
+
+    @Test
+    void borrowBookToReaderShouldThrowExceptionWhenReaderHasBookExpired() {
+        Long bookId = 1L;
+        Book book = TestDataProducer.newBook1();
+        Long readerId = 1L;
+        Reader reader = TestDataProducer.newReader1();
+        List<Book> readersBooks = new ArrayList<>();
+        for (int i = 1; i <= 3 ; i++) {
+            Book readersBook = TestDataProducer.newBook2();
+            readersBook.setReader(Optional.of(reader));
+            readersBook.setBorrowDate(Optional.of(LocalDate.now()));
+            readersBooks.add(readersBook);
+        }
+        Book expiredBook = TestDataProducer.newBook2();
+        expiredBook.setReader(Optional.of(reader));
+        int holdingPeriod = expiredBook.getMaxBorrowTimeInDays() + 5;
+        expiredBook.setBorrowDate(Optional.of(LocalDate.now().minusDays(holdingPeriod)));
+        readersBooks.add(expiredBook);
+        Mockito.when(bookRepository.getById(bookId)).thenReturn(Optional.of(book));
+        Mockito.when(readerRepository.getById(readerId)).thenReturn(Optional.of(reader));
+        Mockito.when(bookRepository.getBooksByReaderId(readerId)).thenReturn(readersBooks);
+        Exception exception = Assertions.assertThrows(ServiceLayerException.class,
+                () -> libraryService.borrowBookToReader(bookId, readerId),
+                "borrowBookToReader should throw ServiceLayerException");
+        String expMessage = "Book id:" + expiredBook.getId() + " \"" + expiredBook.getTitle()
+                + "\" holding period " + holdingPeriod +
+                " exceeds maximum borrow time in days " + expiredBook.getMaxBorrowTimeInDays();
+        Assertions.assertEquals(expMessage, exception.getMessage(),"Exception message is wrong");
     }
 
     @Test
