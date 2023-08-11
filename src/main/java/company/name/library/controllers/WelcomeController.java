@@ -14,7 +14,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 
-import static company.name.library.controllers.ApiDocExamples.WELCOME_OBJECT;
+import static company.name.library.controllers.ApiDocExamples.WELCOME_RESPONSE_OBJECT;
 
 @RequiredArgsConstructor
 @RestController
@@ -30,7 +30,7 @@ public class WelcomeController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Request was successful",
                     content = { @Content(mediaType = "application/json",
-                    schema = @Schema(example = WELCOME_OBJECT)) }
+                    schema = @Schema(example = WELCOME_RESPONSE_OBJECT)) }
             )
     })
     @GetMapping("/api/v1/welcome")

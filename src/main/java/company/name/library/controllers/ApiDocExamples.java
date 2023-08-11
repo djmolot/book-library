@@ -180,11 +180,11 @@ public class ApiDocExamples {
         }
     """;
 
-    public static final String WELCOME_OBJECT = """
+    public static final String WELCOME_RESPONSE_OBJECT = """
         {
           "message": "Welcome to the library!",
           "currentDate": "22.07.2023",
-          "currentTime": "20:00:56.2154815",
+          "currentTime": "20:00:56",
           "maxNumberOfBooksToBorrow": 10,
           "minAgeOfReaderForRestricted": 18
         }
