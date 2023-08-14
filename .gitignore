@@ -1,5 +1,5 @@
 /.idea/*
-!/.idea/runConfigurations
-*.iml
+/.run/*
+logs/**
 target/*
-logs/*
+*.iml
