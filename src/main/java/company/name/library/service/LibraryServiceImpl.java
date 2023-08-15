@@ -42,6 +42,9 @@ public class LibraryServiceImpl implements LibraryService {
 
     @Override
     public Book addNewBook(Book book) {
+        if (book.getReader().isPresent() || book.getBorrowDate().isPresent()) {
+            throw new ServiceLayerException("Cannot set reader or borrowDate when adding a new book.");
+        }
         return bookRepository.add(book);
     }
 
