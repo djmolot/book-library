@@ -77,21 +77,10 @@ public class TestDataProducer {
         return allReaders;
     }
 
-    public static Book newBookForController() {
+    public static Book newBook() {
         Book newBook = new Book();
         newBook.setAuthor("Rebecca Serle");
         newBook.setTitle("One Italian Summer");
-        newBook.setMaxBorrowTimeInDays(21);
-        newBook.setRestricted(false);
-        return newBook;
-    }
-
-    public static Book newBookForRepository() {
-        Book newBook = new Book();
-        newBook.setAuthor("Rebecca Serle");
-        newBook.setTitle("One Italian Summer");
-        newBook.setReader(Optional.empty());
-        newBook.setBorrowDate(Optional.empty());
         newBook.setMaxBorrowTimeInDays(21);
         newBook.setRestricted(false);
         return newBook;
