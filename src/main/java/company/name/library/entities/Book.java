@@ -32,10 +32,10 @@ public class Book {
     private String title;
 
     @Schema(description = "Reader reader", example = READER_FOUND)
-    private Optional<Reader> reader;
+    private Optional<Reader> reader = Optional.empty();
 
     @Schema(description = "Date borrow date", example = "2023-07-05")
-    private Optional<LocalDate> borrowDate;
+    private Optional<LocalDate> borrowDate = Optional.empty();
 
     @Schema(description = "Maximum borrow time in days", example = "14")
     @Min(value = 14, message = "maxBorrowTimeInDays must be at least 14 days")
