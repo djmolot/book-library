@@ -58,7 +58,7 @@ class BookRepositoryImplIT {
 
     @Test
     void addShouldReturnAddedBookWithReaderEmptyOptional() {
-        var newBook = TestDataProducer.newBookForRepository();
+        var newBook = TestDataProducer.newBook();
         var expectedTitle = newBook.getTitle();
         var expectedAuthor = newBook.getAuthor();
         Assertions.assertNull(newBook.getId(),
