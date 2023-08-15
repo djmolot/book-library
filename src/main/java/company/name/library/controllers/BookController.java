@@ -69,8 +69,6 @@ public class BookController {
     public ResponseEntity<Book> addNewBook(
             @Valid @RequestBody @Schema(description = "Book object that needs to be added to the library",
             example = BOOK_TO_ADD) Book book) {
-        book.setReader(Optional.empty());
-        book.setBorrowDate(Optional.empty());
         Book bookFromDB = libraryService.addNewBook(book);
         return ResponseEntity.status(HttpStatus.CREATED).body(bookFromDB);
     }
