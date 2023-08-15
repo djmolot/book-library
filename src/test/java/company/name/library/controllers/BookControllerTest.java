@@ -1,8 +1,13 @@
 package company.name.library.controllers;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import company.name.library.TestDataProducer;
+import company.name.library.config.OptionalSerializer;
 import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import company.name.library.exceptions.ServiceLayerException;
@@ -52,7 +57,13 @@ class BookControllerTest {
     public void setUp() {
         RestAssuredMockMvc.mockMvc(mockMvc);
         objectMapper = new ObjectMapper();
-        objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(Optional.class, new OptionalSerializer());
+        objectMapper.registerModule(module);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     @Test
@@ -106,7 +117,7 @@ class BookControllerTest {
 
     @Test
     void addNewBookShouldAddValidBook() throws Exception {
-        Book newBook = TestDataProducer.newBookForController();
+        Book newBook = TestDataProducer.newBook();
         ArgumentCaptor<Book> bookCaptor = ArgumentCaptor.forClass(Book.class);
         mockMvc.perform(post("/api/v1/books")
                         .contentType(MediaType.APPLICATION_JSON)
