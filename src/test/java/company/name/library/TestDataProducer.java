@@ -81,8 +81,6 @@ public class TestDataProducer {
         Book newBook = new Book();
         newBook.setAuthor("Rebecca Serle");
         newBook.setTitle("One Italian Summer");
-        newBook.setMaxBorrowTimeInDays(21);
-        newBook.setRestricted(false);
         return newBook;
     }
 
@@ -102,8 +100,6 @@ public class TestDataProducer {
         book1.setAuthor("Herbert Schildt");
         book1.setReader(Optional.empty());
         book1.setBorrowDate(Optional.empty());
-        book1.setMaxBorrowTimeInDays(21);
-        book1.setRestricted(false);
         return book1;
     }
 
@@ -114,8 +110,6 @@ public class TestDataProducer {
         book2.setAuthor("Walter Savitch");
         book2.setReader(Optional.empty());
         book2.setBorrowDate(Optional.empty());
-        book2.setMaxBorrowTimeInDays(21);
-        book2.setRestricted(false);
         return book2;
     }
 
@@ -126,7 +120,6 @@ public class TestDataProducer {
         book3.setAuthor("Narasimha Karumanchi");
         book3.setReader(Optional.empty());
         book3.setBorrowDate(Optional.empty());
-        book3.setMaxBorrowTimeInDays(21);
         book3.setRestricted(true);
         return book3;
     }

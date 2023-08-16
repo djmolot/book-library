@@ -13,10 +13,13 @@ public class CustomInfoContributor implements InfoContributor {
     private int maxNumberOfBooksToBorrow;
     @Value("${library.minAgeOfReaderForRestricted}")
     private int minAgeOfReaderForRestricted;
+    @Value("${library.defaultMaxBorrowTimeInDays}")
+    private int defaultMaxBorrowTimeInDays;
 
     @Override
     public void contribute(Info.Builder builder) {
         builder.withDetail("maxNumberOfBooksToBorrow", maxNumberOfBooksToBorrow);
         builder.withDetail("minAgeOfReaderForRestricted", minAgeOfReaderForRestricted);
+        builder.withDetail("defaultMaxBorrowTimeInDays", defaultMaxBorrowTimeInDays);
     }
 }

@@ -24,6 +24,8 @@ public class LibraryServiceImpl implements LibraryService {
     private int maxNumberOfBooksToBorrow;
     @Value("${library.minAgeOfReaderForRestricted}")
     private int minAgeOfReaderForRestricted;
+    @Value("${library.defaultMaxBorrowTimeInDays}")
+    private int defaultMaxBorrowTimeInDays;
 
     @Override
     public List<Book> getAllBooks() {
@@ -44,6 +46,9 @@ public class LibraryServiceImpl implements LibraryService {
     public Book addNewBook(Book book) {
         if (book.getReader().isPresent() || book.getBorrowDate().isPresent()) {
             throw new ServiceLayerException("Cannot set reader or borrowDate when adding a new book.");
+        }
+        if (book.getMaxBorrowTimeInDays() == 0) {
+            book.setMaxBorrowTimeInDays(defaultMaxBorrowTimeInDays);
         }
         return bookRepository.add(book);
     }
