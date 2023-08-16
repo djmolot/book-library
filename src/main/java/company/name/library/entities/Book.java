@@ -43,6 +43,5 @@ public class Book {
     private int maxBorrowTimeInDays;
 
     @Schema(description = "Determines whether the book is restricted for reading", example = "false")
-    @NotNull(message = "Please provide a value for field restricted")
-    private Boolean restricted;
+    private boolean restricted;//default false
 }

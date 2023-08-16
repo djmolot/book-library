@@ -60,7 +60,7 @@ public class LibraryServiceImpl implements LibraryService {
         reader.setBooks(readerBooks);
         validateNumberOfBorrowedBooksByReader(reader);
         validateBookHoldingPeriodInBooksOfReader(reader);
-        if(book.getRestricted()) {
+        if(book.isRestricted()) {
             validateReaderAge(reader);
         }
         reader.setBooks(null);

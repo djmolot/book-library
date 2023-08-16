@@ -132,7 +132,7 @@ class BookControllerTest {
                 "Author of capturedBook should be equal to expected");
         Assertions.assertEquals(newBook.getMaxBorrowTimeInDays(), capturedBook.getMaxBorrowTimeInDays(),
                 "MaxBorrowTimeInDays of capturedBook should be equal to expected");
-        Assertions.assertEquals(newBook.getRestricted(), capturedBook.getRestricted(),
+        Assertions.assertEquals(newBook.isRestricted(), capturedBook.isRestricted(),
                 "Restricted of capturedBook should be equal to expected");
         Assertions.assertTrue(capturedBook.getReader().isEmpty(),
                 "Reader of capturedBook should be empty optional");
