@@ -36,6 +36,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -70,7 +73,7 @@ class BookControllerTest {
     void showAllBooksShouldReturnListOfBooks() {
         List<Book> expectedBooks = TestDataProducer.newAllBooksList();
         int expectedBooksSize = expectedBooks.size();
-        Assertions.assertEquals(3, expectedBooksSize,
+        assertEquals(3, expectedBooksSize,
                 "expectedBooksSize should be equal to 3");
         Reader readerOfBook1 = expectedBooks.get(0).getReader().orElse(null);
         Assertions.assertNotNull(readerOfBook1,
@@ -126,18 +129,14 @@ class BookControllerTest {
 
         verify(libraryService).addNewBook(bookCaptor.capture());
         Book capturedBook = bookCaptor.getValue();
-        Assertions.assertEquals(newBook.getTitle(), capturedBook.getTitle(),
-                "Title of capturedBook should be equal to expected");
-        Assertions.assertEquals(newBook.getAuthor(), capturedBook.getAuthor(),
-                "Author of capturedBook should be equal to expected");
-        Assertions.assertEquals(newBook.getMaxBorrowTimeInDays(), capturedBook.getMaxBorrowTimeInDays(),
-                "MaxBorrowTimeInDays of capturedBook should be equal to expected");
-        Assertions.assertEquals(newBook.isRestricted(), capturedBook.isRestricted(),
-                "Restricted of capturedBook should be equal to expected");
-        Assertions.assertTrue(capturedBook.getReader().isEmpty(),
-                "Reader of capturedBook should be empty optional");
-        Assertions.assertTrue(capturedBook.getBorrowDate().isEmpty(),
-                "BorrowDate of capturedBook should be empty optional");
+        assertAll("Captured Book Properties",
+                () -> assertEquals(newBook.getTitle(), capturedBook.getTitle(), "Title mismatch"),
+                () -> assertEquals(newBook.getAuthor(), capturedBook.getAuthor(), "Author mismatch"),
+                () -> assertEquals(newBook.getMaxBorrowTimeInDays(), capturedBook.getMaxBorrowTimeInDays(), "MaxBorrowTimeInDays mismatch"),
+                () -> assertEquals(newBook.isRestricted(), capturedBook.isRestricted(), "Restricted mismatch"),
+                () -> assertTrue(capturedBook.getReader().isEmpty(), "Reader should be empty optional"),
+                () -> assertTrue(capturedBook.getBorrowDate().isEmpty(), "BorrowDate should be empty optional")
+        );
     }
 
     @ParameterizedTest(name = "case #{index}: {0}")
