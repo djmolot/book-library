@@ -63,8 +63,10 @@ public class LibraryServiceImpl implements LibraryService {
         Reader reader = getReaderIfPresentOrThrow(readerId);
         List<Book> readerBooks = bookRepository.getBooksByReaderId(readerId);
         reader.setBooks(readerBooks);
-        validateNumberOfBorrowedBooksByReader(reader);
-        validateBookHoldingPeriodInBooksOfReader(reader);
+        if (!readerBooks.isEmpty()) {
+            validateNumberOfBorrowedBooksByReader(reader);
+            validateBookHoldingPeriodInBooksOfReader(reader);
+        }
         if(book.isRestricted()) {
             validateReaderAge(reader);
         }
