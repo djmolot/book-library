@@ -156,8 +156,6 @@ public class BookRepositoryImpl implements BookRepository {
         if (resultSet.getObject("reader_id", Long.class) != null) {
             Reader readerOfBook = mapReaderOfBook(resultSet);
             book.setReader(Optional.of(readerOfBook));
-        } else {
-            book.setReader(Optional.empty());
         }
         return book;
     }
@@ -170,9 +168,6 @@ public class BookRepositoryImpl implements BookRepository {
         Date borrowDate = resultSet.getDate("borrow_date");
         if (borrowDate != null) {
             book.setBorrowDate(Optional.of(borrowDate.toLocalDate()));
-        } else {
-            book.setReader(Optional.empty());
-            book.setBorrowDate(Optional.empty());
         }
         book.setMaxBorrowTimeInDays(resultSet.getInt("max_borrow_time_in_days"));
         book.setRestricted(resultSet.getBoolean("restricted"));
