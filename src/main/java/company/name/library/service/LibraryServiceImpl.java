@@ -115,9 +115,7 @@ public class LibraryServiceImpl implements LibraryService {
 
     private void validateNumberOfBorrowedBooksByReader(Reader reader) {
         int booksBorrowed = reader.getBooks().size();
-        if(booksBorrowed < maxNumberOfBooksToBorrow) {
-            return;
-        } else {
+        if (booksBorrowed >= maxNumberOfBooksToBorrow) {
             throw new ServiceLayerException("Reader has already borrowed " + booksBorrowed +
                     " books, maximum number is " + maxNumberOfBooksToBorrow);
         }
