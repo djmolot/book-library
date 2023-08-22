@@ -17,8 +17,8 @@ import java.util.Optional;
 @Slf4j
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Transactional //@ActiveProfiles("test")
-class ReaderRepositoryImplIT {
+@Transactional
+class  ReaderRepositoryImplIT {
     @Autowired
     private ReaderRepository readerRepository;
 

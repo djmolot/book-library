@@ -5,27 +5,42 @@ import company.name.library.entities.Reader;
 import company.name.library.exceptions.ServiceLayerException;
 import company.name.library.repositories.BookRepository;
 import company.name.library.repositories.ReaderRepository;
-import lombok.RequiredArgsConstructor;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-@RequiredArgsConstructor
 @Service
 public class LibraryServiceImpl implements LibraryService {
     private final BookRepository bookRepository;
     private final ReaderRepository readerRepository;
-
-    @Value("${library.maxNumberOfBooksToBorrow}")
     private int maxNumberOfBooksToBorrow;
-    @Value("${library.minAgeOfReaderForRestricted}")
     private int minAgeOfReaderForRestricted;
-    @Value("${library.defaultMaxBorrowTimeInDays}")
     private int defaultMaxBorrowTimeInDays;
+
+    public LibraryServiceImpl() {
+        this.bookRepository = null;
+        this.readerRepository = null;
+    }
+
+    @Autowired
+    public LibraryServiceImpl(
+            BookRepository bookRepository,
+            ReaderRepository readerRepository,
+            @Value("${library.maxNumberOfBooksToBorrow}") int maxNumberOfBooksToBorrow,
+            @Value("${library.minAgeOfReaderForRestricted}") int minAgeOfReaderForRestricted,
+            @Value("${library.defaultMaxBorrowTimeInDays}") int defaultMaxBorrowTimeInDays) {
+        this.bookRepository = bookRepository;
+        this.readerRepository = readerRepository;
+        this.maxNumberOfBooksToBorrow = maxNumberOfBooksToBorrow;
+        this.minAgeOfReaderForRestricted = minAgeOfReaderForRestricted;
+        this.defaultMaxBorrowTimeInDays = defaultMaxBorrowTimeInDays;
+    }
 
     @Override
     public List<Book> getAllBooks() {

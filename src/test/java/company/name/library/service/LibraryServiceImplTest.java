@@ -19,10 +19,10 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.util.ReflectionUtils;
-import java.lang.reflect.Field;
+import org.springframework.test.context.TestPropertySource;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,13 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.verify;
 
 @Slf4j
-@SpringBootTest
+@TestPropertySource("classpath:application.yml")
+@SpringBootTest(
+        properties = {
+                "library.maxNumberOfBooksToBorrow=8",
+                "library.minAgeOfReaderForRestricted=16",
+                "library.defaultMaxBorrowTimeInDays=20"
+        })
 class LibraryServiceImplTest {
     @InjectMocks
     private LibraryServiceImpl libraryService;
@@ -42,26 +48,20 @@ class LibraryServiceImplTest {
     private BookRepository bookRepository;
     @Mock
     private ReaderRepository readerRepository;
-    @Captor
-    private ArgumentCaptor<Book> bookCaptor;
-
     @Value("${library.maxNumberOfBooksToBorrow}")
     private int maxNumberOfBooksToBorrow;
     @Value("${library.minAgeOfReaderForRestricted}")
     private int minAgeOfReaderForRestricted;
-
+    @Value("${library.defaultMaxBorrowTimeInDays}")
+    private int defaultMaxBorrowTimeInDays;
+    @Captor
+    private ArgumentCaptor<Book> bookCaptor;
 
     @BeforeEach
     void setUp() {
-        Field maxNumberOfBooksField = ReflectionUtils
-                .findField(LibraryServiceImpl.class, "maxNumberOfBooksToBorrow");
-        maxNumberOfBooksField.setAccessible(true);
-        ReflectionUtils.setField(maxNumberOfBooksField, libraryService, maxNumberOfBooksToBorrow);
-
-        Field minAgeOfReaderField = ReflectionUtils
-                .findField(LibraryServiceImpl.class, "minAgeOfReaderForRestricted");
-        minAgeOfReaderField.setAccessible(true);
-        ReflectionUtils.setField(minAgeOfReaderField, libraryService, minAgeOfReaderForRestricted);
+        MockitoAnnotations.openMocks(this);
+        libraryService = new LibraryServiceImpl(bookRepository, readerRepository,
+                maxNumberOfBooksToBorrow, minAgeOfReaderForRestricted, defaultMaxBorrowTimeInDays);
     }
 
     @Test
