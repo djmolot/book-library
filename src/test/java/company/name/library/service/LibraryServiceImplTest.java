@@ -112,30 +112,40 @@ class LibraryServiceImplTest {
     @MethodSource("borrowBookToReaderNotOkArgumentsProvider")
     @DisplayName("borrowBookToReaderShouldThrowExceptionWhen")
     @SuppressWarnings("unused")
-    void borrowBookToReaderNotOk(String caseName, Long bookId, Long readerId, String expMessage) {
-        Map<Long, Book> allBooksMap = TestDataProducer.newAllBooksMap();
-        Map<Long, Reader> allReadersMap = TestDataProducer.newAllReadersMap();
-        Book book = allBooksMap.get(bookId);
-        Reader reader = allReadersMap.get(readerId);
-        Optional<Book> bookOptional = book != null ? Optional.of(book) : Optional.empty();
-        Optional<Reader> readerOptional = reader != null ? Optional.of(reader) : Optional.empty();
-        Mockito.when(bookRepository.getById(bookId)).thenReturn(bookOptional);
-        Mockito.when(readerRepository.getById(readerId)).thenReturn(readerOptional);
+    void borrowBookToReaderNotOk(String caseName,
+                                 Optional<Book> bookOptional,
+                                 Optional<Reader> readerOptional,
+                                 String expMessage) {
+        Mockito.when(bookRepository.getById(bookOptional.map(Book::getId).orElse(null)))
+                .thenReturn(bookOptional);
+        Mockito.when(readerRepository.getById(readerOptional.map(Reader::getId).orElse(null)))
+                .thenReturn(readerOptional);
+
         Exception exception = Assertions.assertThrows(ServiceLayerException.class,
-                () -> libraryService.borrowBookToReader(bookId, readerId),
+                () -> libraryService.borrowBookToReader(bookOptional.map(Book::getId).orElse(null),
+                        readerOptional.map(Reader::getId).orElse(null)),
                 "borrowBookToReader should throw ServiceLayerException");
+
         Assertions.assertEquals(expMessage, exception.getMessage(),"Exception message is wrong");
     }
     static Stream<Arguments> borrowBookToReaderNotOkArgumentsProvider() {
         return Stream.of(
-                arguments("readerDoesNotExistInDb", 3L, 555L,
-                        "Reader with ID 555 does not exist in DB."),
-                arguments("bookDoesNotExistInDb", 777L, 1L,
-                        "Book with ID 777 does not exist in DB."),
-                arguments("bookIsAlreadyBorrowed", 2L, 1L,
+                arguments("readerDoesNotExistInDb",
+                        Optional.of(TestDataProducer.newBook3()),
+                        Optional.empty(),
+                        "Reader with ID null does not exist in DB."),
+                arguments("bookDoesNotExistInDb",
+                        Optional.empty(),
+                        Optional.of(TestDataProducer.newReader1()),
+                        "Book with ID null does not exist in DB."),
+                arguments("bookIsAlreadyBorrowed",
+                        Optional.of(TestDataProducer.book2BorrowedByReader2()),
+                        Optional.of(TestDataProducer.newReader1()),
                         "Book with ID 2 has already borrowed by reader id:2 name:Voski Daniel."),
-                arguments("bookIsRestrictedAndReaderIsNotOldEnough", 3L, 3L,
-                        "Reader id:3 Ruben Nazaret age:15 is not old enough to borrow restricted books")
+                arguments("bookIsRestrictedAndReaderIsNotOldEnough",
+                        Optional.of(TestDataProducer.newRestrictedBook()),
+                        Optional.of(TestDataProducer.newReaderUnder18()),
+                        "Reader id:7 Barbara J. Wise age:15 is not old enough to borrow restricted books")
         );
     }
 

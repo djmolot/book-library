@@ -22,7 +22,6 @@ public class TestDataProducer {
         book2.setReader(Optional.of(newReader2()));
         book2.setBorrowDate(Optional.of(LocalDate.now()));
         Book book3 = newBook3();
-        book3.setReader(Optional.empty());
         allBooks.put(book1.getId(), book1);
         allBooks.put(book2.getId(), book2);
         allBooks.put(book3.getId(), book3);
@@ -98,8 +97,6 @@ public class TestDataProducer {
         book1.setId(1L);
         book1.setTitle("Java. The Complete Reference. Twelfth Edition");
         book1.setAuthor("Herbert Schildt");
-        book1.setReader(Optional.empty());
-        book1.setBorrowDate(Optional.empty());
         return book1;
     }
 
@@ -108,8 +105,6 @@ public class TestDataProducer {
         book2.setId(2L);
         book2.setTitle("Java. An Introduction to Problem Solving & Programming");
         book2.setAuthor("Walter Savitch");
-        book2.setReader(Optional.empty());
-        book2.setBorrowDate(Optional.empty());
         return book2;
     }
 
@@ -118,8 +113,6 @@ public class TestDataProducer {
         book3.setId(3L);
         book3.setTitle("Data Structures And Algorithms Made Easy In JAVA");
         book3.setAuthor("Narasimha Karumanchi");
-        book3.setReader(Optional.empty());
-        book3.setBorrowDate(Optional.empty());
         book3.setRestricted(true);
         return book3;
     }
@@ -150,6 +143,32 @@ public class TestDataProducer {
         reader3.setBirthDate(localDate);
         return reader3;
     }
+
+    public static Book book2BorrowedByReader2() {
+        Book book2 = newBook2();
+        book2.setReader(Optional.of(newReader2()));
+        book2.setBorrowDate(Optional.of(LocalDate.now()));
+        return book2;
+    }
+
+    public static Book newRestrictedBook() {
+        Book book3 = new Book();
+        book3.setId(19L);
+        book3.setTitle("The World's Wife");
+        book3.setAuthor("Carol Ann Duffy");
+        book3.setRestricted(true);
+        return book3;
+    }
+
+    public static Reader newReaderUnder18() {
+        Reader reader7 = new Reader();
+        reader7.setId(7L);
+        reader7.setName("Barbara J. Wise");
+        LocalDate localDate = LocalDate.now().minusYears(15);
+        reader7.setBirthDate(localDate);
+        return reader7;
+    }
+
 
     public static Book bookWithInvalidTitle() {
         Book book = new Book();
