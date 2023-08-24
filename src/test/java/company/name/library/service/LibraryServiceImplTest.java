@@ -152,17 +152,11 @@ class LibraryServiceImplTest {
     @Test
     void borrowBookToReaderShouldThrowExceptionWhenMaxNumOfBooksToBorrowReached() {
         Long bookId = 1L;
-        Book book = TestDataProducer.newBook1();
+        Book bookToBorrow = TestDataProducer.newBook1();
         Long readerId = 1L;
         Reader reader = TestDataProducer.newReader1();
-        List<Book> readersBooks = new ArrayList<>();
-        for (int i = 1; i <= maxNumberOfBooksToBorrow ; i++) {
-            Book readersBook = TestDataProducer.newBook2();
-            readersBook.setReader(Optional.of(reader));
-            readersBook.setBorrowDate(Optional.of(LocalDate.now()));
-            readersBooks.add(readersBook);
-        }
-        Mockito.when(bookRepository.getById(bookId)).thenReturn(Optional.of(book));
+        var readersBooks = TestDataProducer.generateBooksListOfReader(reader, maxNumberOfBooksToBorrow);
+        Mockito.when(bookRepository.getById(bookId)).thenReturn(Optional.of(bookToBorrow));
         Mockito.when(readerRepository.getById(readerId)).thenReturn(Optional.of(reader));
         Mockito.when(bookRepository.getBooksByReaderId(readerId)).thenReturn(readersBooks);
         Exception exception = Assertions.assertThrows(ServiceLayerException.class,
@@ -175,22 +169,16 @@ class LibraryServiceImplTest {
     @Test
     void borrowBookToReaderShouldThrowExceptionWhenReaderHasBookExpired() {
         Long bookId = 1L;
-        Book book = TestDataProducer.newBook1();
+        Book bookToBorrow = TestDataProducer.newBook1();
         Long readerId = 1L;
         Reader reader = TestDataProducer.newReader1();
-        List<Book> readersBooks = new ArrayList<>();
-        for (int i = 1; i <= 3 ; i++) {
-            Book readersBook = TestDataProducer.newBook2();
-            readersBook.setReader(Optional.of(reader));
-            readersBook.setBorrowDate(Optional.of(LocalDate.now()));
-            readersBooks.add(readersBook);
-        }
-        Book expiredBook = TestDataProducer.newBook2();
-        expiredBook.setReader(Optional.of(reader));
-        int holdingPeriod = expiredBook.getMaxBorrowTimeInDays() + 5;
-        expiredBook.setBorrowDate(Optional.of(LocalDate.now().minusDays(holdingPeriod)));
+        var readersBooks = TestDataProducer.generateBooksListOfReader(reader, 3);
+        int maxBorrowTimeInDays = 20;
+        int daysExpired = 5;
+        int holdingPeriod = maxBorrowTimeInDays + daysExpired;
+        Book expiredBook = TestDataProducer.newExpiredBookOfReader(reader, maxBorrowTimeInDays, daysExpired);
         readersBooks.add(expiredBook);
-        Mockito.when(bookRepository.getById(bookId)).thenReturn(Optional.of(book));
+        Mockito.when(bookRepository.getById(bookId)).thenReturn(Optional.of(bookToBorrow));
         Mockito.when(readerRepository.getById(readerId)).thenReturn(Optional.of(reader));
         Mockito.when(bookRepository.getBooksByReaderId(readerId)).thenReturn(readersBooks);
         Exception exception = Assertions.assertThrows(ServiceLayerException.class,

@@ -105,6 +105,7 @@ public class TestDataProducer {
         book2.setId(2L);
         book2.setTitle("Java. An Introduction to Problem Solving & Programming");
         book2.setAuthor("Walter Savitch");
+        book2.setMaxBorrowTimeInDays(21);
         return book2;
     }
 
@@ -194,6 +195,26 @@ public class TestDataProducer {
         LocalDate localDate = LocalDate.parse("2004-11-22", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         reader.setBirthDate(localDate);
         return reader;
+    }
+
+    public static List<Book> generateBooksListOfReader(Reader reader, int listSize) {
+        List<Book> readersBooks = new ArrayList<>();
+        for (int i = 1; i <= listSize ; i++) {
+            Book book = newBook2();
+            book.setReader(Optional.of(reader));
+            book.setBorrowDate(Optional.of(LocalDate.now()));
+            readersBooks.add(book);
+        }
+        return readersBooks;
+    }
+
+    public static Book newExpiredBookOfReader(Reader reader, int maxBorrowTimeInDays, int daysExpired) {
+        Book expiredBook = newBook2();
+        expiredBook.setReader(Optional.of(reader));
+        expiredBook.setMaxBorrowTimeInDays(maxBorrowTimeInDays);
+        int holdingPeriod = maxBorrowTimeInDays + daysExpired;
+        expiredBook.setBorrowDate(Optional.of(LocalDate.now().minusDays(holdingPeriod)));
+        return expiredBook;
     }
 
 }
