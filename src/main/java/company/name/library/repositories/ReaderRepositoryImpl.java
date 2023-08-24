@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,16 +27,21 @@ public class ReaderRepositoryImpl implements ReaderRepository {
 
     @Override
     public Reader add(Reader reader) {
-        String sql = "INSERT INTO readers (name, birth_date) VALUES (?, ?);";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
         try {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            String sql = "INSERT INTO readers (name) VALUES (?);";
             jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement ps = connection
+                        .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, reader.getName());
-                ps.setObject(2, reader.getBirthDate());
                 return ps;
             }, keyHolder);
-            reader.setId(getGeneratedId(keyHolder));
+            var generatedId = Optional.ofNullable(keyHolder.getKeys())
+                    .map(keys -> keys.get("id"))
+                    .map(Long.class::cast)
+                    .orElseThrow(() -> new DaoLayerException(
+                            "Failed to save new reader to DB, no generated ID returned. "));
+            reader.setId(generatedId);
             return reader;
         } catch (DataAccessException e) {
             log.error("Error during adding reader to DB. " + e);
@@ -47,9 +51,11 @@ public class ReaderRepositoryImpl implements ReaderRepository {
 
     @Override
     public Optional<Reader> getById(Long id) {
-        String sql = "SELECT * FROM readers WHERE id = ?;";
         try {
-            Reader reader = jdbcTemplate.queryForObject(sql, this::mapRowToReaderWithoutBooks, id);
+            Reader reader = jdbcTemplate.queryForObject(
+                    "SELECT * FROM readers WHERE id = ?;",
+                    this::mapRowToReaderWithoutBooks,
+                    id);
             return Optional.ofNullable(reader);
         } catch (EmptyResultDataAccessException e) {
             log.error("Reader with ID " + id + " does not exist in DB. " + e);
@@ -62,21 +68,35 @@ public class ReaderRepositoryImpl implements ReaderRepository {
 
     @Override
     public List<Reader> getAll() {
-        String sql = """
-                    SELECT 
-                        r.id as reader_id, r.name, r.birth_date, 
-                        b.id as book_id, b.title, b.author, b.borrow_date, b.max_borrow_time_in_days, b.restricted 
-                    FROM 
-                        books b 
-                    RIGHT JOIN 
-                        readers r 
-                    ON 
-                        b.reader_id = r.id
-                    ORDER BY 
-                            r.id;
-                """;
         try {
-            return jdbcTemplate.query(sql, this::mapResultSetToReaders);
+            String sql = "SELECT r.id as reader_id, r.name, b.id as book_id, b.title, b.author "
+                    + "FROM books b RIGHT JOIN readers r ON b.reader_id = r.id;";
+            return jdbcTemplate.query(sql, (ResultSet resultSet) -> {
+                List<Reader> readers = new ArrayList<>();
+                Long previousReaderId = 0L;
+                Reader currentReader = null;
+                while (resultSet.next()) {
+                    Long currentReaderId = resultSet.getLong("reader_id");
+                    if (!currentReaderId.equals(previousReaderId)) {
+                        currentReader = new Reader();
+                        currentReader.setId(currentReaderId);
+                        currentReader.setName(resultSet.getString("name"));
+                        currentReader.setBooks(new ArrayList<>());
+                        readers.add(currentReader);
+                        previousReaderId = currentReaderId;
+                    }
+                    if (resultSet.getLong("book_id") != 0) {
+                        Book book = new Book();
+                        book.setId(resultSet.getLong("book_id"));
+                        book.setTitle(resultSet.getString("title"));
+                        book.setAuthor(resultSet.getString("author"));
+                        if (currentReader != null) {
+                            currentReader.getBooks().add(book);
+                        }
+                    }
+                }
+                return readers;
+            });
         } catch (DataAccessException e) {
             log.error("Error during getting all readers from DB. " + e);
             throw new DaoLayerException("Error during getting all readers from DB. " + e);
@@ -85,20 +105,12 @@ public class ReaderRepositoryImpl implements ReaderRepository {
 
     @Override
     public Optional<Reader> getReaderByBookId(Long bookId) {
-        String sql = """
-            SELECT 
-                r.id, r.name, r.birth_date 
-            FROM 
-                books b 
-            JOIN 
-                readers r 
-            ON 
-                b.reader_id = r.id 
-            WHERE 
-                b.id = ?;
-        """;
         try {
-            Reader reader = jdbcTemplate.queryForObject(sql, this::mapRowToReaderWithoutBooks, bookId);
+            Reader reader = jdbcTemplate.queryForObject(
+                    "SELECT r.id, r.name "
+                            + "FROM books b JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
+                    this::mapRowToReaderWithoutBooks,
+                    bookId);
             return Optional.ofNullable(reader);
         } catch (EmptyResultDataAccessException e) {
             log.info("Zero rows were returned during getting the reader of book from DB. " + e);
@@ -109,73 +121,12 @@ public class ReaderRepositoryImpl implements ReaderRepository {
         }
     }
 
-    @Override
-    public void deleteAllAndRestartIdSequence() {
-        jdbcTemplate.update("DELETE FROM readers");
-        jdbcTemplate.update("ALTER SEQUENCE readers_id_seq RESTART WITH 1");
-    }
-
-    private Long getGeneratedId(KeyHolder keyHolder) {
-        return Optional.ofNullable(keyHolder.getKeys())
-                .map(keys -> keys.get("id"))
-                .map(Long.class::cast)
-                .orElseThrow(() -> new DaoLayerException(
-                        "Failed to save new reader to DB, no generated ID returned."));
-    }
-
-    private Reader mapRowToReaderWithoutBooks(ResultSet resultSet, int rowNum) throws SQLException {
+    private Reader mapRowToReaderWithoutBooks(ResultSet resultSet, int rowNum)
+            throws SQLException {
         Reader reader = new Reader();
         reader.setId(resultSet.getLong("id"));
         reader.setName(resultSet.getString("name"));
-        reader.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
         return reader;
-    }
-
-    private List<Reader> mapResultSetToReaders(ResultSet resultSet) throws SQLException {
-        List<Reader> readers = new ArrayList<>();
-        Long previousReaderId = 0L;
-        Reader currentReader = null;
-        while (resultSet.next()) {
-            Long currentReaderId = resultSet.getLong("reader_id");
-            if (!currentReaderId.equals(previousReaderId)) {
-                currentReader = createReaderFromResultSet(resultSet);
-                readers.add(currentReader);
-                previousReaderId = currentReaderId;
-            }
-            if (resultSet.getLong("book_id") != 0) {
-                Book book = createBookFromResultSet(resultSet);
-                if (currentReader != null) {
-                    currentReader.getBooks().add(book);
-                }
-            }
-        }
-        return readers;
-    }
-
-    private Reader createReaderFromResultSet(ResultSet resultSet) throws SQLException {
-        Reader reader = new Reader();
-        reader.setId(resultSet.getLong("reader_id"));
-        reader.setName(resultSet.getString("name"));
-        reader.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
-        reader.setBooks(new ArrayList<>());
-        return reader;
-    }
-
-    private Book createBookFromResultSet(ResultSet resultSet) throws SQLException {
-        Book book = new Book();
-        book.setId(resultSet.getLong("book_id"));
-        book.setTitle(resultSet.getString("title"));
-        book.setAuthor(resultSet.getString("author"));
-        Date borrowDate = resultSet.getDate("borrow_date");
-        if (borrowDate != null) {
-            book.setBorrowDate(Optional.of(borrowDate.toLocalDate()));
-        } else {
-            book.setReader(Optional.empty());
-            book.setBorrowDate(Optional.empty());
-        }
-        book.setMaxBorrowTimeInDays(resultSet.getInt("max_borrow_time_in_days"));
-        book.setRestricted(resultSet.getBoolean("restricted"));
-        return book;
     }
 
 }
