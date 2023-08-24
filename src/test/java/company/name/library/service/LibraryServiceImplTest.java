@@ -116,14 +116,14 @@ class LibraryServiceImplTest {
                                  Optional<Book> bookOptional,
                                  Optional<Reader> readerOptional,
                                  String expMessage) {
-        Mockito.when(bookRepository.getById(bookOptional.map(Book::getId).orElse(null)))
+        Mockito.when(bookRepository.getById(bookOptional.map(Book::getId).orElse(777L)))
                 .thenReturn(bookOptional);
-        Mockito.when(readerRepository.getById(readerOptional.map(Reader::getId).orElse(null)))
+        Mockito.when(readerRepository.getById(readerOptional.map(Reader::getId).orElse(888L)))
                 .thenReturn(readerOptional);
 
         Exception exception = Assertions.assertThrows(ServiceLayerException.class,
-                () -> libraryService.borrowBookToReader(bookOptional.map(Book::getId).orElse(null),
-                        readerOptional.map(Reader::getId).orElse(null)),
+                () -> libraryService.borrowBookToReader(bookOptional.map(Book::getId).orElse(777L),
+                        readerOptional.map(Reader::getId).orElse(888L)),
                 "borrowBookToReader should throw ServiceLayerException");
 
         Assertions.assertEquals(expMessage, exception.getMessage(),"Exception message is wrong");
@@ -133,11 +133,11 @@ class LibraryServiceImplTest {
                 arguments("readerDoesNotExistInDb",
                         Optional.of(TestDataProducer.newBook3()),
                         Optional.empty(),
-                        "Reader with ID null does not exist in DB."),
+                        "Reader with ID 888 does not exist in DB."),
                 arguments("bookDoesNotExistInDb",
                         Optional.empty(),
                         Optional.of(TestDataProducer.newReader1()),
-                        "Book with ID null does not exist in DB."),
+                        "Book with ID 777 does not exist in DB."),
                 arguments("bookIsAlreadyBorrowed",
                         Optional.of(TestDataProducer.book2BorrowedByReader2()),
                         Optional.of(TestDataProducer.newReader1()),
