@@ -28,7 +28,14 @@ public class ReaderRepositoryImpl implements ReaderRepository {
 
     @Override
     public Reader add(Reader reader) {
-        String sql = "INSERT INTO readers (name, birth_date) VALUES (?, ?);";
+        String sql = """
+            INSERT
+            INTO
+                readers
+                (name, birth_date)
+            VALUES
+                (?, ?);
+        """;
         KeyHolder keyHolder = new GeneratedKeyHolder();
         try {
             jdbcTemplate.update(connection -> {
@@ -47,7 +54,14 @@ public class ReaderRepositoryImpl implements ReaderRepository {
 
     @Override
     public Optional<Reader> getById(Long id) {
-        String sql = "SELECT * FROM readers WHERE id = ?;";
+        String sql = """
+            SELECT
+                *
+            FROM
+                readers
+            WHERE
+                id = ?;
+        """;
         try {
             Reader reader = jdbcTemplate.queryForObject(sql, this::mapRowToReaderWithoutBooks, id);
             return Optional.ofNullable(reader);
@@ -63,18 +77,24 @@ public class ReaderRepositoryImpl implements ReaderRepository {
     @Override
     public List<Reader> getAll() {
         String sql = """
-                    SELECT 
-                        r.id as reader_id, r.name, r.birth_date, 
-                        b.id as book_id, b.title, b.author, b.borrow_date, b.max_borrow_time_in_days, b.restricted 
-                    FROM 
-                        books b 
-                    RIGHT JOIN 
-                        readers r 
-                    ON 
-                        b.reader_id = r.id
-                    ORDER BY 
-                            r.id;
-                """;
+            SELECT
+                r.id as reader_id,
+                r.name,
+                r.birth_date,
+                b.id as book_id,
+                b.title,
+                b.author,
+                b.borrow_date,
+                b.max_borrow_time_in_days,
+                b.restricted
+            FROM
+                books b
+            RIGHT JOIN
+                readers r
+                    ON b.reader_id = r.id
+            ORDER BY
+                r.id;
+        """;
         try {
             return jdbcTemplate.query(sql, this::mapResultSetToReaders);
         } catch (DataAccessException e) {
@@ -86,15 +106,16 @@ public class ReaderRepositoryImpl implements ReaderRepository {
     @Override
     public Optional<Reader> getReaderByBookId(Long bookId) {
         String sql = """
-            SELECT 
-                r.id, r.name, r.birth_date 
-            FROM 
-                books b 
-            JOIN 
-                readers r 
-            ON 
-                b.reader_id = r.id 
-            WHERE 
+            SELECT
+                r.id,
+                r.name,
+                r.birth_date
+            FROM
+                books b
+            JOIN
+                readers r
+                    ON b.reader_id = r.id
+            WHERE
                 b.id = ?;
         """;
         try {

@@ -28,8 +28,12 @@ public class BookRepositoryImpl implements BookRepository {
     @Override
     public Book add(Book book) {
         String sql = """
-            INSERT INTO books (author, title, max_borrow_time_in_days, restricted) 
-            VALUES (?, ?, ?, ?);
+            INSERT
+            INTO
+                books
+                (author, title, max_borrow_time_in_days, restricted)
+            VALUES
+                (?, ?, ?, ?);
         """;
         KeyHolder keyHolder = new GeneratedKeyHolder();
         try {
@@ -53,16 +57,22 @@ public class BookRepositoryImpl implements BookRepository {
     @Override
     public Optional<Book> getById(Long id) {
         String sql = """
-            SELECT 
-                b.id, b.author, b.title, b.reader_id, b.borrow_date, b.max_borrow_time_in_days, b.restricted, 
-                r.name as reader_name, r.birth_date
-            FROM 
-                books b 
-            LEFT JOIN 
-                readers r 
-            ON 
-                b.reader_id = r.id 
-            WHERE 
+            SELECT
+                b.id,
+                b.author,
+                b.title,
+                b.reader_id,
+                b.borrow_date,
+                b.max_borrow_time_in_days,
+                b.restricted,
+                r.name as reader_name,
+                r.birth_date
+            FROM
+                books b
+            LEFT JOIN
+                readers r
+                    ON b.reader_id = r.id
+            WHERE
                 b.id = ?;
         """;
         try {
@@ -81,16 +91,22 @@ public class BookRepositoryImpl implements BookRepository {
     @Override
     public List<Book> getAll() {
         String sql = """
-            SELECT 
-                b.id, b.author, b.title, b.reader_id, b.borrow_date, b.max_borrow_time_in_days, b.restricted, 
-                r.name as reader_name, r.birth_date
-            FROM 
-                books b 
-            LEFT JOIN 
-                readers r 
-            ON 
-                b.reader_id = r.id 
-            ORDER BY 
+            SELECT
+                b.id,
+                b.author,
+                b.title,
+                b.reader_id,
+                b.borrow_date,
+                b.max_borrow_time_in_days,
+                b.restricted,
+                r.name as reader_name,
+                r.birth_date
+            FROM
+                books b
+            LEFT JOIN
+                readers r
+                    ON b.reader_id = r.id
+            ORDER BY
                 b.id ASC;
         """;
         try {
@@ -103,9 +119,18 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Book updateBorrowDetails(Book book) {
+        String sql = """
+            UPDATE
+                books
+            SET
+                reader_id = ?,
+                borrow_date = ?
+            WHERE
+                id = ?;
+        """;
         try {
             jdbcTemplate.update(
-                    "UPDATE books SET reader_id = ?, borrow_date = ? WHERE id = ?;",
+                    sql,
                     book.getReader().map(Reader::getId).orElse(null),
                     book.getBorrowDate().orElse(null),
                     book.getId());
@@ -120,13 +145,19 @@ public class BookRepositoryImpl implements BookRepository {
     @Override
     public List<Book> getBooksByReaderId(Long readerId) {
         String sql = """
-            SELECT 
-                id, author, title, reader_id, borrow_date, max_borrow_time_in_days, restricted 
-            FROM 
-                books 
-            WHERE 
-                reader_id = ? 
-            ORDER BY 
+            SELECT
+                id,
+                author,
+                title,
+                reader_id,
+                borrow_date,
+                max_borrow_time_in_days,
+                restricted
+            FROM
+                books
+            WHERE
+                reader_id = ?
+            ORDER BY
                 id ASC;
         """;
         try {
