@@ -1,12 +1,18 @@
 package company.name.library.entities;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import java.time.LocalDate;
 import java.util.Optional;
 
+import static company.name.library.controllers.ApiDocExamples.READER_FOUND;
+
 @Data
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Book {
 
     @Schema(description = "Long id", example = "1")
@@ -24,7 +30,16 @@ public class Book {
             = "Title must be between 10 and 255 characters")
     private String title;
 
-    @Schema(description = "Reader reader", example = "{\"id\":2,\"name\":\"Voski Daniel\",\"books\":null}")
-    private Optional<Reader> reader;
+    @Schema(description = "Reader reader", example = READER_FOUND)
+    private Optional<Reader> reader = Optional.empty();
 
+    @Schema(description = "Date borrow date", example = "2023-07-05")
+    private Optional<LocalDate> borrowDate = Optional.empty();
+
+    @Schema(description = "Maximum borrow time in days", example = "14")
+    @Max(value = 30, message = "maxBorrowTimeInDays cannot exceed 30 days")
+    private int maxBorrowTimeInDays;
+
+    @Schema(description = "Determines whether the book is restricted for reading", example = "false")
+    private boolean restricted;//default false
 }

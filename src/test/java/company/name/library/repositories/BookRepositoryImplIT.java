@@ -5,12 +5,14 @@ import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,9 +21,40 @@ import java.util.Optional;
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Transactional
-class BookRepositoryJdbcTemplImplIT {
+class BookRepositoryImplIT {
     @Autowired
     private BookRepository bookRepository;
+
+    @Autowired
+    private ReaderRepository readerRepository;
+
+    @BeforeEach
+    void setUp() {
+        readerRepository.deleteAllAndRestartIdSequence();
+        bookRepository.deleteAllAndRestartIdSequence();
+
+        Book book1 = TestDataProducer.newBook1();
+        bookRepository.add(book1);
+        Book book2 = TestDataProducer.newBook2();
+        bookRepository.add(book2);
+        Book book3 = TestDataProducer.newBook3();
+        bookRepository.add(book3);
+
+        Reader reader1 = TestDataProducer.newReader1();
+        readerRepository.add(reader1);
+        Reader reader2 = TestDataProducer.newReader2();
+        readerRepository.add(reader2);
+        Reader reader3 = TestDataProducer.newReader3();
+        readerRepository.add(reader3);
+
+        book1.setReader(Optional.of(reader2));
+        book1.setBorrowDate(Optional.of(LocalDate.now()));
+        bookRepository.updateBorrowDetails(book1);
+
+        book2.setReader(Optional.of(reader2));
+        book2.setBorrowDate(Optional.of(LocalDate.now()));
+        bookRepository.updateBorrowDetails(book2);
+    }
 
     @Test
     void addShouldReturnAddedBookWithReaderEmptyOptional() {
@@ -30,8 +63,6 @@ class BookRepositoryJdbcTemplImplIT {
         var expectedAuthor = newBook.getAuthor();
         Assertions.assertNull(newBook.getId(),
                 "Id of original book must be null");
-        Assertions.assertTrue(newBook.getReader().isEmpty(),
-                "Optional of reader in original book must be empty");
 
         var savedBook = bookRepository.add(newBook);
         Assertions.assertNotNull(savedBook.getId(),
@@ -42,6 +73,8 @@ class BookRepositoryJdbcTemplImplIT {
                 "Author of saved book must be equal to expected");
         Assertions.assertTrue(savedBook.getReader().isEmpty(),
                 "Optional of reader in saved book must be empty");
+        Assertions.assertTrue(savedBook.getBorrowDate().isEmpty(),
+                "Optional of borrowDate in saved book must be empty");
     }
 
     @Test
@@ -84,7 +117,7 @@ class BookRepositoryJdbcTemplImplIT {
         var expectedTitle = originalBook3.getTitle();
         var expectedAuthor = originalBook3.getAuthor();
         var expectedReader = originalBook3.getReader();
-        Book updatedBook3 = bookRepository.update(originalBook3);
+        Book updatedBook3 = bookRepository.updateBorrowDetails(originalBook3);
 
         Assertions.assertNotNull(updatedBook3,"updatedBook3 should not be null");
         Assertions.assertEquals(expectedId, updatedBook3.getId(),
@@ -97,7 +130,7 @@ class BookRepositoryJdbcTemplImplIT {
                 "Reader of updated book must be equal to expected");
 
         originalBook3.setReader(Optional.empty());
-        updatedBook3 = bookRepository.update(originalBook3);
+        updatedBook3 = bookRepository.updateBorrowDetails(originalBook3);
         Assertions.assertNotNull(updatedBook3,"updatedBook3 should not be null");
         Assertions.assertEquals(expectedId, updatedBook3.getId(),
                 "Id of updated book must be equal to expected");
@@ -110,7 +143,7 @@ class BookRepositoryJdbcTemplImplIT {
     }
 
     @Test
-    void getBooksByReaderIdShouldReturnListOfBooks() {
+    void getBooksByReaderIdShouldReturnListEqualToExpected() {
         Map<Long, Reader> allReadersMap = TestDataProducer.newAllReadersMap();
         Long readerId = 2L;
         List<Book> expectedBooksOfReader2 = allReadersMap.get(readerId).getBooks();

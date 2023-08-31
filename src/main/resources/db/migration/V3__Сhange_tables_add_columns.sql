@@ -1,0 +1,4 @@
+ALTER TABLE books ADD COLUMN borrow_date DATE;
+ALTER TABLE books ADD COLUMN max_borrow_time_in_days INT NOT NULL;
+ALTER TABLE books ADD COLUMN restricted BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE readers ADD COLUMN birth_date DATE NOT NULL;

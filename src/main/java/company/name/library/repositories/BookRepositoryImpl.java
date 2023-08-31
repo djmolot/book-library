@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,27 +22,31 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Repository
-public class BookRepositoryJdbcTemplImpl implements BookRepository {
+public class BookRepositoryImpl implements BookRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public Book add(Book book) {
+        String sql = """
+            INSERT
+            INTO
+                books
+                (author, title, max_borrow_time_in_days, restricted)
+            VALUES
+                (?, ?, ?, ?);
+        """;
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String sql = "insert into books (author, title) values (?, ?);";
         try {
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection
                         .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, book.getAuthor());
                 ps.setString(2, book.getTitle());
+                ps.setInt(3, book.getMaxBorrowTimeInDays());
+                ps.setBoolean(4, book.isRestricted());
                 return ps;
             }, keyHolder);
-            var generatedId = Optional.ofNullable(keyHolder.getKeys())
-                    .map(keys -> keys.get("id"))
-                    .map(Long.class::cast)
-                    .orElseThrow(() -> new DaoLayerException(
-                            "Failed to save new Book to DB, no generated ID returned. "));
-            book.setId(generatedId);
+            book.setId(getGeneratedId(keyHolder));
             return book;
         } catch (DataAccessException e) {
             log.error("Error during saving book to DB. " + e);
@@ -51,12 +56,27 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
 
     @Override
     public Optional<Book> getById(Long id) {
+        String sql = """
+            SELECT
+                b.id,
+                b.author,
+                b.title,
+                b.reader_id,
+                b.borrow_date,
+                b.max_borrow_time_in_days,
+                b.restricted,
+                r.name as reader_name,
+                r.birth_date
+            FROM
+                books b
+            LEFT JOIN
+                readers r
+                    ON b.reader_id = r.id
+            WHERE
+                b.id = ?;
+        """;
         try {
-            Book book = jdbcTemplate.queryForObject(
-                    "SELECT b.id, b.author, b.title, b.reader_id, r.name as reader_name "
-                            + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id WHERE b.id = ?;",
-                    this::mapRowToBook,
-                    id);
+            Book book = jdbcTemplate.queryForObject(sql, this::mapRowToBook, id);
             return Optional.ofNullable(book);
         } catch (EmptyResultDataAccessException e) {
             log.info("Book with ID " + id + " does not exist in DB. " + e);
@@ -70,12 +90,27 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
 
     @Override
     public List<Book> getAll() {
+        String sql = """
+            SELECT
+                b.id,
+                b.author,
+                b.title,
+                b.reader_id,
+                b.borrow_date,
+                b.max_borrow_time_in_days,
+                b.restricted,
+                r.name as reader_name,
+                r.birth_date
+            FROM
+                books b
+            LEFT JOIN
+                readers r
+                    ON b.reader_id = r.id
+            ORDER BY
+                b.id ASC;
+        """;
         try {
-            return jdbcTemplate.query(
-                    "SELECT b.id, b.author, b.title, b.reader_id, "
-                            + "r.name as reader_name "
-                            + "FROM books b LEFT JOIN readers r ON b.reader_id = r.id ORDER BY b.id ASC;",
-                    this::mapRowToBook);
+            return jdbcTemplate.query(sql, this::mapRowToBook);
         } catch (DataAccessException e) {
             log.error("Error during getting all books from DB. " + e);
             throw new DaoLayerException("Error during getting all books from DB. " + e.getLocalizedMessage());
@@ -83,11 +118,21 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
     }
 
     @Override
-    public Book update(Book book) {
+    public Book updateBorrowDetails(Book book) {
+        String sql = """
+            UPDATE
+                books
+            SET
+                reader_id = ?,
+                borrow_date = ?
+            WHERE
+                id = ?;
+        """;
         try {
             jdbcTemplate.update(
-                    "UPDATE books SET reader_id = ? WHERE id = ?;",
+                    sql,
                     book.getReader().map(Reader::getId).orElse(null),
+                    book.getBorrowDate().orElse(null),
                     book.getId());
             return book;
         } catch (DataAccessException e) {
@@ -99,11 +144,24 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
 
     @Override
     public List<Book> getBooksByReaderId(Long readerId) {
+        String sql = """
+            SELECT
+                id,
+                author,
+                title,
+                reader_id,
+                borrow_date,
+                max_borrow_time_in_days,
+                restricted
+            FROM
+                books
+            WHERE
+                reader_id = ?
+            ORDER BY
+                id ASC;
+        """;
         try {
-            return jdbcTemplate.query(
-                    "SELECT id, author, title FROM books WHERE reader_id = ? ORDER BY id ASC;",
-                    this::mapRowToBookWithoutReader,
-                    readerId);
+            return jdbcTemplate.query(sql, this::mapRowToBookWithoutReader, readerId);
         } catch (DataAccessException e) {
             log.error("Error during get books of reader with ID {} from DB.", readerId);
             throw new DaoLayerException("Error during get books of reader with ID "
@@ -111,15 +169,24 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
         }
     }
 
+    @Override
+    public void deleteAllAndRestartIdSequence() {
+        jdbcTemplate.update("DELETE FROM books");
+        jdbcTemplate.update("ALTER SEQUENCE books_id_seq RESTART WITH 1");
+    }
+
+    private Long getGeneratedId(KeyHolder keyHolder) {
+        return Optional.ofNullable(keyHolder.getKeys())
+                .map(keys -> keys.get("id"))
+                .map(Long.class::cast)
+                .orElseThrow(() -> new DaoLayerException("Failed to save new Book to DB, no generated ID returned."));
+    }
+
     private Book mapRowToBook(ResultSet resultSet, int rowNum) throws SQLException {
         var book = mapRowToBookWithoutReader(resultSet, rowNum);
         if (resultSet.getObject("reader_id", Long.class) != null) {
-            var reader = new Reader();
-            reader.setId(resultSet.getLong("reader_id"));
-            reader.setName(resultSet.getString("reader_name"));
-            book.setReader(Optional.of(reader));
-        } else {
-            book.setReader(Optional.empty());
+            Reader readerOfBook = mapReaderOfBook(resultSet);
+            book.setReader(Optional.of(readerOfBook));
         }
         return book;
     }
@@ -129,7 +196,21 @@ public class BookRepositoryJdbcTemplImpl implements BookRepository {
         book.setId(resultSet.getObject("id", Long.class));
         book.setTitle(resultSet.getString("title"));
         book.setAuthor(resultSet.getString("author"));
+        Date borrowDate = resultSet.getDate("borrow_date");
+        if (borrowDate != null) {
+            book.setBorrowDate(Optional.of(borrowDate.toLocalDate()));
+        }
+        book.setMaxBorrowTimeInDays(resultSet.getInt("max_borrow_time_in_days"));
+        book.setRestricted(resultSet.getBoolean("restricted"));
         return book;
+    }
+
+    private Reader mapReaderOfBook(ResultSet resultSet) throws SQLException {
+        var reader = new Reader();
+        reader.setId(resultSet.getLong("reader_id"));
+        reader.setName(resultSet.getString("reader_name"));
+        reader.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
+        return reader;
     }
 
 }

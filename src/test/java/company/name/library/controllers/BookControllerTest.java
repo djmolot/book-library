@@ -1,6 +1,13 @@
 package company.name.library.controllers;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import company.name.library.TestDataProducer;
+import company.name.library.config.OptionalSerializer;
 import company.name.library.entities.Book;
 import company.name.library.entities.Reader;
 import company.name.library.exceptions.ServiceLayerException;
@@ -15,41 +22,58 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static io.restassured.http.ContentType.JSON;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 @Slf4j
-@SpringBootTest
 @AutoConfigureMockMvc
+@WebMvcTest(BookController.class)
 class BookControllerTest {
-    @MockBean
-    private LibraryService libraryService;
+    private ObjectMapper objectMapper;
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private LibraryService libraryService;
 
     @BeforeEach
     public void setUp() {
         RestAssuredMockMvc.mockMvc(mockMvc);
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(Optional.class, new OptionalSerializer());
+        objectMapper.registerModule(module);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     @Test
     void showAllBooksShouldReturnListOfBooks() {
         List<Book> expectedBooks = TestDataProducer.newAllBooksList();
         int expectedBooksSize = expectedBooks.size();
-        Assertions.assertEquals(3, expectedBooksSize,
+        assertEquals(3, expectedBooksSize,
                 "expectedBooksSize should be equal to 3");
         Reader readerOfBook1 = expectedBooks.get(0).getReader().orElse(null);
         Assertions.assertNotNull(readerOfBook1,
@@ -95,25 +119,24 @@ class BookControllerTest {
     }
 
     @Test
-    void addNewBookShouldAddValidBook() {
+    void addNewBookShouldAddValidBook() throws Exception {
         Book newBook = TestDataProducer.newBook();
-        String expectedTitle = newBook.getTitle();
-        String expectedAuthor = newBook.getAuthor();
-        Book savedBook = TestDataProducer.newBook();
-        Long bookId = 4L;
-        savedBook.setId(bookId);
-        Mockito.when(libraryService.addNewBook(newBook)).thenReturn(savedBook);
-        RestAssuredMockMvc.given()
-                .contentType(JSON)
-                .body(newBook)
-                .when()
-                .post("/api/v1/books")
-                .then()
-                .statusCode(HttpStatus.CREATED.value())
-                .body("id", Matchers.equalTo(bookId.intValue()))
-                .body("title", Matchers.equalTo(expectedTitle))
-                .body("author", Matchers.equalTo(expectedAuthor))
-                .body("reader", Matchers.nullValue());
+        ArgumentCaptor<Book> bookCaptor = ArgumentCaptor.forClass(Book.class);
+        mockMvc.perform(post("/api/v1/books")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(newBook)))
+                .andExpect(status().isCreated());
+
+        verify(libraryService).addNewBook(bookCaptor.capture());
+        Book capturedBook = bookCaptor.getValue();
+        assertAll("Captured Book Properties",
+                () -> assertEquals(newBook.getTitle(), capturedBook.getTitle(), "Title mismatch"),
+                () -> assertEquals(newBook.getAuthor(), capturedBook.getAuthor(), "Author mismatch"),
+                () -> assertEquals(newBook.getMaxBorrowTimeInDays(), capturedBook.getMaxBorrowTimeInDays(), "MaxBorrowTimeInDays mismatch"),
+                () -> assertEquals(newBook.isRestricted(), capturedBook.isRestricted(), "Restricted mismatch"),
+                () -> assertTrue(capturedBook.getReader().isEmpty(), "Reader should be empty optional"),
+                () -> assertTrue(capturedBook.getBorrowDate().isEmpty(), "BorrowDate should be empty optional")
+        );
     }
 
     @ParameterizedTest(name = "case #{index}: {0}")
