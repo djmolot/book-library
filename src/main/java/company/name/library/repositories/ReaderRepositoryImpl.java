@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -121,8 +122,8 @@ public class ReaderRepositoryImpl implements ReaderRepository {
         try {
             Reader reader = jdbcTemplate.queryForObject(sql, this::mapRowToReaderWithoutBooks, bookId);
             return Optional.ofNullable(reader);
-        } catch (EmptyResultDataAccessException e) {
-            log.info("Zero rows were returned during getting the reader of book from DB. " + e);
+        } catch (IncorrectResultSizeDataAccessException e) {
+            log.info("the query does not return exactly one row. " + e);
             return Optional.empty();
         } catch (DataAccessException e) {
             log.error("Error during getting the reader of book from DB. " + e);
