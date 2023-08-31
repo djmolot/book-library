@@ -66,8 +66,8 @@ public class ReaderRepositoryImpl implements ReaderRepository {
         try {
             Reader reader = jdbcTemplate.queryForObject(sql, this::mapRowToReaderWithoutBooks, id);
             return Optional.ofNullable(reader);
-        } catch (EmptyResultDataAccessException e) {
-            log.error("Reader with ID " + id + " does not exist in DB. " + e);
+        } catch (IncorrectResultSizeDataAccessException e) {
+            log.error("the query does not return exactly one row. " + e);
             return Optional.empty();
         } catch (DataAccessException e) {
             log.error("Error during getting reader by ID from DB. " + e);
