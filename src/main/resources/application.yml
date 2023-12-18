@@ -11,9 +11,9 @@ info:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/booklibrary
-    username: postgres
-    password: 1234
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   flyway:
     #creates table flyway_schema_history in DB booklibrary and adds in this table record: version:1;script:<< Flyway Baseline >>
     baseline-on-migrate: false
