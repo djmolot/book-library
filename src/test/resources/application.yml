@@ -17,5 +17,7 @@ spring:
       settings:
         web-allow-others: true
         trace: true
+  autoconfigure:
+    exclude: net.bull.javamelody.JavaMelodyAutoConfiguration
 server:
   port: 8080
