@@ -1,0 +1,42 @@
+# Version of the Docker Compose syntax
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres
+    env_file: ./.env
+    ports:
+      - $POSTGRES_LOCAL_PORT:$POSTGRES_DOCKER_PORT
+    environment:
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_DB=$POSTGRES_DB
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  app:
+    depends_on:
+      - postgres
+    image: djmolot/book-library
+    build: .
+    env_file: ./.env
+    ports:
+      - $SPRING_LOCAL_PORT:$SPRING_DOCKER_PORT
+      - $DEBUG_PORT:$DEBUG_PORT
+    environment:
+      SPRING_APPLICATION_JSON: '{
+        "spring.datasource.url" : "jdbc:postgresql://postgres:$POSTGRES_DOCKER_PORT/$POSTGRES_DB",
+        "spring.datasource.username" : "$POSTGRES_USER",
+        "spring.datasource.password" : "$POSTGRES_PASSWORD",
+        "MAXIMUM_NUMBER_OF_BOOKS_FOR_A_READER_TO_BORROW_SIMULTANEOUSLY" : 10,
+        "MIMIMUM_AGE_OF_A_READER_FOR_BORROWING_RESTRICTED_BOOKS" : 18,
+        "DEFAULT_MAX_BORROW_TIME_IN_DAYS" : 21
+      }'
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:$SPRING_LOCAL_PORT/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
