@@ -26,15 +26,13 @@ services:
       - $SPRING_LOCAL_PORT:$SPRING_DOCKER_PORT
       - $DEBUG_PORT:$DEBUG_PORT
     environment:
-      SPRING_APPLICATION_JSON: '{
-        "spring.datasource.url" : "jdbc:postgresql://postgres:$POSTGRES_DOCKER_PORT/$POSTGRES_DB",
-        "spring.datasource.username" : "$POSTGRES_USER",
-        "spring.datasource.password" : "$POSTGRES_PASSWORD",
-        "MAXIMUM_NUMBER_OF_BOOKS_FOR_A_READER_TO_BORROW_SIMULTANEOUSLY" : 10,
-        "MIMIMUM_AGE_OF_A_READER_FOR_BORROWING_RESTRICTED_BOOKS" : 18,
-        "DEFAULT_MAX_BORROW_TIME_IN_DAYS" : 21
-      }'
-      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:$POSTGRES_DOCKER_PORT/$POSTGRES_DB
+      - SPRING_DATASOURCE_USERNAME=$POSTGRES_USER
+      - SPRING_DATASOURCE_PASSWORD=$POSTGRES_PASSWORD
+      - MAXIMUM_NUMBER_OF_BOOKS_FOR_A_READER_TO_BORROW_SIMULTANEOUSLY=10
+      - MIMIMUM_AGE_OF_A_READER_FOR_BORROWING_RESTRICTED_BOOKS=18
+      - DEFAULT_MAX_BORROW_TIME_IN_DAYS=21
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:$SPRING_LOCAL_PORT/actuator/health" ]
       interval: 10s
