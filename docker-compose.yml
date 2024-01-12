@@ -38,3 +38,5 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s # This parameter specifies the period during which the health check will
+                        # not be performed after starting the container.
