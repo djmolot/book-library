@@ -19,8 +19,7 @@ services:
   app:
     depends_on:
       - postgres
-    image: djmolot/book-library
-    build: .
+    image: djmolot/book-library:1.0.0
     env_file: ./.env
     ports:
       - $SPRING_LOCAL_PORT:$SPRING_DOCKER_PORT
