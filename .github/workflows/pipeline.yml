@@ -17,22 +17,22 @@ jobs:
       run: |
         # Виконати компіляцію вашого коду тут
         # Наприклад:
-        # javac -d build src/*.java
+        javac -d build src/*.java
         # або
-        mvn compile
+        # mvn compile
 
     - name: Test
       run: |
         # Запустити всі тести тут
         # Наприклад:
-        # java -jar test.jar
+        java -jar test.jar
         # або
-        mvn test
+        # mvn test
 
     - name: Build
       run: |
         # Побудувати *.jar артефакт тут
         # Наприклад:
-        # jar -cvf myapp.jar -C build/ .
+        jar -cvf myapp.jar -C build/ .
         # або
-        mvn package
+        # mvn package
