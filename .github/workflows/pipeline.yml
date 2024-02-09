@@ -51,15 +51,13 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Clean and Build fat JAR with Maven
+      - name: Build fat JAR with Maven
         env:
           MAVEN_OPTS: "-Dorg.slf4j.simpleLogger.defaultLogLevel=info"
         run: |
-          mvn -B clean package --file pom.xml -DskipTests=true
-          # Store the built JAR as a pipeline artifact
-      - name: Check if JAR file was built successfully
-        run: |
-          if [ ! -f "target/*.jar" ]; then
+          mvn -B package --file pom.xml -DskipTests=true
+          # Check if JAR file was built successfully
+          if ! ls target/*.jar &> /dev/null; then
             echo "Error: JAR file was not found."
             exit 1
           fi
