@@ -50,8 +50,14 @@ jobs:
         env:
           MAVEN_OPTS: "-Dorg.slf4j.simpleLogger.defaultLogLevel=info"
         run: mvn -B package --file pom.xml -DskipTests=true
+          # Store the built JAR as a pipeline artifact
+          - name: Archive artifacts
+            uses: actions/upload-artifact@v4
+            with:
+              name: Book-Library-Artifact
+              path: target/*.jar
 
-  publish-job:
+  publish:
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -61,6 +67,13 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+      # Fetch the JAR file from the build job
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Book-Library-Artifact
+          path: target/
+      # Proceed with publish steps
       - name: Verify with Maven
         env:
           MAVEN_OPTS: "-Dorg.slf4j.simpleLogger.defaultLogLevel=info"
