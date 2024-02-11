@@ -77,25 +77,16 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      # Fetch the JAR file from the build job
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: Book-Library-Artifact
           path: target/
-
-      # Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-
-      # Log in to DockerHub
       - name: Log in to DockerHub
         run: echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
-
-      # Build the Docker image
       - name: Build Docker image
         run: docker build -t $DOCKER_USER/$DOCKER_REPOSITORY .
-
-      # Push the Docker image to DockerHub
       - name: Push Docker image to DockerHub
         run: docker push $DOCKER_USER/$DOCKER_REPOSITORY
