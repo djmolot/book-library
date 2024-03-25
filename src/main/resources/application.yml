@@ -34,7 +34,8 @@ management:
       enabled: true
 logging:
   level:
-    org.zalando.logbook: TRACE
+    ROOT: INFO
+    org.springframework: INFO
 javamelody:
   # Initialization parameters for JavaMelody
   # See: https://github.com/javamelody/javamelody/wiki/UserGuide#6-optional-parameters

@@ -21,3 +21,7 @@ spring:
     exclude: net.bull.javamelody.JavaMelodyAutoConfiguration
 server:
   port: 8080
+logging:
+  level:
+    ROOT: INFO
+    org.springframework: INFO

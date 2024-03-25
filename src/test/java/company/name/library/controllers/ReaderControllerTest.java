@@ -16,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.Map;
 import static io.restassured.http.ContentType.JSON;
 
 @Slf4j
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 class ReaderControllerTest {

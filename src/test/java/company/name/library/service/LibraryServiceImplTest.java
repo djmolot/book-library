@@ -22,6 +22,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.verify;
 
 @Slf4j
-@TestPropertySource("classpath:application.yml")
+@ActiveProfiles("test")
 @SpringBootTest(
         properties = {
                 "library.maxNumberOfBooksToBorrow=8",

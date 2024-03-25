@@ -82,7 +82,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.0.2</version>
+			<version>2.0.4</version>
 		</dependency>
 
 		<dependency>
@@ -93,7 +93,7 @@
 		<dependency>
 			<groupId>pl.project13.maven</groupId>
 			<artifactId>git-commit-id-plugin</artifactId>
-			<version>4.0.0</version>
+			<version>4.9.10</version>
 		</dependency>
 
 		<dependency>
@@ -134,6 +134,7 @@
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
 				<artifactId>git-commit-id-plugin</artifactId>
+				<version>4.9.10</version> <!-- Вкажіть відповідну версію плагіну -->
 				<executions>
 					<execution>
 						<goals>
